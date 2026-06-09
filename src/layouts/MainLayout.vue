@@ -10,6 +10,7 @@
             ><small>{{ $t('app.tagline') }}</small>
           </div>
         </q-toolbar-title>
+        <LanguageToggle class="q-mr-sm" />
         <q-btn
           flat
           round
@@ -48,6 +49,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
+import LanguageToggle from 'components/LanguageToggle.vue';
 import { useAppStore } from 'stores/app-store';
 
 const drawerOpen = ref(false);
