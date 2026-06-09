@@ -4,6 +4,19 @@ export type TransportMode = 'bus' | 'car';
 export type WorkplaceType = 'dhl' | 'custom';
 export type ShiftCode = string;
 
+export interface BusStop {
+  id: string;
+  name: string;
+  times: Record<string, string>;
+}
+
+export interface BusRoute {
+  id: string;
+  code: string;
+  name: string;
+  stops: BusStop[];
+}
+
 export interface ShiftDefinition {
   id: string;
   name: string;
@@ -24,8 +37,12 @@ export interface SchedulePattern {
 
 export interface TransportSettings {
   mode: TransportMode;
-  preparationMinutes: number;
+  alarmBeforeReferenceMinutes: number;
+  leaveReminderEnabled: boolean;
+  leaveBeforeReferenceMinutes: number;
   carTravelMinutes: number;
+  busRouteId: string | null;
+  busStopId: string | null;
 }
 
 export interface ReminderSettings {
@@ -43,10 +60,30 @@ export interface AppSettings {
 }
 
 export interface UserData {
-  schemaVersion: 1;
+  schemaVersion: 2;
+  onboardingCompleted: boolean;
+  activeWorkProfileId: string;
+  workProfiles: WorkProfile[];
+  settings: AppSettings;
+}
+
+export interface WorkProfile {
+  id: string;
+  workplaceType: WorkplaceType;
+  workplaceName: string;
   shifts: ShiftDefinition[];
   pattern: SchedulePattern;
   transport: TransportSettings;
   reminders: ReminderSettings;
-  settings: AppSettings;
+  calendarOverrides: CalendarOverride[];
+}
+
+export type CalendarOverrideType = 'day-off' | 'vacation' | 'extra-shift';
+
+export interface CalendarOverride {
+  id: string;
+  type: CalendarOverrideType;
+  startDate: string;
+  endDate: string;
+  shiftId?: string;
 }

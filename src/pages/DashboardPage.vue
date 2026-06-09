@@ -7,6 +7,24 @@
     />
 
     <q-card flat bordered class="q-mb-lg">
+      <q-card-section class="row q-col-gutter-md items-center">
+        <div class="col-12 col-md">
+          <div class="text-overline">{{ app.activeProfile.workplaceName }}</div>
+          <div class="section-title">
+            {{ transportSummary }}
+          </div>
+          <div v-if="selectedStop" class="supporting-text q-mt-xs">
+            {{ selectedStop.name }} · {{ $t('dashboard.scheduleFrom') }}
+            {{ scheduleDateLabel }}
+          </div>
+        </div>
+        <div class="col-auto">
+          <q-btn flat color="primary" icon="tune" :label="$t('nav.settings')" to="/settings" />
+        </div>
+      </q-card-section>
+    </q-card>
+
+    <q-card flat bordered class="q-mb-lg">
       <q-card-section>
         <div class="row items-center justify-between q-col-gutter-md">
           <div class="col">
@@ -106,6 +124,7 @@ import PageHeader from 'components/PageHeader.vue';
 import CountdownCard from 'components/CountdownCard.vue';
 import { useAppStore } from 'stores/app-store';
 import type { ShiftCode } from 'src/models/app';
+import { DHL_SCHEDULE_VALID_FROM, dhlBusRoutes } from 'src/core/dhl-bus-routes';
 import {
   addMinutes,
   currentWorkingShift,
@@ -131,17 +150,7 @@ const shiftOptions = computed(() =>
   })),
 );
 function selectShift(code: ShiftCode) {
-  if (code === 'off') return;
-  const rotation = app.data.pattern.sequence.filter(
-    (item, index, sequence) => item !== 'off' && sequence.indexOf(item) === index,
-  );
-  const startIndex = rotation.indexOf(code);
-  if (startIndex < 0) return;
-  app.data.pattern.sequence = [
-    ...rotation.slice(startIndex),
-    ...rotation.slice(0, startIndex),
-  ];
-  app.data.pattern.startDate = new Intl.DateTimeFormat('en-CA').format(now.value);
+  app.setCurrentShift(code);
   shiftEditing.value = false;
 }
 
@@ -160,16 +169,37 @@ const heroTarget = computed(() =>
     ? shiftEndDateTime(currentShift.value.date, currentShift.value.shift)
     : shiftStart.value,
 );
-const departure = computed(() => {
+const selectedRoute = computed(() =>
+  dhlBusRoutes.find((route) => route.id === app.activeProfile.transport.busRouteId),
+);
+const selectedStop = computed(() =>
+  selectedRoute.value?.stops.find(
+    (stop) => stop.id === app.activeProfile.transport.busStopId,
+  ),
+);
+const referenceTime = computed(() => {
   if (!nextShift.value) return now.value;
-  return app.data.transport.mode === 'bus'
-    ? shiftDateTime(nextShift.value.date, nextShift.value.shift.departureTime)
-    : addMinutes(shiftStart.value, -app.data.transport.carTravelMinutes);
+  if (app.activeProfile.transport.mode === 'bus' && selectedStop.value) {
+    const busTime = selectedStop.value.times[nextShift.value.shift.id];
+    if (busTime) return shiftDateTime(nextShift.value.date, busTime);
+  }
+  return shiftStart.value;
 });
+const alarmTime = computed(() =>
+  nextShift.value
+    ? addMinutes(
+        referenceTime.value,
+        -app.activeProfile.transport.alarmBeforeReferenceMinutes,
+      )
+    : now.value,
+);
 const leaveHome = computed(() =>
   nextShift.value
-    ? shiftDateTime(nextShift.value.date, nextShift.value.shift.wakeTime)
-    : addMinutes(departure.value, -app.data.transport.preparationMinutes),
+    ? addMinutes(
+        referenceTime.value,
+        -app.activeProfile.transport.leaveBeforeReferenceMinutes,
+      )
+    : now.value,
 );
 const displayedShiftName = computed(() =>
   displayedShift.value
@@ -224,25 +254,42 @@ const countdowns = computed(() =>
         {
           icon: 'directions_bus',
           label: t('dashboard.untilTransport'),
-          value: formatCountdown(departure.value, now.value),
-          time: time(departure.value),
+          value: formatCountdown(referenceTime.value, now.value),
+          time: time(referenceTime.value),
         },
         {
-          icon: 'directions_walk',
+          icon: 'alarm',
           label: t('dashboard.untilWake'),
+          value: formatCountdown(alarmTime.value, now.value),
+          time: time(alarmTime.value),
+        },
+        ...(app.activeProfile.transport.leaveReminderEnabled
+          ? [{
+          icon: 'directions_walk',
+          label: t('dashboard.untilLeave'),
           value: formatCountdown(leaveHome.value, now.value),
           time: time(leaveHome.value),
-        },
-        {
+        }]
+          : [{
           icon: 'schedule',
           label: t('dashboard.untilShift'),
           value: untilShift.value,
           time: time(shiftStart.value),
-        },
+        }]),
       ],
 );
 const sleepOptions = computed(() =>
-  [8, 7, 6].map((hours) => ({ hours, time: time(addMinutes(leaveHome.value, -hours * 60)) })),
+  [app.data.settings.sleepHours, 7, 6]
+    .filter((hours, index, values) => values.indexOf(hours) === index)
+    .map((hours) => ({ hours, time: time(addMinutes(alarmTime.value, -hours * 60)) })),
+);
+const transportSummary = computed(() =>
+  app.activeProfile.transport.mode === 'bus'
+    ? `${selectedRoute.value?.code ?? ''} — ${selectedRoute.value?.name ?? ''}`
+    : t('settings.car'),
+);
+const scheduleDateLabel = new Intl.DateTimeFormat(locale.value).format(
+  new Date(`${DHL_SCHEDULE_VALID_FROM}T00:00:00`),
 );
 const weekPreview = computed(() =>
   Array.from({ length: 5 }, (_, index) => {

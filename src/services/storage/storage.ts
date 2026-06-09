@@ -3,7 +3,7 @@ import type { UserData } from 'src/models/app';
 const STORAGE_KEY = 'my-shift:user-data';
 
 export interface StorageAdapter {
-  load(): UserData | null;
+  load(): UserData | Record<string, unknown> | null;
   save(data: UserData): void;
 }
 

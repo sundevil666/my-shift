@@ -9,6 +9,16 @@ export default {
   },
   common: { hours: 'hours', openCalendar: 'Open calendar' },
   shifts: { first: 'First shift', second: 'Second shift', third: 'Night shift', off: 'Day off' },
+  onboarding: {
+    title: 'Set up your work',
+    subtitle: 'Choose your company, transport and current shift.',
+    company: 'Company',
+    customSoon: 'Create your own company — coming soon',
+    route: 'Bus route',
+    stop: 'Stop',
+    currentShift: 'Shift for the current week',
+    continue: 'Start',
+  },
   dashboard: {
     title: 'Your day at a glance',
     subtitle: 'Everything important before the next shift.',
@@ -22,8 +32,9 @@ export default {
     untilShift: 'Until shift starts',
     untilShiftEnd: 'Until shift ends',
     sleepPlan: 'When to go to sleep',
-    sleepHint: 'Calculated from the time you need to leave home.',
+    sleepHint: 'Calculated backwards from the alarm time.',
     schedulePreview: 'Coming days',
+    scheduleFrom: 'schedule valid from',
   },
   calendar: {
     title: 'Two-month schedule',
@@ -42,8 +53,10 @@ export default {
     enabled: 'Enable reminders',
     beforeDeparture: 'Before departure',
     beforeShift: 'Before shift starts',
+    firstBreak: 'First break',
+    firstBreakHint: 'Notify 5 minutes before the break',
     webNote:
-      'Web preferences are ready. System notifications will use the same rules in Electron and Capacitor.',
+      'Allow notifications in your browser settings to receive reminders.',
   },
   settings: {
     title: 'Settings',
@@ -71,5 +84,10 @@ export default {
     end: 'End',
     busTime: 'Bus time',
     wakeTime: 'Wake-up time',
+    scheduleVersion: 'Schedule valid from',
+    timing: 'Alarm and departure',
+    alarmBefore: 'Wake before bus/shift',
+    leaveBefore: 'Remind to leave before bus/shift',
+    leaveEnabled: 'Enable leave reminder',
   },
 };

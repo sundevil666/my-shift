@@ -1,6 +1,4 @@
-import type { ShiftDefinition, UserData } from 'src/models/app';
-
-const today = new Date().toISOString().slice(0, 10);
+import type { ShiftDefinition, UserData, WorkProfile } from 'src/models/app';
 
 export const dhlDefaultShifts: ShiftDefinition[] = [
   {
@@ -36,24 +34,10 @@ export const dhlDefaultShifts: ShiftDefinition[] = [
 ];
 
 export const defaultUserData: UserData = {
-  schemaVersion: 1,
-  shifts: structuredClone(dhlDefaultShifts),
-  pattern: {
-    id: 'default',
-    name: '3 + 1',
-    startDate: today,
-    sequence: ['shift-1', 'shift-2', 'shift-3', 'off'],
-  },
-  transport: {
-    mode: 'bus',
-    preparationMinutes: 30,
-    carTravelMinutes: 25,
-  },
-  reminders: {
-    enabled: true,
-    beforeDepartureMinutes: 60,
-    beforeShiftMinutes: 15,
-  },
+  schemaVersion: 2,
+  onboardingCompleted: false,
+  activeWorkProfileId: 'dhl-default',
+  workProfiles: [],
   settings: {
     locale: 'ru-RU',
     theme: 'system',
@@ -62,3 +46,40 @@ export const defaultUserData: UserData = {
     workplaceName: 'DHL',
   },
 };
+
+export function createDhlWorkProfile(): WorkProfile {
+  return {
+    id: 'dhl-default',
+    workplaceType: 'dhl',
+    workplaceName: 'DHL',
+    shifts: structuredClone(dhlDefaultShifts),
+    pattern: {
+      id: 'dhl-default',
+      name: 'DHL',
+      startDate: mondayKey(new Date()),
+      sequence: ['shift-1', 'shift-3', 'shift-2'],
+    },
+    transport: {
+      mode: 'bus',
+      alarmBeforeReferenceMinutes: 60,
+      leaveReminderEnabled: true,
+      leaveBeforeReferenceMinutes: 30,
+      carTravelMinutes: 30,
+      busRouteId: null,
+      busStopId: null,
+    },
+    reminders: {
+      enabled: true,
+      beforeDepartureMinutes: 30,
+      beforeShiftMinutes: 15,
+    },
+    calendarOverrides: [],
+  };
+}
+
+function mondayKey(date: Date): string {
+  const value = new Date(date);
+  const day = value.getDay();
+  value.setDate(value.getDate() - (day === 0 ? 6 : day - 1));
+  return new Intl.DateTimeFormat('en-CA').format(value);
+}

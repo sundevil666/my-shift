@@ -9,6 +9,16 @@ export default {
   },
   common: { hours: 'часов', openCalendar: 'Открыть календарь' },
   shifts: { first: 'Первая смена', second: 'Вторая смена', third: 'Третья смена', off: 'Выходной' },
+  onboarding: {
+    title: 'Настройте свою работу',
+    subtitle: 'Выберите компанию, транспорт и текущую смену.',
+    company: 'Компания',
+    customSoon: 'Создать свою компанию — скоро',
+    route: 'Автобусная линия',
+    stop: 'Остановка',
+    currentShift: 'Смена на текущей неделе',
+    continue: 'Начать',
+  },
   dashboard: {
     title: 'Весь день одним взглядом',
     subtitle: 'Всё важное перед следующей сменой.',
@@ -22,8 +32,9 @@ export default {
     untilShift: 'До начала смены',
     untilShiftEnd: 'До конца смены',
     sleepPlan: 'Когда лечь спать',
-    sleepHint: 'Расчёт от времени, когда нужно выйти из дома.',
+    sleepHint: 'Расчёт назад от времени будильника.',
     schedulePreview: 'Ближайшие дни',
+    scheduleFrom: 'расписание от',
   },
   calendar: {
     title: 'График на два месяца',
@@ -42,8 +53,10 @@ export default {
     enabled: 'Включить напоминания',
     beforeDeparture: 'До отправления',
     beforeShift: 'До начала смены',
+    firstBreak: 'Первый перерыв',
+    firstBreakHint: 'Уведомить за 5 минут до перерыва',
     webNote:
-      'Настройки Web готовы. Electron и Capacitor будут использовать эти же правила для системных уведомлений.',
+      'Для уведомлений разрешите их показ в настройках браузера.',
   },
   settings: {
     title: 'Настройки',
@@ -71,5 +84,10 @@ export default {
     end: 'Конец',
     busTime: 'Время автобуса',
     wakeTime: 'Время подъёма',
+    scheduleVersion: 'Расписание действует с',
+    timing: 'Будильник и выход',
+    alarmBefore: 'Разбудить до автобуса/смены',
+    leaveBefore: 'Напомнить выйти до автобуса/смены',
+    leaveEnabled: 'Уведомлять о выходе',
   },
 };

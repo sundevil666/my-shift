@@ -11,6 +11,7 @@ export function dateKey(date: Date): string {
 
 export function shiftCodeForDate(date: Date, pattern: SchedulePattern): ShiftCode {
   if (!pattern.sequence.length) return 'off';
+  if (date.getDay() === 0 || date.getDay() === 6) return 'off';
   const start = new Date(`${pattern.startDate}T00:00:00`);
   const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const distance = Math.floor((target.getTime() - start.getTime()) / DAY_MS);
