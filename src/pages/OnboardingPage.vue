@@ -1,6 +1,17 @@
 <template>
   <main class="page-shell onboarding-page q-pa-md">
     <div class="onboarding-wrap">
+      <div class="row items-center justify-end q-gutter-sm q-mb-md">
+        <LanguageToggle />
+        <q-btn
+          flat
+          round
+          :icon="$q.dark.isActive ? 'light_mode' : 'dark_mode'"
+          :aria-label="$q.dark.isActive ? $t('settings.light') : $t('settings.dark')"
+          @click="toggleTheme"
+        />
+      </div>
+
       <PageHeader
         eyebrow="My Shift"
         :title="$t('onboarding.title')"
@@ -93,6 +104,8 @@
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
+import LanguageToggle from 'components/LanguageToggle.vue';
 import PageHeader from 'components/PageHeader.vue';
 import { dhlBusRoutes } from 'src/core/dhl-bus-routes';
 import { matchesSearch } from 'src/core/search';
@@ -101,6 +114,7 @@ import type { TransportMode } from 'src/models/app';
 
 const app = useAppStore();
 const router = useRouter();
+const $q = useQuasar();
 const { t } = useI18n();
 const company = ref<'dhl' | null>(null);
 const transportMode = ref<TransportMode | null>(null);
@@ -109,6 +123,10 @@ const stopKey = ref<string | null>(null);
 const currentShiftId = ref<string | null>(null);
 const routeQuery = ref('');
 const stopQuery = ref('');
+
+function toggleTheme() {
+  app.setTheme($q.dark.isActive ? 'light' : 'dark');
+}
 
 const companyOptions = [{ label: 'DHL', value: 'dhl' }];
 const transportOptions = computed(() => [
