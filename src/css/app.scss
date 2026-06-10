@@ -188,6 +188,30 @@ body {
   outline-offset: 2px;
 }
 
+.onboarding-controls {
+  position: sticky;
+  top: 12px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  width: fit-content;
+  margin: 0 0 20px auto;
+  padding: 8px;
+  color: var(--app-text);
+  background: color-mix(in srgb, var(--app-surface) 94%, transparent);
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px var(--app-shadow);
+  backdrop-filter: blur(14px);
+}
+
+.onboarding-controls .q-btn {
+  min-height: 40px;
+  border-radius: 12px;
+}
+
 ::view-transition-old(root) {
   animation: locale-fade-out 160ms ease both;
 }

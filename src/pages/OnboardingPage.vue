@@ -1,12 +1,13 @@
 <template>
   <main class="page-shell onboarding-page q-pa-md">
     <div class="onboarding-wrap">
-      <div class="row items-center justify-end q-gutter-sm q-mb-md">
+      <div class="onboarding-controls">
         <LanguageToggle />
         <q-btn
-          flat
-          round
+          outline
+          no-caps
           :icon="$q.dark.isActive ? 'light_mode' : 'dark_mode'"
+          :label="$q.dark.isActive ? $t('settings.light') : $t('settings.dark')"
           :aria-label="$q.dark.isActive ? $t('settings.light') : $t('settings.dark')"
           @click="toggleTheme"
         />
