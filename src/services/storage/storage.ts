@@ -5,6 +5,7 @@ const STORAGE_KEY = 'my-shift:user-data';
 export interface StorageAdapter {
   load(): UserData | Record<string, unknown> | null;
   save(data: UserData): void;
+  clear(): void;
 }
 
 export const browserStorage: StorageAdapter = {
@@ -18,5 +19,10 @@ export const browserStorage: StorageAdapter = {
   },
   save(data) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  },
+  clear() {
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith('my-shift:'))
+      .forEach((key) => localStorage.removeItem(key));
   },
 };

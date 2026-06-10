@@ -70,6 +70,7 @@ export default {
     system: 'Системна',
     light: 'Світла',
     dark: 'Темна',
+    resetApplication: 'Скинути застосунок',
     sleepHours: 'Бажана тривалість сну',
     transport: 'Транспорт',
     bus: 'Автобус',

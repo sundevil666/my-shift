@@ -71,6 +71,7 @@ export default {
     system: 'System',
     light: 'Light',
     dark: 'Dark',
+    resetApplication: 'Reset application',
     sleepHours: 'Preferred sleep duration',
     transport: 'Transport',
     bus: 'Bus',

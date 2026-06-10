@@ -70,6 +70,7 @@ export default {
     system: 'Systémová',
     light: 'Svetlá',
     dark: 'Tmavá',
+    resetApplication: 'Obnoviť aplikáciu',
     sleepHours: 'Preferovaná dĺžka spánku',
     transport: 'Doprava',
     bus: 'Autobus',

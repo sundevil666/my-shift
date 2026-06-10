@@ -11,6 +11,16 @@
           :aria-label="$q.dark.isActive ? $t('settings.light') : $t('settings.dark')"
           @click="toggleTheme"
         />
+        <q-btn
+          outline
+          round
+          color="negative"
+          icon="restart_alt"
+          :aria-label="$t('settings.resetApplication')"
+          @click="app.resetApplication"
+        >
+          <q-tooltip>{{ $t('settings.resetApplication') }}</q-tooltip>
+        </q-btn>
       </div>
 
       <PageHeader

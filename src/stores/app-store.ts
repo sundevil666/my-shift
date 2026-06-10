@@ -74,6 +74,11 @@ export const useAppStore = defineStore('app', () => {
     Dark.set(theme === 'system' ? 'auto' : theme === 'dark');
   }
 
+  function resetApplication() {
+    browserStorage.clear();
+    window.location.reload();
+  }
+
   watch(
     data,
     (value) => {
@@ -94,6 +99,7 @@ export const useAppStore = defineStore('app', () => {
     setTransportMode,
     setLocale,
     setTheme,
+    resetApplication,
   };
 });
 
