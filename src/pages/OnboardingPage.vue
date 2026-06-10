@@ -5,12 +5,15 @@
         <LanguageToggle />
         <q-btn
           outline
-          no-caps
+          round
           :icon="$q.dark.isActive ? 'light_mode' : 'dark_mode'"
-          :label="$q.dark.isActive ? $t('settings.light') : $t('settings.dark')"
           :aria-label="$q.dark.isActive ? $t('settings.light') : $t('settings.dark')"
           @click="toggleTheme"
-        />
+        >
+          <q-tooltip>
+            {{ $q.dark.isActive ? $t('settings.light') : $t('settings.dark') }}
+          </q-tooltip>
+        </q-btn>
         <q-btn
           outline
           round
