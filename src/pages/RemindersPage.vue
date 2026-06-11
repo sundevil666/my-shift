@@ -33,26 +33,29 @@
         <q-item>
           <q-item-section>
             <q-item-label>{{ $t('reminders.beforeShift') }}</q-item-label>
-            <q-slider
-              v-model="app.activeProfile.reminders.beforeShiftMinutes"
-              :min="5"
-              :max="60"
-              :step="5"
-              label
-            />
+            <q-item-label caption>{{ $t('reminders.beforeShiftHint') }}</q-item-label>
           </q-item-section>
-          <q-item-section side>{{ app.activeProfile.reminders.beforeShiftMinutes }} min</q-item-section>
+          <q-item-section side>10 min</q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>{{ $t('reminders.beforeShiftEnd') }}</q-item-label>
+            <q-item-label caption>{{ $t('reminders.beforeShiftEndHint') }}</q-item-label>
+          </q-item-section>
+          <q-item-section side>20 min</q-item-section>
         </q-item>
         <q-item>
           <q-item-section>
             <q-item-label>{{ $t('reminders.firstBreak') }}</q-item-label>
             <q-item-label caption>{{ $t('reminders.firstBreakHint') }}</q-item-label>
           </q-item-section>
-          <q-item-section side>2 h 10 min</q-item-section>
+          <q-item-section side>2 h 15 min</q-item-section>
         </q-item>
       </q-list>
       <q-card-section class="supporting-text"
-        ><q-icon name="info" class="q-mr-sm" />{{ $t('reminders.webNote') }}</q-card-section
+        ><q-icon name="info" class="design-icon q-mr-sm" />{{
+          $t('reminders.webNote')
+        }}</q-card-section
       >
     </q-card>
   </q-page>

@@ -1,66 +1,191 @@
 import { defineBoot } from '#q-app/wrappers';
 import { watch } from 'vue';
-import { currentWorkingShift, dateKey, shiftDateTime } from 'src/core/schedule';
+import {
+  addMinutes,
+  currentWorkingShift,
+  dateKey,
+  FIRST_BREAK_AFTER_SHIFT_START_MINUTES,
+  FIRST_BREAK_NOTIFICATION_BEFORE_MINUTES,
+  nextWorkingShift,
+  shiftDateTime,
+  shiftEndDateTime,
+} from 'src/core/schedule';
+import { dhlBusRoutes } from 'src/core/dhl-bus-routes';
+import type { Locale } from 'src/models/app';
+import {
+  showReminderFeedback,
+  unlockReminderAudio,
+  type ReminderKind,
+} from 'src/services/reminders/reminder-feedback';
 import { useAppStore } from 'stores/app-store';
 
-const FIRST_BREAK_REMINDER_MINUTES = 130;
-const SENT_KEY_PREFIX = 'my-shift:first-break-reminder:';
-const notificationBodies = {
-  'en-US': 'First break starts in 5 minutes',
-  'ru-RU': 'Первый перерыв через 5 минут',
-  'uk-UA': 'Перша перерва через 5 хвилин',
-  'sk-SK': 'Prvá prestávka sa začne o 5 minút',
-} as const;
+interface ScheduledReminder {
+  at: Date;
+  body: string;
+  id: string;
+  kind: ReminderKind;
+}
+
+const messages: Record<
+  Locale,
+  { alarm: string; departure: string; shift: string; firstBreak: string; shiftEnd: string }
+> = {
+  'en-US': {
+    alarm: 'Time to wake up',
+    departure: 'Time to leave soon',
+    shift: 'Your shift starts in 10 minutes',
+    firstBreak: 'First break starts in 5 minutes',
+    shiftEnd: 'Your shift ends in 20 minutes',
+  },
+  'ru-RU': {
+    alarm: 'Пора просыпаться',
+    departure: 'Скоро пора выходить',
+    shift: 'Смена начнётся через 10 минут',
+    firstBreak: 'Первый перерыв через 5 минут',
+    shiftEnd: 'До конца смены осталось 20 минут',
+  },
+  'uk-UA': {
+    alarm: 'Час прокидатися',
+    departure: 'Скоро час виходити',
+    shift: 'Зміна почнеться через 10 хвилин',
+    firstBreak: 'Перша перерва через 5 хвилин',
+    shiftEnd: 'До кінця зміни залишилося 20 хвилин',
+  },
+  'sk-SK': {
+    alarm: 'Čas vstávať',
+    departure: 'Čoskoro treba vyraziť',
+    shift: 'Zmena sa začne o 10 minút',
+    firstBreak: 'Prvá prestávka sa začne o 5 minút',
+    shiftEnd: 'Do konca zmeny zostáva 20 minút',
+  },
+};
 
 export default defineBoot(({ store }) => {
-  if (typeof window === 'undefined' || !('Notification' in window)) return;
+  if (typeof window === 'undefined') return;
 
   const app = useAppStore(store);
-  let timer: number | null = null;
+  let timers: number[] = [];
+
+  const clearTimers = () => {
+    timers.forEach((timer) => window.clearTimeout(timer));
+    timers = [];
+  };
 
   const schedule = () => {
-    if (timer !== null) {
-      window.clearTimeout(timer);
-      timer = null;
-    }
-
-    if (!app.activeProfile.reminders.enabled || Notification.permission !== 'granted') return;
+    clearTimers();
+    if (!app.activeProfile.reminders.enabled) return;
 
     const now = new Date();
-    const current = currentWorkingShift(now, app.pattern, app.shifts);
-    if (!current) return;
+    const currentShift = currentWorkingShift(now, app.pattern, app.shifts);
+    const upcomingShift = nextWorkingShift(now, app.pattern, app.shifts);
+    const localeMessages = messages[app.data.settings.locale];
+    const reminders: ScheduledReminder[] = [];
 
-    const shiftStart = shiftDateTime(current.date, current.shift.startTime);
-    const reminderAt = new Date(
-      shiftStart.getTime() + FIRST_BREAK_REMINDER_MINUTES * 60_000,
-    );
-    const delay = reminderAt.getTime() - now.getTime();
-    const sentKey = `${SENT_KEY_PREFIX}${dateKey(current.date)}:${current.shift.id}`;
+    if (upcomingShift) {
+      const shiftKey = `${dateKey(upcomingShift.date)}:${upcomingShift.shift.id}`;
+      const shiftStart = shiftDateTime(upcomingShift.date, upcomingShift.shift.startTime);
+      const selectedRoute = dhlBusRoutes.find(
+        (route) => route.id === app.activeProfile.transport.busRouteId,
+      );
+      const selectedStop = selectedRoute?.stops.find(
+        (stop) => stop.id === app.activeProfile.transport.busStopId,
+      );
+      const busTime = selectedStop?.times[upcomingShift.shift.id];
+      const referenceTime =
+        app.activeProfile.transport.mode === 'bus' && busTime
+          ? shiftDateTime(upcomingShift.date, busTime)
+          : shiftStart;
 
-    if (delay <= 0 || localStorage.getItem(sentKey)) return;
+      if (app.activeProfile.transport.alarmEnabled) {
+        reminders.push({
+          at: addMinutes(
+            referenceTime,
+            -app.activeProfile.transport.alarmBeforeReferenceMinutes,
+          ),
+          body: localeMessages.alarm,
+          id: `my-shift:alarm:${shiftKey}`,
+          kind: 'alarm',
+        });
+      }
 
-    timer = window.setTimeout(() => {
-      new Notification('My Shift', {
-        body: notificationBodies[app.data.settings.locale],
-        icon: '/icons/favicon-128x128.png',
-        tag: sentKey,
+      if (app.activeProfile.transport.leaveReminderEnabled) {
+        reminders.push({
+          at: addMinutes(
+            referenceTime,
+            -app.activeProfile.transport.leaveBeforeReferenceMinutes,
+          ),
+          body: localeMessages.departure,
+          id: `my-shift:departure:${shiftKey}`,
+          kind: 'notification',
+        });
+      }
+
+      reminders.push({
+        at: addMinutes(shiftStart, -10),
+        body: localeMessages.shift,
+        id: `my-shift:shift:${shiftKey}`,
+        kind: 'notification',
       });
-      localStorage.setItem(sentKey, '1');
-      timer = null;
-    }, delay);
+    }
+
+    const breakShift = currentShift ?? upcomingShift;
+    if (breakShift) {
+      const breakShiftKey = `${dateKey(breakShift.date)}:${breakShift.shift.id}`;
+      reminders.push({
+        at: addMinutes(
+          shiftDateTime(breakShift.date, breakShift.shift.startTime),
+          FIRST_BREAK_AFTER_SHIFT_START_MINUTES -
+            FIRST_BREAK_NOTIFICATION_BEFORE_MINUTES,
+        ),
+        body: localeMessages.firstBreak,
+        id: `my-shift:first-break:${breakShiftKey}`,
+        kind: 'notification',
+      });
+      reminders.push({
+        at: addMinutes(shiftEndDateTime(breakShift.date, breakShift.shift), -20),
+        body: localeMessages.shiftEnd,
+        id: `my-shift:shift-end:${breakShiftKey}`,
+        kind: 'notification',
+      });
+    }
+
+    reminders.forEach((reminder) => {
+      const delay = reminder.at.getTime() - now.getTime();
+      if (delay <= 0 || localStorage.getItem(reminder.id)) return;
+
+      timers.push(
+        window.setTimeout(() => {
+          showReminderFeedback(reminder);
+          localStorage.setItem(reminder.id, '1');
+          schedule();
+        }, delay),
+      );
+    });
   };
+
+  window.addEventListener('pointerdown', unlockReminderAudio, { once: true });
+  window.addEventListener('keydown', unlockReminderAudio, { once: true });
+  window.addEventListener('focus', schedule);
+  document.addEventListener('visibilitychange', schedule);
 
   watch(
     () => [
       app.activeProfile.reminders.enabled,
+      app.activeProfile.transport.alarmEnabled,
+      app.activeProfile.transport.alarmBeforeReferenceMinutes,
+      app.activeProfile.transport.leaveReminderEnabled,
+      app.activeProfile.transport.leaveBeforeReferenceMinutes,
+      app.activeProfile.transport.mode,
+      app.activeProfile.transport.busRouteId,
+      app.activeProfile.transport.busStopId,
       app.activeProfile.pattern.startDate,
       app.activeProfile.pattern.sequence.join(','),
-      app.activeProfile.shifts.map((shift) => `${shift.id}:${shift.startTime}`).join(','),
+      app.activeProfile.shifts
+        .map((shift) => `${shift.id}:${shift.startTime}:${shift.endTime}`)
+        .join(','),
+      app.data.settings.locale,
     ],
     schedule,
     { immediate: true },
   );
-
-  window.addEventListener('focus', schedule);
-  document.addEventListener('visibilitychange', schedule);
 });

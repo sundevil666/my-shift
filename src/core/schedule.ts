@@ -1,6 +1,8 @@
 import type { SchedulePattern, ShiftCode, ShiftDefinition } from 'src/models/app';
 
 const DAY_MS = 86_400_000;
+export const FIRST_BREAK_AFTER_SHIFT_START_MINUTES = 135;
+export const FIRST_BREAK_NOTIFICATION_BEFORE_MINUTES = 5;
 
 export function dateKey(date: Date): string {
   const year = date.getFullYear();

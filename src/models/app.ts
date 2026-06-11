@@ -37,6 +37,7 @@ export interface SchedulePattern {
 
 export interface TransportSettings {
   mode: TransportMode;
+  alarmEnabled: boolean;
   alarmBeforeReferenceMinutes: number;
   leaveReminderEnabled: boolean;
   leaveBeforeReferenceMinutes: number;

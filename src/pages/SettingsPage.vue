@@ -96,32 +96,83 @@
 
       <div class="col-12">
         <q-card flat bordered>
-          <q-card-section><div class="section-title">{{ $t('settings.timing') }}</div></q-card-section>
-          <q-card-section class="row q-col-gutter-md">
-            <q-input
-              v-model.number="app.activeProfile.transport.alarmBeforeReferenceMinutes"
-              outlined
-              type="number"
-              min="0"
-              class="col-12 col-md-4"
-              :label="$t('settings.alarmBefore')"
-              suffix="min"
-            />
-            <q-input
-              v-model.number="app.activeProfile.transport.leaveBeforeReferenceMinutes"
-              outlined
-              type="number"
-              min="0"
-              class="col-12 col-md-4"
-              :disable="!app.activeProfile.transport.leaveReminderEnabled"
-              :label="$t('settings.leaveBefore')"
-              suffix="min"
-            />
+          <q-card-section class="row items-center justify-between q-gutter-sm">
+            <div class="section-title">{{ $t('settings.timing') }}</div>
             <q-toggle
-              v-model="app.activeProfile.transport.leaveReminderEnabled"
-              class="col-12 col-md-4"
-              :label="$t('settings.leaveEnabled')"
+              v-model="app.activeProfile.reminders.enabled"
+              :label="$t('settings.timingEnabled')"
             />
+          </q-card-section>
+          <q-card-section class="row q-col-gutter-md">
+            <div class="col-12 col-md-6">
+              <q-toggle
+                v-model="app.activeProfile.transport.alarmEnabled"
+                :disable="!app.activeProfile.reminders.enabled"
+                :label="$t('settings.alarmEnabled')"
+              />
+              <q-input
+                v-model.number="app.activeProfile.transport.alarmBeforeReferenceMinutes"
+                outlined
+                type="number"
+                min="0"
+                :disable="
+                  !app.activeProfile.reminders.enabled ||
+                  !app.activeProfile.transport.alarmEnabled
+                "
+                :label="$t('settings.alarmBefore')"
+                suffix="min"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-toggle
+                v-model="app.activeProfile.transport.leaveReminderEnabled"
+                :disable="!app.activeProfile.reminders.enabled"
+                :label="$t('settings.leaveEnabled')"
+              />
+              <q-input
+                v-model.number="app.activeProfile.transport.leaveBeforeReferenceMinutes"
+                outlined
+                type="number"
+                min="0"
+                :disable="
+                  !app.activeProfile.reminders.enabled ||
+                  !app.activeProfile.transport.leaveReminderEnabled
+                "
+                :label="$t('settings.leaveBefore')"
+                suffix="min"
+              />
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <div class="col-12">
+        <q-card flat bordered>
+          <q-card-section>
+            <div class="section-title">{{ $t('settings.notificationTest') }}</div>
+            <div class="supporting-text">{{ $t('settings.notificationTestHint') }}</div>
+          </q-card-section>
+          <q-card-section class="row q-col-gutter-md">
+            <div class="col-12 col-sm-6">
+              <q-btn
+                class="app-action-button full-width"
+                color="negative"
+                icon="alarm"
+                no-caps
+                :label="$t('settings.testAlarm')"
+                @click="testAlarm"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-btn
+                class="app-action-button full-width"
+                color="primary"
+                icon="notifications_active"
+                no-caps
+                :label="$t('settings.testNotification')"
+                @click="testNotification"
+              />
+            </div>
           </q-card-section>
         </q-card>
       </div>
@@ -135,6 +186,7 @@ import { useI18n } from 'vue-i18n';
 import PageHeader from 'components/PageHeader.vue';
 import { DHL_SCHEDULE_VALID_FROM, dhlBusRoutes } from 'src/core/dhl-bus-routes';
 import { matchesSearch } from 'src/core/search';
+import { showReminderFeedback } from 'src/services/reminders/reminder-feedback';
 import { useAppStore } from 'stores/app-store';
 
 const app = useAppStore();
@@ -194,5 +246,19 @@ function selectStop(value: string | null) {
   const [routeId, stopId] = value.split('|');
   app.activeProfile.transport.busRouteId = routeId ?? null;
   app.activeProfile.transport.busStopId = stopId ?? null;
+}
+function testAlarm() {
+  showReminderFeedback({
+    body: t('settings.testAlarmMessage'),
+    id: `my-shift:test-alarm:${Date.now()}`,
+    kind: 'alarm',
+  });
+}
+function testNotification() {
+  showReminderFeedback({
+    body: t('settings.testNotificationMessage'),
+    id: `my-shift:test-notification:${Date.now()}`,
+    kind: 'notification',
+  });
 }
 </script>

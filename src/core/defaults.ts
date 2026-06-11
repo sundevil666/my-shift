@@ -1,4 +1,5 @@
 import type { ShiftDefinition, UserData, WorkProfile } from 'src/models/app';
+import { shiftColors } from 'src/core/shift-colors';
 
 export const dhlDefaultShifts: ShiftDefinition[] = [
   {
@@ -9,7 +10,7 @@ export const dhlDefaultShifts: ShiftDefinition[] = [
     endTime: '14:00',
     departureTime: '05:07',
     wakeTime: '04:37',
-    color: '#f4b942',
+    color: shiftColors['shift-1'],
   },
   {
     id: 'shift-2',
@@ -19,7 +20,7 @@ export const dhlDefaultShifts: ShiftDefinition[] = [
     endTime: '22:00',
     departureTime: '13:07',
     wakeTime: '12:37',
-    color: '#4e9fef',
+    color: shiftColors['shift-2'],
   },
   {
     id: 'shift-3',
@@ -29,7 +30,7 @@ export const dhlDefaultShifts: ShiftDefinition[] = [
     endTime: '06:00',
     departureTime: '21:07',
     wakeTime: '20:37',
-    color: '#7758d6',
+    color: shiftColors['shift-3'],
   },
 ];
 
@@ -61,6 +62,7 @@ export function createDhlWorkProfile(): WorkProfile {
     },
     transport: {
       mode: 'bus',
+      alarmEnabled: true,
       alarmBeforeReferenceMinutes: 60,
       leaveReminderEnabled: true,
       leaveBeforeReferenceMinutes: 30,
