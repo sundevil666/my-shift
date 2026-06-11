@@ -19,6 +19,7 @@
         @click="changeLocale(option.value)"
       >
         {{ option.short }}
+        <q-tooltip>{{ option.label }}</q-tooltip>
       </button>
     </div>
     <button
@@ -30,6 +31,7 @@
     >
       <q-icon name="language" size="18px" />
       <span>{{ activeLocale.short }}</span>
+      <q-tooltip>{{ t('settings.language') }}: {{ activeLocale.label }}</q-tooltip>
     </button>
   </div>
 </template>

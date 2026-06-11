@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { Dark } from 'quasar';
 import { computed, ref, watch } from 'vue';
 import { createDhlWorkProfile, defaultUserData } from 'src/core/defaults';
+import { shiftCodeForDate } from 'src/core/schedule';
 import { browserStorage } from 'src/services/storage/storage';
 import type {
   Locale,
@@ -14,6 +15,7 @@ import type {
 export const useAppStore = defineStore('app', () => {
   const data = ref<UserData>(structuredClone(defaultUserData));
   const initialized = ref(false);
+  let atmosphereTimer: number | undefined;
   const activeProfile = computed<WorkProfile>(() => {
     const profile = data.value.workProfiles.find(
       (item) => item.id === data.value.activeWorkProfileId,
@@ -29,11 +31,14 @@ export const useAppStore = defineStore('app', () => {
       data.value = saved as unknown as UserData;
       data.value.workProfiles.forEach((profile) => {
         profile.calendarOverrides ??= [];
+        profile.transport.alarmEnabled ??= true;
       });
     } else if (saved && saved.schemaVersion === 1) {
       data.value = migrateV1(saved as unknown as Record<string, unknown>);
     }
     applyTheme(data.value.settings.theme);
+    applyShiftAtmosphere();
+    scheduleAtmosphereRefresh();
     initialized.value = true;
   }
 
@@ -51,10 +56,12 @@ export const useAppStore = defineStore('app', () => {
     data.value.workProfiles = [profile];
     data.value.activeWorkProfileId = profile.id;
     data.value.onboardingCompleted = true;
+    applyShiftAtmosphere();
   }
 
   function setCurrentShift(code: string) {
     rotatePattern(activeProfile.value, code);
+    applyShiftAtmosphere();
   }
 
   function setTransportMode(mode: TransportMode) {
@@ -72,6 +79,22 @@ export const useAppStore = defineStore('app', () => {
 
   function applyTheme(theme: ThemeMode) {
     Dark.set(theme === 'system' ? 'auto' : theme === 'dark');
+  }
+
+  function applyShiftAtmosphere(date = new Date()) {
+    const shiftCode = shiftCodeForDate(date, activeProfile.value.pattern);
+    document.body.dataset.shiftAtmosphere = shiftCode;
+  }
+
+  function scheduleAtmosphereRefresh() {
+    if (atmosphereTimer) window.clearTimeout(atmosphereTimer);
+    const now = new Date();
+    const nextDay = new Date(now);
+    nextDay.setHours(24, 0, 1, 0);
+    atmosphereTimer = window.setTimeout(() => {
+      applyShiftAtmosphere();
+      scheduleAtmosphereRefresh();
+    }, nextDay.getTime() - now.getTime());
   }
 
   function resetApplication() {
@@ -99,6 +122,7 @@ export const useAppStore = defineStore('app', () => {
     setTransportMode,
     setLocale,
     setTheme,
+    applyShiftAtmosphere,
     resetApplication,
   };
 });

@@ -42,6 +42,7 @@
             :key="option.code"
             outline
             color="primary"
+            class="app-action-button"
             :label="option.name"
             @click="app.activeProfile.pattern.sequence.push(option.code)"
           />

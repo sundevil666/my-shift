@@ -6,6 +6,7 @@
         <q-btn
           outline
           round
+          class="app-icon-button"
           :icon="$q.dark.isActive ? 'light_mode' : 'dark_mode'"
           :aria-label="$q.dark.isActive ? $t('settings.light') : $t('settings.dark')"
           @click="toggleTheme"
@@ -17,6 +18,7 @@
         <q-btn
           outline
           round
+          class="app-icon-button app-icon-button--danger"
           color="negative"
           icon="restart_alt"
           :aria-label="$t('settings.resetApplication')"
@@ -45,6 +47,7 @@
           <q-btn
             outline
             disable
+            class="app-action-button"
             icon="add_business"
             :label="$t('onboarding.customSoon')"
           />
@@ -103,6 +106,7 @@
           <q-btn
             unelevated
             color="primary"
+            class="app-action-button"
             icon-right="arrow_forward"
             :disable="!canComplete"
             :label="$t('onboarding.continue')"

@@ -1,78 +1,114 @@
 <template>
-  <q-page padding class="page-shell">
-    <PageHeader
-      :eyebrow="todayLabel"
-      :title="$t('dashboard.title')"
-      :subtitle="$t('dashboard.subtitle')"
-    />
-
-    <q-card flat bordered class="q-mb-lg">
-      <q-card-section class="row q-col-gutter-md items-center">
-        <div class="col-12 col-md">
-          <div class="text-overline">{{ app.activeProfile.workplaceName }}</div>
-          <div class="section-title">
-            {{ transportSummary }}
-          </div>
-          <div v-if="selectedStop" class="supporting-text q-mt-xs">
-            {{ selectedStop.name }} · {{ $t('dashboard.scheduleFrom') }}
-            {{ scheduleDateLabel }}
-          </div>
+  <q-page padding class="page-shell dashboard-page">
+    <section class="mobile-shift-overview lt-sm">
+      <div class="mobile-shift-overview__context">
+        <div class="mobile-shift-overview__workplace">
+          <span>{{ todayLabel }}</span>
+          <strong>{{ app.activeProfile.workplaceName }}</strong>
         </div>
-        <div class="col-auto">
-          <q-btn flat color="primary" icon="tune" :label="$t('nav.settings')" to="/settings" />
-        </div>
-      </q-card-section>
-    </q-card>
-
-    <q-card flat bordered class="q-mb-lg">
-      <q-card-section>
-        <div class="row items-center justify-between q-col-gutter-md">
-          <div class="col">
-            <div class="section-title">{{ $t('dashboard.myShift') }}</div>
-          </div>
-          <div class="col-auto">
-            <q-toggle v-model="shiftEditing" :label="$t('dashboard.changeShift')" color="primary" />
-          </div>
-        </div>
-        <div class="shift-selector q-mt-md" :class="{ 'shift-selector--editing': shiftEditing }">
-          <q-btn
-            v-for="option in shiftOptions"
-            :key="option.value"
-            no-caps
-            unelevated
-            class="shift-selector__button"
-            :class="{ 'shift-selector__button--active': option.value === currentShiftCode }"
-            :color="option.value === currentShiftCode ? 'primary' : undefined"
-            :outline="option.value !== currentShiftCode"
-            :disable="!shiftEditing"
-            :label="option.label"
-            @click="selectShift(option.value)"
-          />
-        </div>
-      </q-card-section>
-    </q-card>
-
-    <q-card flat class="hero-card text-white q-mb-lg">
-      <q-card-section class="row items-center q-col-gutter-lg">
-        <div class="col-12 col-md-7">
-          <div class="text-overline">{{ heroTitle }}</div>
-          <div class="text-h3 text-weight-bold q-mt-sm">{{ displayedShiftName }}</div>
-          <div class="text-h6 q-mt-sm">{{ displayedShiftDate }} · {{ time(heroTarget) }}</div>
-        </div>
-        <div class="col-12 col-md-5 text-md-right">
-          <div class="text-caption text-white-7">{{ heroCountdownLabel }}</div>
-          <div class="hero-countdown">{{ heroCountdown }}</div>
-        </div>
-      </q-card-section>
-    </q-card>
-
-    <div class="row q-col-gutter-md q-mb-lg">
-      <div v-for="item in countdowns" :key="item.label" class="col-12 col-sm-4">
-        <CountdownCard v-bind="item" />
+        <q-btn
+          flat
+          no-caps
+          class="mobile-shift-overview__shift"
+          :aria-label="$t('dashboard.changeShift')"
+        >
+          <span>
+            <small>{{ $t('dashboard.myShift') }}</small>
+            <strong>{{ displayedShiftName }}</strong>
+          </span>
+          <q-icon name="expand_more" />
+          <q-menu anchor="bottom right" self="top right">
+            <q-list class="sidebar-shift-menu">
+              <q-item
+                v-for="option in shiftOptions"
+                :key="option.value"
+                v-close-popup
+                clickable
+                :active="option.value === currentScheduleShiftCode"
+                active-class="sidebar-shift-menu__active"
+                @click="app.setCurrentShift(option.value)"
+              >
+                <q-item-section>{{ option.label }}</q-item-section>
+                <q-item-section v-if="option.value === currentScheduleShiftCode" side>
+                  <q-icon name="check" />
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </div>
-    </div>
 
-    <div class="row q-col-gutter-lg">
+      <div v-if="activeEvent" class="mobile-next-event">
+        <div class="mobile-next-event__icon">
+          <q-icon :name="activeEvent.icon" />
+        </div>
+        <div class="mobile-next-event__body">
+          <span>{{ $t('dashboard.nextEvent') }}</span>
+          <strong>{{ activeEvent.label }}</strong>
+          <div class="mobile-next-event__countdown">
+            {{ activeEvent.countdown.main }}
+            <Transition name="second-tick" mode="out-in">
+              <small :key="activeEvent.countdown.seconds">
+                {{ activeEvent.countdown.seconds }}s
+              </small>
+            </Transition>
+          </div>
+        </div>
+        <div class="mobile-next-event__time">{{ activeEvent.time }}</div>
+      </div>
+    </section>
+
+    <section class="day-plan">
+      <div class="day-plan__heading">
+        <div>
+          <h2>{{ $t('dashboard.title') }}</h2>
+          <p>{{ $t('dashboard.subtitle') }}</p>
+        </div>
+      </div>
+
+      <div class="event-list">
+        <div
+          v-for="(item, index) in countdowns"
+          :key="item.label"
+          class="event-row"
+          :class="{
+            'event-row--active': index === activeEventIndex,
+            'event-row--past': item.target.getTime() <= now.getTime(),
+          }"
+        >
+          <div class="event-row__marker">
+            <q-icon :name="item.icon" class="design-icon" />
+          </div>
+          <div class="event-row__content">
+            <div class="event-row__label">
+              {{ item.label }}
+              <span class="event-row__status lt-sm">
+                {{
+                  item.target.getTime() <= now.getTime()
+                    ? $t('dashboard.passed')
+                    : index === activeEventIndex
+                      ? $t('dashboard.next')
+                      : ''
+                }}
+              </span>
+            </div>
+            <div class="event-row__countdown">
+              <span>{{ item.countdown.main }}</span>
+              <span v-if="index === activeEventIndex" class="event-row__seconds-wrap">
+                <Transition name="second-tick" mode="out-in">
+                  <span :key="item.countdown.seconds" class="event-row__seconds">
+                    {{ item.countdown.seconds }}s
+                  </span>
+                </Transition>
+              </span>
+            </div>
+          </div>
+          <div class="event-row__time">{{ item.time }}</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="row q-col-gutter-md dashboard-secondary">
       <div class="col-12 col-md-7">
         <q-card flat bordered>
           <q-card-section>
@@ -82,7 +118,7 @@
           <q-list separator>
             <q-item v-for="option in sleepOptions" :key="option.hours">
               <q-item-section avatar
-                ><q-icon name="bedtime" color="deep-purple-5"
+                ><q-icon name="bedtime" color="deep-purple-5" class="design-icon"
               /></q-item-section>
               <q-item-section>{{ option.hours }} {{ $t('common.hours') }}</q-item-section>
               <q-item-section side class="text-weight-bold">{{ option.time }}</q-item-section>
@@ -109,7 +145,13 @@
             </q-item>
           </q-list>
           <q-card-actions align="right">
-            <q-btn flat color="primary" :label="$t('common.openCalendar')" to="/calendar" />
+            <q-btn
+              unelevated
+              color="primary"
+              class="app-action-button"
+              :label="$t('common.openCalendar')"
+              to="/calendar"
+            />
           </q-card-actions>
         </q-card>
       </div>
@@ -120,14 +162,12 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import PageHeader from 'components/PageHeader.vue';
-import CountdownCard from 'components/CountdownCard.vue';
 import { useAppStore } from 'stores/app-store';
-import type { ShiftCode } from 'src/models/app';
-import { DHL_SCHEDULE_VALID_FROM, dhlBusRoutes } from 'src/core/dhl-bus-routes';
+import { dhlBusRoutes } from 'src/core/dhl-bus-routes';
 import {
   addMinutes,
   currentWorkingShift,
+  FIRST_BREAK_AFTER_SHIFT_START_MINUTES,
   formatCountdown,
   nextWorkingShift,
   shiftCodeForDate,
@@ -138,31 +178,39 @@ import {
 const app = useAppStore();
 const { t, locale } = useI18n();
 const now = ref(new Date());
-const shiftEditing = ref(false);
-const timer = window.setInterval(() => (now.value = new Date()), 30_000);
+const timer = window.setInterval(() => (now.value = new Date()), 1_000);
 onBeforeUnmount(() => window.clearInterval(timer));
-
-const currentShiftCode = computed(() => shiftCodeForDate(now.value, app.pattern));
-const shiftOptions = computed(() =>
-  app.shifts.map((shift) => ({
-    label: shift.nameKey ? t(shift.nameKey) : shift.name,
-    value: shift.id,
-  })),
-);
-function selectShift(code: ShiftCode) {
-  app.setCurrentShift(code);
-  shiftEditing.value = false;
-}
 
 const currentShift = computed(() => currentWorkingShift(now.value, app.pattern, app.shifts));
 const nextShift = computed(() =>
   currentShift.value ? null : nextWorkingShift(now.value, app.pattern, app.shifts),
 );
 const displayedShift = computed(() => currentShift.value ?? nextShift.value);
+const currentScheduleShiftCode = computed(() => shiftCodeForDate(now.value, app.pattern));
+const shiftOptions = computed(() =>
+  app.shifts.map((shift) => ({
+    label: shift.nameKey ? t(shift.nameKey) : shift.name,
+    value: shift.id,
+  })),
+);
+const displayedShiftName = computed(() => {
+  const shift = displayedShift.value?.shift;
+  return shift ? (shift.nameKey ? t(shift.nameKey) : shift.name) : t('shifts.off');
+});
+const todayLabel = computed(() =>
+  new Intl.DateTimeFormat(locale.value, {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'long',
+  }).format(now.value),
+);
 const shiftStart = computed(() =>
-  nextShift.value
-    ? shiftDateTime(nextShift.value.date, nextShift.value.shift.startTime)
+  displayedShift.value
+    ? shiftDateTime(displayedShift.value.date, displayedShift.value.shift.startTime)
     : now.value,
+);
+const firstBreakTime = computed(() =>
+  addMinutes(shiftStart.value, FIRST_BREAK_AFTER_SHIFT_START_MINUTES),
 );
 const heroTarget = computed(() =>
   currentShift.value
@@ -178,15 +226,15 @@ const selectedStop = computed(() =>
   ),
 );
 const referenceTime = computed(() => {
-  if (!nextShift.value) return now.value;
+  if (!displayedShift.value) return now.value;
   if (app.activeProfile.transport.mode === 'bus' && selectedStop.value) {
-    const busTime = selectedStop.value.times[nextShift.value.shift.id];
-    if (busTime) return shiftDateTime(nextShift.value.date, busTime);
+    const busTime = selectedStop.value.times[displayedShift.value.shift.id];
+    if (busTime) return shiftDateTime(displayedShift.value.date, busTime);
   }
   return shiftStart.value;
 });
 const alarmTime = computed(() =>
-  nextShift.value
+  displayedShift.value
     ? addMinutes(
         referenceTime.value,
         -app.activeProfile.transport.alarmBeforeReferenceMinutes,
@@ -194,44 +242,22 @@ const alarmTime = computed(() =>
     : now.value,
 );
 const leaveHome = computed(() =>
-  nextShift.value
+  displayedShift.value
     ? addMinutes(
         referenceTime.value,
         -app.activeProfile.transport.leaveBeforeReferenceMinutes,
       )
     : now.value,
 );
-const displayedShiftName = computed(() =>
-  displayedShift.value
-    ? displayedShift.value.shift.nameKey
-      ? t(displayedShift.value.shift.nameKey)
-      : displayedShift.value.shift.name
-    : t('shifts.off'),
-);
-const displayedShiftDate = computed(() =>
-  displayedShift.value
-    ? new Intl.DateTimeFormat(locale.value, {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-      }).format(heroTarget.value)
-    : '',
-);
-const heroTitle = computed(() =>
-  currentShift.value ? t('dashboard.currentShift') : t('dashboard.nextShift'),
-);
-const heroCountdownLabel = computed(() =>
-  currentShift.value ? t('dashboard.untilShiftEnd') : t('dashboard.untilShift'),
-);
-const todayLabel = computed(() =>
-  new Intl.DateTimeFormat(locale.value, { weekday: 'long', day: 'numeric', month: 'long' }).format(
-    now.value,
-  ),
-);
-const untilShift = computed(() => formatCountdown(shiftStart.value, now.value));
-const heroCountdown = computed(() => formatCountdown(heroTarget.value, now.value));
 const time = (date: Date) =>
   new Intl.DateTimeFormat(locale.value, { hour: '2-digit', minute: '2-digit' }).format(date);
+const countdownWithSeconds = (target: Date) => {
+  const totalSeconds = Math.max(0, Math.floor((target.getTime() - now.value.getTime()) / 1_000));
+  return {
+    main: formatCountdown(target, now.value),
+    seconds: String(totalSeconds % 60).padStart(2, '0'),
+  };
+};
 const readableTextColor = (color: string) => {
   const hex = color.replace('#', '');
   const red = Number.parseInt(hex.slice(0, 2), 16);
@@ -241,55 +267,71 @@ const readableTextColor = (color: string) => {
   return luminance > 150 ? '#17242a' : '#ffffff';
 };
 const countdowns = computed(() =>
-  currentShift.value
-    ? [
-        {
-          icon: 'schedule',
-          label: t('dashboard.untilShiftEnd'),
-          value: heroCountdown.value,
-          time: time(heroTarget.value),
-        },
-      ]
-    : [
-        {
-          icon: 'directions_bus',
-          label: t('dashboard.untilTransport'),
-          value: formatCountdown(referenceTime.value, now.value),
-          time: time(referenceTime.value),
-        },
-        {
-          icon: 'alarm',
-          label: t('dashboard.untilWake'),
-          value: formatCountdown(alarmTime.value, now.value),
-          time: time(alarmTime.value),
-        },
-        ...(app.activeProfile.transport.leaveReminderEnabled
-          ? [{
-          icon: 'directions_walk',
-          label: t('dashboard.untilLeave'),
-          value: formatCountdown(leaveHome.value, now.value),
-          time: time(leaveHome.value),
-        }]
-          : [{
-          icon: 'schedule',
-          label: t('dashboard.untilShift'),
-          value: untilShift.value,
-          time: time(shiftStart.value),
-        }]),
-      ],
+  [
+    {
+      icon: 'alarm',
+      label: t('dashboard.untilWake'),
+      countdown: countdownWithSeconds(alarmTime.value),
+      time: time(alarmTime.value),
+      kind: 'wake',
+      target: alarmTime.value,
+    },
+    ...(app.activeProfile.transport.leaveReminderEnabled
+      ? [
+          {
+            icon: 'directions_walk',
+            label: t('dashboard.untilLeave'),
+            countdown: countdownWithSeconds(leaveHome.value),
+            time: time(leaveHome.value),
+            kind: 'leave',
+            target: leaveHome.value,
+          },
+        ]
+      : []),
+    {
+      icon: app.activeProfile.transport.mode === 'bus' ? 'directions_bus' : 'directions_car',
+      label: t('dashboard.untilTransport'),
+      countdown: countdownWithSeconds(referenceTime.value),
+      time: time(referenceTime.value),
+      kind: 'transport',
+      target: referenceTime.value,
+    },
+    {
+      icon: 'schedule',
+      label: t('dashboard.untilShift'),
+      countdown: countdownWithSeconds(shiftStart.value),
+      time: time(shiftStart.value),
+      kind: 'shift',
+      target: shiftStart.value,
+    },
+    {
+      icon: 'free_breakfast',
+      label: t('dashboard.untilFirstBreak'),
+      countdown: countdownWithSeconds(firstBreakTime.value),
+      time: time(firstBreakTime.value),
+      kind: 'break',
+      target: firstBreakTime.value,
+    },
+    {
+      icon: 'event_available',
+      label: t('dashboard.untilShiftEnd'),
+      countdown: countdownWithSeconds(heroTarget.value),
+      time: time(heroTarget.value),
+      kind: 'shift-end',
+      target: heroTarget.value,
+    },
+  ],
+);
+const activeEventIndex = computed(() =>
+  countdowns.value.findIndex((item) => item.target.getTime() > now.value.getTime()),
+);
+const activeEvent = computed(() =>
+  activeEventIndex.value >= 0 ? countdowns.value[activeEventIndex.value] : null,
 );
 const sleepOptions = computed(() =>
   [app.data.settings.sleepHours, 7, 6]
     .filter((hours, index, values) => values.indexOf(hours) === index)
     .map((hours) => ({ hours, time: time(addMinutes(alarmTime.value, -hours * 60)) })),
-);
-const transportSummary = computed(() =>
-  app.activeProfile.transport.mode === 'bus'
-    ? `${selectedRoute.value?.code ?? ''} — ${selectedRoute.value?.name ?? ''}`
-    : t('settings.car'),
-);
-const scheduleDateLabel = new Intl.DateTimeFormat(locale.value).format(
-  new Date(`${DHL_SCHEDULE_VALID_FROM}T00:00:00`),
 );
 const weekPreview = computed(() =>
   Array.from({ length: 5 }, (_, index) => {

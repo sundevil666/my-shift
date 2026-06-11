@@ -1,7 +1,7 @@
 <template>
   <q-card flat bordered class="countdown-card">
     <q-card-section>
-      <q-icon :name="icon" size="30px" color="primary" />
+      <q-icon :name="icon" size="30px" color="primary" class="design-icon" />
       <div class="supporting-text q-mt-md">{{ label }}</div>
       <div class="text-h5 text-weight-bold q-mt-xs">{{ value }}</div>
       <div class="supporting-text q-mt-xs">{{ time }}</div>
