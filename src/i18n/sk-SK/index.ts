@@ -243,5 +243,9 @@ export default {
     testNotification: 'Test upozornenia',
     testAlarmMessage: 'Test budíka: čas vstávať',
     testNotificationMessage: 'Toto je testovacie upozornenie',
+    notificationsPermissionRequired:
+      'Povoľte upozornenia pre My Shift v systémovej výzve alebo nastaveniach iPhonu.',
+    notificationsUnsupported:
+      'Systémové upozornenia sú dostupné po nainštalovaní My Shift na plochu.',
   },
 };

@@ -1,43 +1,35 @@
-# My Shift (my-shift)
+# My Shift
 
-A Quasar Project
+Local-first shift planner distributed as an installable Quasar PWA.
 
-## Install the dependencies
+## Development
 
 ```bash
-yarn
-# or
 npm install
+npm run dev
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+Checks and production build:
 
 ```bash
-quasar dev
-```
-
-### Lint the files
-
-```bash
-yarn lint
-# or
 npm run lint
+npm run build
 ```
 
-### Format the files
+## Web Push setup
 
-```bash
-yarn format
-# or
-npm run format
-```
+Background reminders use Vercel Functions, Upstash Redis and Upstash QStash.
+QStash schedules each reminder individually, so the project does not require a
+paid per-minute Vercel Cron job.
 
-### Build the app for production
+1. Create an Upstash Redis database and enable QStash.
+2. Run `npm run generate:vapid` once.
+3. Add the variables from `.env.example` to the Vercel Production environment.
+4. Set `VAPID_SUBJECT` to a contact URI such as `mailto:admin@example.com`.
+5. Deploy the `main` branch.
+6. Open the installed PWA and press **Notification test** to grant permission
+   and schedule reminders for the next 14 days.
 
-```bash
-quasar build
-```
-
-### Customize the configuration
-
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+The PWA resynchronizes future reminders whenever the local schedule changes.
+On iOS, Web Push requires the app to be installed on the Home Screen. Delivery
+also remains subject to the user's notification, Focus and sound settings.

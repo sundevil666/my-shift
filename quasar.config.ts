@@ -161,16 +161,10 @@ export default defineConfig((ctx) => {
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
     pwa: {
-      workboxMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
+      workboxMode: 'InjectManifest', // 'GenerateSW' or 'InjectManifest'
       swFilename: 'service-worker.js',
       manifestFilename: 'manifest.json',
       injectPwaMetaTags: true,
-      extendGenerateSWOptions(options) {
-        options.cleanupOutdatedCaches = true;
-        options.clientsClaim = false;
-        options.skipWaiting = false;
-        options.navigateFallback = 'index.html';
-      },
       // extendManifestJson (json) {},
       // useCredentialsForManifestTag: true,
       // injectPwaMetaTags: false,

@@ -18,6 +18,7 @@ import {
   type ReminderKind,
 } from 'src/services/reminders/reminder-feedback';
 import { hasStorageMarker, setStorageMarker } from 'src/services/storage/storage';
+import { syncPushReminders } from 'src/services/push-notifications';
 import { useAppStore } from 'stores/app-store';
 
 interface ScheduledReminder {
@@ -78,6 +79,7 @@ export default defineBoot(({ store }) => {
 
   const app = useAppStore(store);
   let timers: number[] = [];
+  let pushSyncTimer: number | undefined;
 
   const clearTimers = () => {
     timers.forEach((timer) => window.clearTimeout(timer));
@@ -185,7 +187,7 @@ export default defineBoot(({ store }) => {
 
       timers.push(
         window.setTimeout(() => {
-          showReminderFeedback(reminder);
+          void showReminderFeedback(reminder);
           setStorageMarker(reminder.id);
           schedule();
         }, delay),
@@ -193,8 +195,15 @@ export default defineBoot(({ store }) => {
     });
   };
 
-  window.addEventListener('pointerdown', unlockReminderAudio, { once: true });
-  window.addEventListener('keydown', unlockReminderAudio, { once: true });
+  const schedulePushSync = () => {
+    if (pushSyncTimer) window.clearTimeout(pushSyncTimer);
+    pushSyncTimer = window.setTimeout(() => {
+      void syncPushReminders(app.activeProfile, app.data.settings.locale);
+    }, 1_000);
+  };
+
+  window.addEventListener('pointerdown', () => void unlockReminderAudio(), { once: true });
+  window.addEventListener('keydown', () => void unlockReminderAudio(), { once: true });
   window.addEventListener('focus', schedule);
   document.addEventListener('visibilitychange', schedule);
 
@@ -225,6 +234,12 @@ export default defineBoot(({ store }) => {
       app.data.settings.locale,
     ],
     schedule,
+    { immediate: true },
+  );
+
+  watch(
+    () => JSON.stringify(app.data),
+    schedulePushSync,
     { immediate: true },
   );
 });

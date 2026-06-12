@@ -243,5 +243,9 @@ export default {
     testNotification: 'Тест уведомления',
     testAlarmMessage: 'Тест будильника: пора просыпаться',
     testNotificationMessage: 'Это тестовое уведомление',
+    notificationsPermissionRequired:
+      'Разрешите уведомления для My Shift в системном запросе или настройках iPhone.',
+    notificationsUnsupported:
+      'Системные уведомления доступны, когда My Shift установлено на экран «Домой».',
   },
 };

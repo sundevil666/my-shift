@@ -13,14 +13,20 @@ let audioContext: AudioContext | null = null;
 let alarmTimer: number | null = null;
 let alarmDialog: ReturnType<typeof Dialog.create> | null = null;
 
-export function unlockReminderAudio() {
+export async function unlockReminderAudio(): Promise<boolean> {
   audioContext ??= new AudioContext();
-  if (audioContext.state === 'suspended') void audioContext.resume();
+  if (audioContext.state === 'suspended') {
+    try {
+      await audioContext.resume();
+    } catch {
+      return false;
+    }
+  }
+  return audioContext.state === 'running';
 }
 
-function playFrogChirp() {
-  unlockReminderAudio();
-  if (!audioContext || audioContext.state !== 'running') return;
+async function playFrogChirp() {
+  if (!(await unlockReminderAudio()) || !audioContext) return;
 
   const now = audioContext.currentTime;
   const gain = audioContext.createGain();
@@ -40,7 +46,7 @@ function playFrogChirp() {
 
 function playAlarmSequence() {
   for (let index = 0; index < 3; index += 1) {
-    window.setTimeout(playFrogChirp, index * 650);
+    window.setTimeout(() => void playFrogChirp(), index * 650);
   }
 }
 
@@ -50,9 +56,9 @@ function stopAlarmSound() {
   alarmTimer = null;
 }
 
-function playReminderSound(kind: ReminderKind) {
+async function playReminderSound(kind: ReminderKind) {
   if (kind === 'notification') {
-    playFrogChirp();
+    await playFrogChirp();
     return;
   }
 
@@ -61,8 +67,19 @@ function playReminderSound(kind: ReminderKind) {
   alarmTimer = window.setInterval(playAlarmSequence, 2_400);
 }
 
-export function showReminderFeedback(reminder: ReminderFeedback) {
-  playReminderSound(reminder.kind);
+export async function requestReminderPermission(): Promise<NotificationPermission | 'unsupported'> {
+  if (!('Notification' in window)) return 'unsupported';
+  if (Notification.permission !== 'default') return Notification.permission;
+
+  try {
+    return await Notification.requestPermission();
+  } catch {
+    return 'denied';
+  }
+}
+
+export async function showReminderFeedback(reminder: ReminderFeedback) {
+  await playReminderSound(reminder.kind);
 
   if (reminder.kind === 'alarm') {
     alarmDialog?.hide();
@@ -91,10 +108,17 @@ export function showReminderFeedback(reminder: ReminderFeedback) {
   }
 
   if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('My Shift', {
+    const options: NotificationOptions = {
       body: reminder.body,
-      icon: '/icons/favicon.svg',
+      icon: '/icons/my-shift-icon-v2-192.png',
+      badge: '/icons/favicon-96x96.png',
       tag: reminder.id,
-    });
+    };
+    const registration = await navigator.serviceWorker?.ready.catch(() => null);
+    if (registration) {
+      await registration.showNotification('My Shift', options);
+    } else {
+      new Notification('My Shift', options);
+    }
   }
 }

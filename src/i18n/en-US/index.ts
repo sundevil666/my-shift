@@ -243,5 +243,9 @@ export default {
     testNotification: 'Notification test',
     testAlarmMessage: 'Alarm test: time to wake up',
     testNotificationMessage: 'This is a test notification',
+    notificationsPermissionRequired:
+      'Allow notifications for My Shift in the iPhone system prompt or Settings.',
+    notificationsUnsupported:
+      'System notifications are available only when My Shift is installed on the Home Screen.',
   },
 };

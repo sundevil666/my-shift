@@ -63,15 +63,18 @@
 
 <script setup lang="ts">
 import PageHeader from 'components/PageHeader.vue';
+import { requestReminderPermission } from 'src/services/reminders/reminder-feedback';
+import { syncPushReminders } from 'src/services/push-notifications';
 import { useAppStore } from 'stores/app-store';
 const app = useAppStore();
 
 async function requestNotificationPermission(enabled: boolean) {
-  if (!enabled || !('Notification' in window)) return;
-  const permission =
-    Notification.permission === 'default'
-      ? await Notification.requestPermission()
-      : Notification.permission;
-  if (permission !== 'granted') app.activeProfile.reminders.enabled = false;
+  if (!enabled) return;
+  const permission = await requestReminderPermission();
+  if (permission !== 'granted') {
+    app.activeProfile.reminders.enabled = false;
+  } else {
+    await syncPushReminders(app.activeProfile, app.data.settings.locale);
+  }
 }
 </script>

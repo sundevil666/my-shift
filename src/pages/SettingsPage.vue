@@ -253,7 +253,11 @@ import { useQuasar } from 'quasar';
 import PageHeader from 'components/PageHeader.vue';
 import { DHL_SCHEDULE_VALID_FROM, dhlBusRoutes } from 'src/core/dhl-bus-routes';
 import { matchesSearch } from 'src/core/search';
-import { showReminderFeedback } from 'src/services/reminders/reminder-feedback';
+import {
+  requestReminderPermission,
+  showReminderFeedback,
+} from 'src/services/reminders/reminder-feedback';
+import { syncPushReminders } from 'src/services/push-notifications';
 import { useAppStore } from 'stores/app-store';
 
 const app = useAppStore();
@@ -339,16 +343,30 @@ function selectStop(value: string | null) {
   app.activeProfile.transport.busRouteId = routeId ?? null;
   app.activeProfile.transport.busStopId = stopId ?? null;
 }
-function testAlarm() {
-  showReminderFeedback({
+async function testAlarm() {
+  await showReminderFeedback({
     body: t('settings.testAlarmMessage'),
     id: `my-shift:test-alarm:${Date.now()}`,
     kind: 'alarm',
     stopLabel: t('settings.stopAlarm'),
   });
 }
-function testNotification() {
-  showReminderFeedback({
+async function testNotification() {
+  const permission = await requestReminderPermission();
+  if (permission === 'granted') {
+    await syncPushReminders(app.activeProfile, app.data.settings.locale);
+  }
+  if (permission !== 'granted') {
+    $q.notify({
+      type: 'warning',
+      message: t(
+        permission === 'unsupported'
+          ? 'settings.notificationsUnsupported'
+          : 'settings.notificationsPermissionRequired',
+      ),
+    });
+  }
+  await showReminderFeedback({
     body: t('settings.testNotificationMessage'),
     id: `my-shift:test-notification:${Date.now()}`,
     kind: 'notification',
