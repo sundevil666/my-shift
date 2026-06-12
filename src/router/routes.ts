@@ -10,6 +10,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('pages/DashboardPage.vue') },
+      { path: 'tomorrow', component: () => import('pages/TomorrowPage.vue') },
       { path: 'calendar', component: () => import('pages/CalendarPage.vue') },
       { path: 'patterns', component: () => import('pages/PatternsPage.vue') },
       { path: 'reminders', component: () => import('pages/RemindersPage.vue') },

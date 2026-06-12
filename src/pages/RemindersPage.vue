@@ -67,8 +67,11 @@ import { useAppStore } from 'stores/app-store';
 const app = useAppStore();
 
 async function requestNotificationPermission(enabled: boolean) {
-  if (enabled && 'Notification' in window && Notification.permission === 'default') {
-    await Notification.requestPermission();
-  }
+  if (!enabled || !('Notification' in window)) return;
+  const permission =
+    Notification.permission === 'default'
+      ? await Notification.requestPermission()
+      : Notification.permission;
+  if (permission !== 'granted') app.activeProfile.reminders.enabled = false;
 }
 </script>

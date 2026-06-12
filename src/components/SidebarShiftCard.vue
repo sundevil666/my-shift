@@ -69,7 +69,7 @@ import {
   FIRST_BREAK_AFTER_SHIFT_START_MINUTES,
   formatCountdown,
   nextWorkingShift,
-  shiftCodeForDate,
+  resolvedShiftCodeForDate,
   shiftDateTime,
   shiftEndDateTime,
 } from 'src/core/schedule';
@@ -81,8 +81,17 @@ const timer = window.setInterval(() => (now.value = new Date()), 1_000);
 
 onBeforeUnmount(() => window.clearInterval(timer));
 
-const currentShift = computed(() => currentWorkingShift(now.value, app.pattern, app.shifts));
-const currentShiftCode = computed(() => shiftCodeForDate(now.value, app.pattern));
+const currentShift = computed(() =>
+  currentWorkingShift(
+    now.value,
+    app.pattern,
+    app.shifts,
+    app.activeProfile.calendarOverrides,
+  ),
+);
+const currentShiftCode = computed(() =>
+  resolvedShiftCodeForDate(now.value, app.pattern, app.activeProfile.calendarOverrides),
+);
 const shiftOptions = computed(() =>
   app.shifts.map((shift) => ({
     label: shift.nameKey ? t(shift.nameKey) : shift.name,
@@ -93,7 +102,14 @@ const selectedShiftName = computed(
   () => shiftOptions.value.find((option) => option.value === currentShiftCode.value)?.label ?? '',
 );
 const nextShift = computed(() =>
-  currentShift.value ? null : nextWorkingShift(now.value, app.pattern, app.shifts),
+  currentShift.value
+    ? null
+    : nextWorkingShift(
+        now.value,
+        app.pattern,
+        app.shifts,
+        app.activeProfile.calendarOverrides,
+      ),
 );
 const displayedShift = computed(() => currentShift.value ?? nextShift.value);
 const shiftStart = computed(() =>

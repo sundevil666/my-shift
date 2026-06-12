@@ -64,6 +64,34 @@
           <h2>{{ $t('dashboard.title') }}</h2>
           <p>{{ $t('dashboard.subtitle') }}</p>
         </div>
+        <q-btn
+          outline
+          color="primary"
+          icon="edit_calendar"
+          :label="$t('dashboard.changeOnlyThisWeek')"
+          @click="openWeekEditor"
+        />
+      </div>
+
+      <div v-if="currentWeekOverride" class="week-override-notice">
+        <q-icon name="edit_calendar" />
+        <div>
+          <strong>{{ $t('dashboard.weekChangedManually') }}</strong>
+          <span>
+            {{
+              $t('dashboard.scheduledAndActual', {
+                scheduled: scheduledWeekShiftName,
+                actual: currentWeekShiftName,
+              })
+            }}
+          </span>
+        </div>
+        <q-btn
+          flat
+          color="negative"
+          :label="$t('dashboard.cancelWeekChange')"
+          @click="cancelWeekOverride"
+        />
       </div>
 
       <div class="event-list">
@@ -74,6 +102,8 @@
           :class="{
             'event-row--active': index === activeEventIndex,
             'event-row--past': item.target.getTime() <= now.getTime(),
+            'event-row--action': item.priority === 'action',
+            'event-row--reference': item.priority === 'reference',
           }"
         >
           <div class="event-row__marker">
@@ -82,6 +112,13 @@
           <div class="event-row__content">
             <div class="event-row__label">
               {{ item.label }}
+              <span class="event-row__priority">
+                {{
+                  item.priority === 'action'
+                    ? $t('dashboard.actionRequired')
+                    : $t('dashboard.referenceInfo')
+                }}
+              </span>
               <span class="event-row__status lt-sm">
                 {{
                   item.target.getTime() <= now.getTime()
@@ -137,8 +174,11 @@
               <q-item-section side>
                 <q-badge
                   rounded
+                  class="schedule-preview-badge"
+                  :class="day.overrideType ? `override-${day.overrideType}` : ''"
                   :style="{ background: day.color, color: readableTextColor(day.color) }"
                 >
+                  <q-icon v-if="day.overrideIcon" :name="day.overrideIcon" />
                   {{ day.name }}
                 </q-badge>
               </q-item-section>
@@ -156,47 +196,192 @@
         </q-card>
       </div>
     </div>
+
+    <q-dialog v-model="weekEditorOpen">
+      <q-card class="calendar-editor">
+        <q-card-section class="calendar-editor__header">
+          <div>
+            <div class="calendar-editor__eyebrow">
+              {{ $t('dashboard.changeOnlyThisWeek') }}
+            </div>
+            <div class="calendar-editor__date">{{ currentWeekLabel }}</div>
+          </div>
+          <q-btn v-close-popup flat round dense icon="close" :aria-label="$t('common.cancel')" />
+        </q-card-section>
+        <q-card-section class="calendar-editor__body">
+          <div class="calendar-editor__schedule">
+            <span>{{ $t('dashboard.scheduledShift') }}</span>
+            <strong>{{ scheduledWeekShiftName }}</strong>
+          </div>
+          <q-select
+            v-model="weekShiftId"
+            outlined
+            emit-value
+            map-options
+            :options="shiftOptions"
+            :label="$t('dashboard.actualShift')"
+          />
+          <div class="supporting-text">{{ $t('dashboard.weekChangeHint') }}</div>
+        </q-card-section>
+        <q-card-actions class="calendar-editor__actions">
+          <q-btn
+            v-if="currentWeekOverride"
+            flat
+            color="negative"
+            :label="$t('dashboard.cancelWeekChange')"
+            @click="cancelWeekOverride"
+          />
+          <q-space />
+          <q-btn v-close-popup flat :label="$t('common.cancel')" />
+          <q-btn
+            unelevated
+            color="primary"
+            :label="$t('dashboard.applyWeekChange')"
+            :disable="!weekShiftId"
+            @click="saveWeekOverride"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
 import { useAppStore } from 'stores/app-store';
-import { dhlBusRoutes } from 'src/core/dhl-bus-routes';
+import { buildWorkDayPlan } from 'src/core/day-plan';
 import {
   addMinutes,
+  calendarOverridesInRange,
+  dateKey,
   currentWorkingShift,
   FIRST_BREAK_AFTER_SHIFT_START_MINUTES,
   formatCountdown,
   nextWorkingShift,
-  shiftCodeForDate,
-  shiftDateTime,
+  resolvedShiftCodeForDate,
   shiftEndDateTime,
+  shiftCodeForDate,
+  weekDateRange,
 } from 'src/core/schedule';
+import { overrideColors } from 'src/core/calendar-overrides';
 
 const app = useAppStore();
 const { t, locale } = useI18n();
+const $q = useQuasar();
 const now = ref(new Date());
+const weekEditorOpen = ref(false);
+const weekShiftId = ref<string | null>(null);
 const timer = window.setInterval(() => (now.value = new Date()), 1_000);
 onBeforeUnmount(() => window.clearInterval(timer));
 
-const currentShift = computed(() => currentWorkingShift(now.value, app.pattern, app.shifts));
+const currentShift = computed(() =>
+  currentWorkingShift(now.value, app.pattern, app.shifts, app.activeProfile.calendarOverrides),
+);
 const nextShift = computed(() =>
-  currentShift.value ? null : nextWorkingShift(now.value, app.pattern, app.shifts),
+  currentShift.value
+    ? null
+    : nextWorkingShift(now.value, app.pattern, app.shifts, app.activeProfile.calendarOverrides),
 );
 const displayedShift = computed(() => currentShift.value ?? nextShift.value);
-const currentScheduleShiftCode = computed(() => shiftCodeForDate(now.value, app.pattern));
+const displayedPlan = computed(() =>
+  displayedShift.value
+    ? buildWorkDayPlan({
+        date: displayedShift.value.date,
+        pattern: app.pattern,
+        shifts: app.shifts,
+        overrides: app.activeProfile.calendarOverrides,
+        transport: app.activeProfile.transport,
+        sleepHours: app.data.settings.sleepHours,
+      })
+    : null,
+);
+const currentScheduleShiftCode = computed(() =>
+  resolvedShiftCodeForDate(now.value, app.pattern, app.activeProfile.calendarOverrides),
+);
 const shiftOptions = computed(() =>
   app.shifts.map((shift) => ({
     label: shift.nameKey ? t(shift.nameKey) : shift.name,
     value: shift.id,
   })),
 );
+const currentWeekRange = computed(() => weekDateRange(now.value));
+const currentWeekOverride = computed(() =>
+  app.activeProfile.calendarOverrides.find(
+    (item) =>
+      item.type === 'week-shift' &&
+      item.startDate === currentWeekRange.value.startDate &&
+      item.endDate === currentWeekRange.value.endDate,
+  ),
+);
+const scheduledWeekShiftCode = computed(() => shiftCodeForDate(now.value, app.pattern));
+const shiftName = (code: string | undefined) => {
+  const shift = app.shifts.find((item) => item.id === code);
+  return shift ? (shift.nameKey ? t(shift.nameKey) : shift.name) : t('shifts.off');
+};
+const scheduledWeekShiftName = computed(() => shiftName(scheduledWeekShiftCode.value));
+const currentWeekShiftName = computed(() =>
+  shiftName(currentWeekOverride.value?.shiftId),
+);
+const currentWeekLabel = computed(() => {
+  const start = new Date(`${currentWeekRange.value.startDate}T12:00:00`);
+  const end = new Date(`${currentWeekRange.value.endDate}T12:00:00`);
+  const formatter = new Intl.DateTimeFormat(locale.value, { day: 'numeric', month: 'short' });
+  return `${formatter.format(start)} – ${formatter.format(end)}`;
+});
 const displayedShiftName = computed(() => {
   const shift = displayedShift.value?.shift;
   return shift ? (shift.nameKey ? t(shift.nameKey) : shift.name) : t('shifts.off');
 });
+
+function commitWeekOverride(overridesToReplace: string[]) {
+  if (!weekShiftId.value) return;
+  app.replaceCalendarOverrides(
+    {
+      id: currentWeekOverride.value?.id ?? crypto.randomUUID(),
+      type: 'week-shift',
+      ...currentWeekRange.value,
+      shiftId: weekShiftId.value,
+    },
+    overridesToReplace,
+  );
+  weekEditorOpen.value = false;
+}
+
+function openWeekEditor() {
+  weekShiftId.value =
+    currentWeekOverride.value?.shiftId ??
+    (scheduledWeekShiftCode.value === 'off' ? app.shifts[0]?.id : scheduledWeekShiftCode.value) ??
+    null;
+  weekEditorOpen.value = true;
+}
+
+function saveWeekOverride() {
+  const overlapping = calendarOverridesInRange(
+    currentWeekRange.value.startDate,
+    currentWeekRange.value.endDate,
+    app.activeProfile.calendarOverrides,
+  );
+  if (!overlapping.length) {
+    commitWeekOverride([]);
+    return;
+  }
+  $q.dialog({
+    title: t('dashboard.replaceWeekChangeTitle'),
+    message: t('dashboard.replaceWeekChangeMessage'),
+    cancel: { flat: true, label: t('common.cancel') },
+    ok: { color: 'primary', label: t('dashboard.replaceWeekChange') },
+    persistent: true,
+  }).onOk(() =>
+    commitWeekOverride(overlapping.map((item) => item.id)),
+  );
+}
+
+function cancelWeekOverride() {
+  if (currentWeekOverride.value) app.removeCalendarOverride(currentWeekOverride.value.id);
+  weekEditorOpen.value = false;
+}
 const todayLabel = computed(() =>
   new Intl.DateTimeFormat(locale.value, {
     weekday: 'short',
@@ -204,51 +389,20 @@ const todayLabel = computed(() =>
     month: 'long',
   }).format(now.value),
 );
-const shiftStart = computed(() =>
-  displayedShift.value
-    ? shiftDateTime(displayedShift.value.date, displayedShift.value.shift.startTime)
-    : now.value,
-);
-const firstBreakTime = computed(() =>
-  addMinutes(shiftStart.value, FIRST_BREAK_AFTER_SHIFT_START_MINUTES),
+const shiftStart = computed(() => displayedPlan.value?.shiftStart ?? now.value);
+const firstBreakTime = computed(
+  () =>
+    displayedPlan.value?.firstBreak ??
+    addMinutes(shiftStart.value, FIRST_BREAK_AFTER_SHIFT_START_MINUTES),
 );
 const heroTarget = computed(() =>
   currentShift.value
     ? shiftEndDateTime(currentShift.value.date, currentShift.value.shift)
-    : shiftStart.value,
+    : (displayedPlan.value?.shiftEnd ?? shiftStart.value),
 );
-const selectedRoute = computed(() =>
-  dhlBusRoutes.find((route) => route.id === app.activeProfile.transport.busRouteId),
-);
-const selectedStop = computed(() =>
-  selectedRoute.value?.stops.find(
-    (stop) => stop.id === app.activeProfile.transport.busStopId,
-  ),
-);
-const referenceTime = computed(() => {
-  if (!displayedShift.value) return now.value;
-  if (app.activeProfile.transport.mode === 'bus' && selectedStop.value) {
-    const busTime = selectedStop.value.times[displayedShift.value.shift.id];
-    if (busTime) return shiftDateTime(displayedShift.value.date, busTime);
-  }
-  return shiftStart.value;
-});
-const alarmTime = computed(() =>
-  displayedShift.value
-    ? addMinutes(
-        referenceTime.value,
-        -app.activeProfile.transport.alarmBeforeReferenceMinutes,
-      )
-    : now.value,
-);
-const leaveHome = computed(() =>
-  displayedShift.value
-    ? addMinutes(
-        referenceTime.value,
-        -app.activeProfile.transport.leaveBeforeReferenceMinutes,
-      )
-    : now.value,
-);
+const referenceTime = computed(() => displayedPlan.value?.referenceTime ?? now.value);
+const alarmTime = computed(() => displayedPlan.value?.alarmTime ?? now.value);
+const leaveHome = computed(() => displayedPlan.value?.leaveHome ?? now.value);
 const time = (date: Date) =>
   new Intl.DateTimeFormat(locale.value, { hour: '2-digit', minute: '2-digit' }).format(date);
 const countdownWithSeconds = (target: Date) => {
@@ -266,62 +420,66 @@ const readableTextColor = (color: string) => {
   const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
   return luminance > 150 ? '#17242a' : '#ffffff';
 };
-const countdowns = computed(() =>
-  [
-    {
-      icon: 'alarm',
-      label: t('dashboard.untilWake'),
-      countdown: countdownWithSeconds(alarmTime.value),
-      time: time(alarmTime.value),
-      kind: 'wake',
-      target: alarmTime.value,
-    },
-    ...(app.activeProfile.transport.leaveReminderEnabled
-      ? [
-          {
-            icon: 'directions_walk',
-            label: t('dashboard.untilLeave'),
-            countdown: countdownWithSeconds(leaveHome.value),
-            time: time(leaveHome.value),
-            kind: 'leave',
-            target: leaveHome.value,
-          },
-        ]
-      : []),
-    {
-      icon: app.activeProfile.transport.mode === 'bus' ? 'directions_bus' : 'directions_car',
-      label: t('dashboard.untilTransport'),
-      countdown: countdownWithSeconds(referenceTime.value),
-      time: time(referenceTime.value),
-      kind: 'transport',
-      target: referenceTime.value,
-    },
-    {
-      icon: 'schedule',
-      label: t('dashboard.untilShift'),
-      countdown: countdownWithSeconds(shiftStart.value),
-      time: time(shiftStart.value),
-      kind: 'shift',
-      target: shiftStart.value,
-    },
-    {
-      icon: 'free_breakfast',
-      label: t('dashboard.untilFirstBreak'),
-      countdown: countdownWithSeconds(firstBreakTime.value),
-      time: time(firstBreakTime.value),
-      kind: 'break',
-      target: firstBreakTime.value,
-    },
-    {
-      icon: 'event_available',
-      label: t('dashboard.untilShiftEnd'),
-      countdown: countdownWithSeconds(heroTarget.value),
-      time: time(heroTarget.value),
-      kind: 'shift-end',
-      target: heroTarget.value,
-    },
-  ],
-);
+const countdowns = computed(() => [
+  {
+    icon: 'alarm',
+    label: t('dashboard.untilWake'),
+    countdown: countdownWithSeconds(alarmTime.value),
+    time: time(alarmTime.value),
+    kind: 'wake',
+    priority: 'action' as const,
+    target: alarmTime.value,
+  },
+  ...(app.activeProfile.transport.leaveReminderEnabled
+    ? [
+        {
+          icon: 'directions_walk',
+          label: t('dashboard.untilLeave'),
+          countdown: countdownWithSeconds(leaveHome.value),
+          time: time(leaveHome.value),
+          kind: 'leave',
+          priority: 'action' as const,
+          target: leaveHome.value,
+        },
+      ]
+    : []),
+  {
+    icon: app.activeProfile.transport.mode === 'bus' ? 'directions_bus' : 'directions_car',
+    label: t('dashboard.untilTransport'),
+    countdown: countdownWithSeconds(referenceTime.value),
+    time: time(referenceTime.value),
+    kind: 'transport',
+    priority: 'reference' as const,
+    target: referenceTime.value,
+  },
+  {
+    icon: 'schedule',
+    label: t('dashboard.untilShift'),
+    countdown: countdownWithSeconds(shiftStart.value),
+    time: time(shiftStart.value),
+    kind: 'shift',
+    priority: 'reference' as const,
+    target: shiftStart.value,
+  },
+  {
+    icon: 'free_breakfast',
+    label: t('dashboard.untilFirstBreak'),
+    countdown: countdownWithSeconds(firstBreakTime.value),
+    time: time(firstBreakTime.value),
+    kind: 'break',
+    priority: 'reference' as const,
+    target: firstBreakTime.value,
+  },
+  {
+    icon: 'event_available',
+    label: t('dashboard.untilShiftEnd'),
+    countdown: countdownWithSeconds(heroTarget.value),
+    time: time(heroTarget.value),
+    kind: 'shift-end',
+    priority: 'reference' as const,
+    target: heroTarget.value,
+  },
+]);
 const activeEventIndex = computed(() =>
   countdowns.value.findIndex((item) => item.target.getTime() > now.value.getTime()),
 );
@@ -337,15 +495,44 @@ const weekPreview = computed(() =>
   Array.from({ length: 5 }, (_, index) => {
     const date = new Date(now.value);
     date.setDate(date.getDate() + index);
-    const code = shiftCodeForDate(date, app.pattern);
+    const override = app.activeProfile.calendarOverrides.find(
+      (item) => item.startDate <= dateKey(date) && item.endDate >= dateKey(date),
+    );
+    const code = resolvedShiftCodeForDate(date, app.pattern, app.activeProfile.calendarOverrides);
     const shift = app.shifts.find((item) => item.id === code);
     return {
       key: date.toISOString(),
       label: new Intl.DateTimeFormat(locale.value, { weekday: 'short', day: 'numeric' }).format(
         date,
       ),
-      name: shift ? (shift.nameKey ? t(shift.nameKey) : shift.name) : t('shifts.off'),
-      color: shift?.color ?? '#95a1ad',
+      name: override
+        ? override.type === 'week-shift'
+          ? shift
+            ? t('calendar.weekShiftWithName', {
+                shift: shift.nameKey ? t(shift.nameKey) : shift.name,
+              })
+            : t('shifts.off')
+          : override.type === 'extra-shift' && shift
+          ? t('calendar.extraShiftWithName', {
+              shift: shift.nameKey ? t(shift.nameKey) : shift.name,
+            })
+          : t(`calendar.types.${override.type}`)
+        : shift
+          ? shift.nameKey
+            ? t(shift.nameKey)
+            : shift.name
+          : t('shifts.off'),
+      color: override ? overrideColors[override.type] : (shift?.color ?? '#95a1ad'),
+      overrideType: override?.type,
+      overrideIcon: override
+        ? {
+            'day-off': 'weekend',
+            vacation: 'beach_access',
+            'sick-leave': 'medical_services',
+            'extra-shift': 'add_task',
+            'week-shift': 'edit_calendar',
+          }[override.type]
+        : '',
     };
   }),
 );

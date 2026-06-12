@@ -1,4 +1,9 @@
-import type { SchedulePattern, ShiftCode, ShiftDefinition } from 'src/models/app';
+import type {
+  CalendarOverride,
+  SchedulePattern,
+  ShiftCode,
+  ShiftDefinition,
+} from 'src/models/app';
 
 const DAY_MS = 86_400_000;
 export const FIRST_BREAK_AFTER_SHIFT_START_MINUTES = 135;
@@ -24,6 +29,49 @@ export function shiftCodeForDate(date: Date, pattern: SchedulePattern): ShiftCod
   return pattern.sequence[index] ?? 'off';
 }
 
+export function calendarOverrideForDate(
+  date: Date,
+  overrides: CalendarOverride[],
+): CalendarOverride | undefined {
+  const key = dateKey(date);
+  const matches = overrides.filter(
+    (override) => override.startDate <= key && override.endDate >= key,
+  );
+  return matches.find((override) => override.type !== 'week-shift') ?? matches[0];
+}
+
+export function resolvedShiftCodeForDate(
+  date: Date,
+  pattern: SchedulePattern,
+  overrides: CalendarOverride[] = [],
+): ShiftCode {
+  const override = calendarOverrideForDate(date, overrides);
+  if (!override) return shiftCodeForDate(date, pattern);
+  if (override.type === 'week-shift') {
+    return date.getDay() === 0 || date.getDay() === 6 ? 'off' : (override.shiftId ?? 'off');
+  }
+  return override.type === 'extra-shift' && override.shiftId ? override.shiftId : 'off';
+}
+
+export function weekDateRange(date: Date): { startDate: string; endDate: string } {
+  const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const day = monday.getDay();
+  monday.setDate(monday.getDate() - (day === 0 ? 6 : day - 1));
+  const sunday = new Date(monday);
+  sunday.setDate(sunday.getDate() + 6);
+  return { startDate: dateKey(monday), endDate: dateKey(sunday) };
+}
+
+export function calendarOverridesInRange(
+  startDate: string,
+  endDate: string,
+  overrides: CalendarOverride[],
+): CalendarOverride[] {
+  return overrides.filter(
+    (override) => override.startDate <= endDate && override.endDate >= startDate,
+  );
+}
+
 export function shiftDateTime(date: Date, time: string): Date {
   const [hours = 0, minutes = 0] = time.split(':').map(Number);
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes);
@@ -40,11 +88,12 @@ export function currentWorkingShift(
   now: Date,
   pattern: SchedulePattern,
   shifts: ShiftDefinition[],
+  overrides: CalendarOverride[] = [],
 ): { date: Date; shift: ShiftDefinition } | null {
   for (const offset of [-1, 0]) {
     const date = new Date(now);
     date.setDate(now.getDate() + offset);
-    const code = shiftCodeForDate(date, pattern);
+    const code = resolvedShiftCodeForDate(date, pattern, overrides);
     if (code === 'off') continue;
     const shift = shifts.find((item) => item.id === code);
     if (!shift) continue;
@@ -61,11 +110,12 @@ export function nextWorkingShift(
   now: Date,
   pattern: SchedulePattern,
   shifts: ShiftDefinition[],
+  overrides: CalendarOverride[] = [],
 ): { date: Date; shift: ShiftDefinition } | null {
   for (let offset = 0; offset < pattern.sequence.length * 7 * 3; offset += 1) {
     const date = new Date(now);
     date.setDate(now.getDate() + offset);
-    const code = shiftCodeForDate(date, pattern);
+    const code = resolvedShiftCodeForDate(date, pattern, overrides);
     if (code === 'off') continue;
     const shift = shifts.find((item) => item.id === code);
     if (!shift) continue;

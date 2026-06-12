@@ -48,6 +48,9 @@ export interface TransportSettings {
 
 export interface ReminderSettings {
   enabled: boolean;
+  shiftStartEnabled: boolean;
+  firstBreakEnabled: boolean;
+  shiftEndEnabled: boolean;
   beforeDepartureMinutes: number;
   beforeShiftMinutes: number;
 }
@@ -79,7 +82,12 @@ export interface WorkProfile {
   calendarOverrides: CalendarOverride[];
 }
 
-export type CalendarOverrideType = 'day-off' | 'vacation' | 'extra-shift';
+export type CalendarOverrideType =
+  | 'day-off'
+  | 'vacation'
+  | 'sick-leave'
+  | 'extra-shift'
+  | 'week-shift';
 
 export interface CalendarOverride {
   id: string;

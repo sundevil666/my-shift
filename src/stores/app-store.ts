@@ -2,20 +2,25 @@ import { defineStore } from 'pinia';
 import { Dark } from 'quasar';
 import { computed, ref, watch } from 'vue';
 import { createDhlWorkProfile, defaultUserData } from 'src/core/defaults';
-import { shiftCodeForDate } from 'src/core/schedule';
+import { resolvedShiftCodeForDate } from 'src/core/schedule';
 import { browserStorage } from 'src/services/storage/storage';
 import type {
   Locale,
+  CalendarOverride,
   ThemeMode,
   TransportMode,
   UserData,
   WorkProfile,
 } from 'src/models/app';
 
+export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
 export const useAppStore = defineStore('app', () => {
   const data = ref<UserData>(structuredClone(defaultUserData));
   const initialized = ref(false);
+  const saveStatus = ref<SaveStatus>('idle');
   let atmosphereTimer: number | undefined;
+  let saveTimer: number | undefined;
   const activeProfile = computed<WorkProfile>(() => {
     const profile = data.value.workProfiles.find(
       (item) => item.id === data.value.activeWorkProfileId,
@@ -32,6 +37,9 @@ export const useAppStore = defineStore('app', () => {
       data.value.workProfiles.forEach((profile) => {
         profile.calendarOverrides ??= [];
         profile.transport.alarmEnabled ??= true;
+        profile.reminders.shiftStartEnabled ??= true;
+        profile.reminders.firstBreakEnabled ??= true;
+        profile.reminders.shiftEndEnabled ??= true;
       });
     } else if (saved && saved.schemaVersion === 1) {
       data.value = migrateV1(saved as unknown as Record<string, unknown>);
@@ -77,12 +85,43 @@ export const useAppStore = defineStore('app', () => {
     applyTheme(theme);
   }
 
+  function saveCalendarOverride(override: CalendarOverride) {
+    const overrides = activeProfile.value.calendarOverrides;
+    const index = overrides.findIndex((item) => item.id === override.id);
+    if (index >= 0) overrides[index] = override;
+    else overrides.push(override);
+    applyShiftAtmosphere();
+  }
+
+  function removeCalendarOverride(id: string) {
+    activeProfile.value.calendarOverrides = activeProfile.value.calendarOverrides.filter(
+      (item) => item.id !== id,
+    );
+    applyShiftAtmosphere();
+  }
+
+  function replaceCalendarOverrides(
+    override: CalendarOverride,
+    replacedOverrideIds: string[],
+  ) {
+    const replacedIds = new Set(replacedOverrideIds);
+    activeProfile.value.calendarOverrides = [
+      ...activeProfile.value.calendarOverrides.filter((item) => !replacedIds.has(item.id)),
+      override,
+    ];
+    applyShiftAtmosphere();
+  }
+
   function applyTheme(theme: ThemeMode) {
     Dark.set(theme === 'system' ? 'auto' : theme === 'dark');
   }
 
   function applyShiftAtmosphere(date = new Date()) {
-    const shiftCode = shiftCodeForDate(date, activeProfile.value.pattern);
+    const shiftCode = resolvedShiftCodeForDate(
+      date,
+      activeProfile.value.pattern,
+      activeProfile.value.calendarOverrides,
+    );
     document.body.dataset.shiftAtmosphere = shiftCode;
   }
 
@@ -105,7 +144,14 @@ export const useAppStore = defineStore('app', () => {
   watch(
     data,
     (value) => {
-      if (initialized.value) browserStorage.save(value);
+      if (!initialized.value) return;
+
+      saveStatus.value = 'saving';
+      if (saveTimer) window.clearTimeout(saveTimer);
+      saveTimer = window.setTimeout(() => {
+        const result = browserStorage.save(value);
+        saveStatus.value = result.ok ? 'saved' : 'error';
+      }, 250);
     },
     { deep: true },
   );
@@ -116,12 +162,16 @@ export const useAppStore = defineStore('app', () => {
     shifts,
     pattern,
     initialized,
+    saveStatus,
     initialize,
     completeOnboarding,
     setCurrentShift,
     setTransportMode,
     setLocale,
     setTheme,
+    saveCalendarOverride,
+    removeCalendarOverride,
+    replaceCalendarOverrides,
     applyShiftAtmosphere,
     resetApplication,
   };

@@ -76,8 +76,18 @@ export default defineBoot(({ store }) => {
     if (!app.activeProfile.reminders.enabled) return;
 
     const now = new Date();
-    const currentShift = currentWorkingShift(now, app.pattern, app.shifts);
-    const upcomingShift = nextWorkingShift(now, app.pattern, app.shifts);
+    const currentShift = currentWorkingShift(
+      now,
+      app.pattern,
+      app.shifts,
+      app.activeProfile.calendarOverrides,
+    );
+    const upcomingShift = nextWorkingShift(
+      now,
+      app.pattern,
+      app.shifts,
+      app.activeProfile.calendarOverrides,
+    );
     const localeMessages = messages[app.data.settings.locale];
     const reminders: ScheduledReminder[] = [];
 
@@ -120,33 +130,39 @@ export default defineBoot(({ store }) => {
         });
       }
 
-      reminders.push({
-        at: addMinutes(shiftStart, -10),
-        body: localeMessages.shift,
-        id: `my-shift:shift:${shiftKey}`,
-        kind: 'notification',
-      });
+      if (app.activeProfile.reminders.shiftStartEnabled) {
+        reminders.push({
+          at: addMinutes(shiftStart, -10),
+          body: localeMessages.shift,
+          id: `my-shift:shift:${shiftKey}`,
+          kind: 'notification',
+        });
+      }
     }
 
     const breakShift = currentShift ?? upcomingShift;
     if (breakShift) {
       const breakShiftKey = `${dateKey(breakShift.date)}:${breakShift.shift.id}`;
-      reminders.push({
-        at: addMinutes(
-          shiftDateTime(breakShift.date, breakShift.shift.startTime),
-          FIRST_BREAK_AFTER_SHIFT_START_MINUTES -
-            FIRST_BREAK_NOTIFICATION_BEFORE_MINUTES,
-        ),
-        body: localeMessages.firstBreak,
-        id: `my-shift:first-break:${breakShiftKey}`,
-        kind: 'notification',
-      });
-      reminders.push({
-        at: addMinutes(shiftEndDateTime(breakShift.date, breakShift.shift), -20),
-        body: localeMessages.shiftEnd,
-        id: `my-shift:shift-end:${breakShiftKey}`,
-        kind: 'notification',
-      });
+      if (app.activeProfile.reminders.firstBreakEnabled) {
+        reminders.push({
+          at: addMinutes(
+            shiftDateTime(breakShift.date, breakShift.shift.startTime),
+            FIRST_BREAK_AFTER_SHIFT_START_MINUTES -
+              FIRST_BREAK_NOTIFICATION_BEFORE_MINUTES,
+          ),
+          body: localeMessages.firstBreak,
+          id: `my-shift:first-break:${breakShiftKey}`,
+          kind: 'notification',
+        });
+      }
+      if (app.activeProfile.reminders.shiftEndEnabled) {
+        reminders.push({
+          at: addMinutes(shiftEndDateTime(breakShift.date, breakShift.shift), -20),
+          body: localeMessages.shiftEnd,
+          id: `my-shift:shift-end:${breakShiftKey}`,
+          kind: 'notification',
+        });
+      }
     }
 
     reminders.forEach((reminder) => {
@@ -175,6 +191,9 @@ export default defineBoot(({ store }) => {
       app.activeProfile.transport.alarmBeforeReferenceMinutes,
       app.activeProfile.transport.leaveReminderEnabled,
       app.activeProfile.transport.leaveBeforeReferenceMinutes,
+      app.activeProfile.reminders.shiftStartEnabled,
+      app.activeProfile.reminders.firstBreakEnabled,
+      app.activeProfile.reminders.shiftEndEnabled,
       app.activeProfile.transport.mode,
       app.activeProfile.transport.busRouteId,
       app.activeProfile.transport.busStopId,

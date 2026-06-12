@@ -4,9 +4,13 @@ const STORAGE_KEY = 'my-shift:user-data';
 
 export interface StorageAdapter {
   load(): UserData | Record<string, unknown> | null;
-  save(data: UserData): void;
+  save(data: UserData): StorageSaveResult;
   clear(): void;
 }
+
+export type StorageSaveResult =
+  | { ok: true }
+  | { ok: false; reason: 'quota-exceeded' | 'unavailable' };
 
 export const browserStorage: StorageAdapter = {
   load() {
@@ -18,7 +22,15 @@ export const browserStorage: StorageAdapter = {
     }
   },
   save(data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      return { ok: true };
+    } catch (error) {
+      return {
+        ok: false,
+        reason: isQuotaExceededError(error) ? 'quota-exceeded' : 'unavailable',
+      };
+    }
   },
   clear() {
     Object.keys(localStorage)
@@ -26,3 +38,13 @@ export const browserStorage: StorageAdapter = {
       .forEach((key) => localStorage.removeItem(key));
   },
 };
+
+function isQuotaExceededError(error: unknown): boolean {
+  return (
+    error instanceof DOMException &&
+    (error.name === 'QuotaExceededError' ||
+      error.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+      error.code === 22 ||
+      error.code === 1014)
+  );
+}
