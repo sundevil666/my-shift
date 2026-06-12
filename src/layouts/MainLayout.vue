@@ -102,6 +102,11 @@ import { useAppStore } from 'stores/app-store';
 import { buildWorkDayPlan } from 'src/core/day-plan';
 import type { DayPlanEventKind } from 'src/core/day-plan';
 import {
+  activateAppUpdate,
+  APP_UPDATE_AVAILABLE_EVENT,
+  type AppUpdateDetail,
+} from 'src/services/app-update';
+import {
   currentWorkingShift,
   nextWorkingShift,
   resolvedShiftCodeForDate,
@@ -255,6 +260,35 @@ const syncAfterVisibilityChange = () => {
   });
 };
 document.addEventListener('visibilitychange', syncAfterVisibilityChange);
+const showAppUpdateDialog = (event: CustomEvent<AppUpdateDetail>) => {
+  const detail = event.detail;
+  const incompatible = !detail.compatible;
+
+  $q.dialog({
+    title: t(incompatible ? 'updates.incompatibleTitle' : 'updates.title'),
+    message: t(incompatible ? 'updates.incompatibleMessage' : 'updates.message', {
+      version: detail.release ?? t('updates.newVersion'),
+    }),
+    cancel: {
+      flat: true,
+      label: t('updates.keepCurrent'),
+    },
+    ok: {
+      color: incompatible ? 'negative' : 'primary',
+      label: t(incompatible ? 'updates.updateAndReset' : 'updates.updateNow'),
+    },
+    persistent: true,
+  }).onOk(() => {
+    const activated = activateAppUpdate(detail, incompatible);
+    if (!activated) {
+      $q.notify({
+        type: 'negative',
+        message: t('updates.backupFailed'),
+      });
+    }
+  });
+};
+window.addEventListener(APP_UPDATE_AVAILABLE_EVENT, showAppUpdateDialog);
 const saveStatusIcon = computed(() =>
   app.saveStatus === 'error' ? 'error_outline' : 'verified_user',
 );
@@ -296,6 +330,7 @@ onBeforeUnmount(() => {
   window.clearInterval(dateTimer);
   window.clearInterval(titleBlinkTimer);
   document.removeEventListener('visibilitychange', syncAfterVisibilityChange);
+  window.removeEventListener(APP_UPDATE_AVAILABLE_EVENT, showAppUpdateDialog);
   document.title = productName;
 });
 

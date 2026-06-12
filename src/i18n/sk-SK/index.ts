@@ -22,6 +22,18 @@ export default {
     errorHint: 'Posledné zmeny nie sú uložené. Skontrolujte voľné miesto v prehliadači.',
     localOnly: 'Údaje sa neodosielajú na server.',
   },
+  updates: {
+    title: 'Je dostupná aktualizácia',
+    message: 'Verzia {version} je pripravená. Vaše uložené údaje sú kompatibilné.',
+    incompatibleTitle: 'Aktualizácia vyžaduje obnovenie údajov',
+    incompatibleMessage:
+      'Nová verzia nemôže použiť aktuálne údaje. Aplikácia pred aktualizáciou uloží zálohu v tomto zariadení a potom obnoví aktívne údaje.',
+    keepCurrent: 'Ponechať aktuálnu verziu',
+    updateNow: 'Aktualizovať teraz',
+    updateAndReset: 'Zálohovať a aktualizovať',
+    backupFailed: 'Údaje sa nepodarilo zálohovať. Aktualizácia bola zrušená.',
+    newVersion: 'nová',
+  },
   shifts: { first: 'Ranná zmena', second: 'Poobedná zmena', third: 'Nočná zmena', off: 'Voľno' },
   onboarding: {
     title: 'Nastavte si prácu',

@@ -1,6 +1,7 @@
 import type { UserData } from 'src/models/app';
 
 const STORAGE_KEY = 'my-shift:user-data';
+const BACKUP_KEY = 'my-shift:user-data:update-backup';
 
 export interface StorageAdapter {
   load(): UserData | Record<string, unknown> | null;
@@ -38,6 +39,23 @@ export const browserStorage: StorageAdapter = {
       .forEach((key) => localStorage.removeItem(key));
   },
 };
+
+export function getStoredSchemaVersion(): number | null {
+  const saved = browserStorage.load();
+  if (!saved || typeof saved.schemaVersion !== 'number') return null;
+  return saved.schemaVersion;
+}
+
+export function backupAndClearUserData(): boolean {
+  try {
+    const value = localStorage.getItem(STORAGE_KEY);
+    if (value) localStorage.setItem(BACKUP_KEY, value);
+    localStorage.removeItem(STORAGE_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export function hasStorageMarker(key: string): boolean {
   try {

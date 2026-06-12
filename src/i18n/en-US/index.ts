@@ -22,6 +22,18 @@ export default {
     errorHint: 'The latest changes remain unsaved. Check available browser storage.',
     localOnly: 'Your data is not sent to a server.',
   },
+  updates: {
+    title: 'Update available',
+    message: 'Version {version} is ready. Your saved data is compatible.',
+    incompatibleTitle: 'Update requires a data reset',
+    incompatibleMessage:
+      'The new version cannot use your current data. Updating will save a backup on this device, then reset the active data.',
+    keepCurrent: 'Keep current version',
+    updateNow: 'Update now',
+    updateAndReset: 'Back up and update',
+    backupFailed: 'Could not back up your data. The update was cancelled.',
+    newVersion: 'new',
+  },
   shifts: { first: 'First shift', second: 'Second shift', third: 'Night shift', off: 'Day off' },
   onboarding: {
     title: 'Set up your work',
