@@ -22,6 +22,7 @@ export const useAppStore = defineStore('app', () => {
   let atmosphereTimer: number | undefined;
   let saveTimer: number | undefined;
   let pendingSave: UserData | undefined;
+  let initializationStarted = false;
   const activeProfile = computed<WorkProfile>(() => {
     const profile = data.value.workProfiles.find(
       (item) => item.id === data.value.activeWorkProfileId,
@@ -32,6 +33,9 @@ export const useAppStore = defineStore('app', () => {
   const pattern = computed(() => activeProfile.value.pattern);
 
   function initialize() {
+    if (initializationStarted) return;
+    initializationStarted = true;
+
     const saved = browserStorage.load();
     if (saved && saved.schemaVersion === 2) {
       data.value = saved as unknown as UserData;
