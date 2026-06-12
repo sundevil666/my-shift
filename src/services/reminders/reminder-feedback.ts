@@ -1,4 +1,4 @@
-import { Notify } from 'quasar';
+import { Dialog, Notify } from 'quasar';
 
 export type ReminderKind = 'alarm' | 'notification';
 
@@ -6,9 +6,12 @@ interface ReminderFeedback {
   body: string;
   id: string;
   kind: ReminderKind;
+  stopLabel?: string;
 }
 
 let audioContext: AudioContext | null = null;
+let alarmTimer: number | null = null;
+let alarmDialog: ReturnType<typeof Dialog.create> | null = null;
 
 export function unlockReminderAudio() {
   audioContext ??= new AudioContext();
@@ -35,26 +38,57 @@ function playFrogChirp() {
   oscillator.stop(now + 0.21);
 }
 
-function playReminderSound(kind: ReminderKind) {
-  const repeats = kind === 'alarm' ? 3 : 1;
-  for (let index = 0; index < repeats; index += 1) {
+function playAlarmSequence() {
+  for (let index = 0; index < 3; index += 1) {
     window.setTimeout(playFrogChirp, index * 650);
   }
 }
 
+function stopAlarmSound() {
+  if (alarmTimer === null) return;
+  window.clearInterval(alarmTimer);
+  alarmTimer = null;
+}
+
+function playReminderSound(kind: ReminderKind) {
+  if (kind === 'notification') {
+    playFrogChirp();
+    return;
+  }
+
+  stopAlarmSound();
+  playAlarmSequence();
+  alarmTimer = window.setInterval(playAlarmSequence, 2_400);
+}
+
 export function showReminderFeedback(reminder: ReminderFeedback) {
   playReminderSound(reminder.kind);
-  Notify.create({
-    message: reminder.body,
-    caption: 'My Shift',
-    icon: reminder.kind === 'alarm' ? 'alarm' : 'notifications_active',
-    position: reminder.kind === 'alarm' ? 'top-right' : 'bottom-left',
-    timeout: 5_000,
-    classes:
-      reminder.kind === 'alarm'
-        ? 'shift-notification shift-notification--alarm'
-        : 'shift-notification shift-notification--reminder',
-  });
+
+  if (reminder.kind === 'alarm') {
+    alarmDialog?.hide();
+    alarmDialog = Dialog.create({
+      title: 'My Shift',
+      message: reminder.body,
+      persistent: true,
+      ok: {
+        color: 'negative',
+        icon: 'alarm_off',
+        label: reminder.stopLabel ?? 'Stop alarm',
+      },
+    }).onOk(() => {
+      stopAlarmSound();
+      alarmDialog = null;
+    });
+  } else {
+    Notify.create({
+      message: reminder.body,
+      caption: 'My Shift',
+      icon: 'notifications_active',
+      position: 'bottom-left',
+      timeout: 5_000,
+      classes: 'shift-notification shift-notification--reminder',
+    });
+  }
 
   if ('Notification' in window && Notification.permission === 'granted') {
     new Notification('My Shift', {

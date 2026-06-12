@@ -25,14 +25,23 @@ interface ScheduledReminder {
   body: string;
   id: string;
   kind: ReminderKind;
+  stopLabel?: string;
 }
 
 const messages: Record<
   Locale,
-  { alarm: string; departure: string; shift: string; firstBreak: string; shiftEnd: string }
+  {
+    alarm: string;
+    alarmStop: string;
+    departure: string;
+    shift: string;
+    firstBreak: string;
+    shiftEnd: string;
+  }
 > = {
   'en-US': {
     alarm: 'Time to wake up',
+    alarmStop: 'Stop alarm',
     departure: 'Time to leave soon',
     shift: 'Your shift starts in 10 minutes',
     firstBreak: 'First break starts in 5 minutes',
@@ -40,6 +49,7 @@ const messages: Record<
   },
   'ru-RU': {
     alarm: 'Пора просыпаться',
+    alarmStop: 'Отключить будильник',
     departure: 'Скоро пора выходить',
     shift: 'Смена начнётся через 10 минут',
     firstBreak: 'Первый перерыв через 5 минут',
@@ -47,6 +57,7 @@ const messages: Record<
   },
   'uk-UA': {
     alarm: 'Час прокидатися',
+    alarmStop: 'Вимкнути будильник',
     departure: 'Скоро час виходити',
     shift: 'Зміна почнеться через 10 хвилин',
     firstBreak: 'Перша перерва через 5 хвилин',
@@ -54,6 +65,7 @@ const messages: Record<
   },
   'sk-SK': {
     alarm: 'Čas vstávať',
+    alarmStop: 'Vypnúť budík',
     departure: 'Čoskoro treba vyraziť',
     shift: 'Zmena sa začne o 10 minút',
     firstBreak: 'Prvá prestávka sa začne o 5 minút',
@@ -116,6 +128,7 @@ export default defineBoot(({ store }) => {
           body: localeMessages.alarm,
           id: `my-shift:alarm:${shiftKey}`,
           kind: 'alarm',
+          stopLabel: localeMessages.alarmStop,
         });
       }
 

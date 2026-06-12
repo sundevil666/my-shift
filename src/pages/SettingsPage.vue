@@ -225,6 +225,23 @@
           </div>
         </q-card-section>
       </q-card>
+
+      <q-card flat bordered class="settings-card settings-card--reset">
+        <q-card-section class="settings-card__header">
+          <div class="section-title">{{ $t('settings.resetSection') }}</div>
+          <div class="supporting-text">{{ $t('settings.resetHint') }}</div>
+        </q-card-section>
+        <q-card-section class="settings-card__body">
+          <q-btn
+            outline
+            color="negative"
+            icon="restart_alt"
+            class="app-action-button"
+            :label="$t('settings.resetApplication')"
+            @click="confirmReset"
+          />
+        </q-card-section>
+      </q-card>
     </div>
   </q-page>
 </template>
@@ -232,6 +249,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
 import PageHeader from 'components/PageHeader.vue';
 import { DHL_SCHEDULE_VALID_FROM, dhlBusRoutes } from 'src/core/dhl-bus-routes';
 import { matchesSearch } from 'src/core/search';
@@ -239,6 +257,7 @@ import { showReminderFeedback } from 'src/services/reminders/reminder-feedback';
 import { useAppStore } from 'stores/app-store';
 
 const app = useAppStore();
+const $q = useQuasar();
 const { t, locale } = useI18n();
 const routeQuery = ref('');
 const stopQuery = ref('');
@@ -325,6 +344,7 @@ function testAlarm() {
     body: t('settings.testAlarmMessage'),
     id: `my-shift:test-alarm:${Date.now()}`,
     kind: 'alarm',
+    stopLabel: t('settings.stopAlarm'),
   });
 }
 function testNotification() {
@@ -333,6 +353,21 @@ function testNotification() {
     id: `my-shift:test-notification:${Date.now()}`,
     kind: 'notification',
   });
+}
+function confirmReset() {
+  $q.dialog({
+    title: t('settings.resetConfirmationTitle'),
+    message: t('settings.resetConfirmation'),
+    cancel: {
+      flat: true,
+      label: t('common.cancel'),
+    },
+    ok: {
+      color: 'negative',
+      label: t('settings.resetConfirm'),
+    },
+    persistent: true,
+  }).onOk(() => app.resetApplication());
 }
 </script>
 
@@ -382,6 +417,10 @@ function testNotification() {
 
 .settings-card--tests {
   grid-column: span 3;
+}
+
+.settings-card--reset {
+  grid-column: 1 / -1;
 }
 
 .settings-card__header {
@@ -548,6 +587,25 @@ function testNotification() {
 
   .settings-tests {
     grid-template-columns: 1fr;
+  }
+
+  .settings-transport :deep(.q-btn) {
+    min-height: 52px;
+    padding-inline: 8px;
+    font-size: 0.9rem;
+  }
+
+  .settings-transport :deep(.q-btn .q-icon) {
+    font-size: 1.2rem;
+  }
+
+  .settings-transport :deep(.q-btn__content) {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .settings-notification__title .q-icon {
+    font-size: 1.2rem;
   }
 }
 </style>

@@ -1588,6 +1588,11 @@ body {
   .page-shell {
     padding: 16px 12px 24px;
   }
+
+  .app-action-button .q-icon {
+    font-size: 1.25rem;
+  }
+
   .brand small {
     display: none;
   }
@@ -1800,7 +1805,36 @@ body {
   }
 
   .day-plan__heading {
+    align-items: flex-start;
+    gap: 10px;
     margin-bottom: 2px;
+  }
+
+  .day-plan__heading > div {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .day-plan__heading > .q-btn {
+    width: min(46%, 150px);
+    min-height: 52px;
+    padding: 7px 9px;
+    font-size: 0.78rem;
+    line-height: 1.15;
+  }
+
+  .day-plan__heading > .q-btn .q-btn__content {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .day-plan__heading > .q-btn .q-icon {
+    flex: 0 0 auto;
+    font-size: 1.15rem;
+  }
+
+  .day-plan__heading > .q-btn .block {
+    white-space: normal;
   }
 
   .day-plan__heading h2 {
@@ -1834,7 +1868,21 @@ body {
   }
 
   .event-row__label {
+    flex-wrap: wrap;
+    column-gap: 6px;
+    row-gap: 3px;
     font-size: 0.76rem;
+    line-height: 1.25;
+  }
+
+  .event-row__priority {
+    padding: 1px 5px;
+    font-size: 0.53rem;
+  }
+
+  .event-row__status {
+    margin-left: 0;
+    font-size: 0.58rem;
   }
 
   .event-row--active .event-row__status {

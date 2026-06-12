@@ -15,17 +15,6 @@
             {{ $q.dark.isActive ? $t('settings.light') : $t('settings.dark') }}
           </q-tooltip>
         </q-btn>
-        <q-btn
-          outline
-          round
-          class="app-icon-button app-icon-button--danger"
-          color="negative"
-          icon="restart_alt"
-          :aria-label="$t('settings.resetApplication')"
-          @click="confirmReset"
-        >
-          <q-tooltip>{{ $t('settings.resetApplication') }}</q-tooltip>
-        </q-btn>
       </div>
 
       <PageHeader
@@ -137,22 +126,6 @@ const stopQuery = ref('');
 
 function toggleTheme() {
   app.setTheme($q.dark.isActive ? 'light' : 'dark');
-}
-
-function confirmReset() {
-  $q.dialog({
-    title: t('settings.resetApplication'),
-    message: t('settings.resetConfirmation'),
-    cancel: {
-      flat: true,
-      label: t('common.cancel'),
-    },
-    ok: {
-      color: 'negative',
-      label: t('settings.resetConfirm'),
-    },
-    persistent: true,
-  }).onOk(() => app.resetApplication());
 }
 
 const companyOptions = [{ label: 'DHL', value: 'dhl' }];
