@@ -40,7 +40,10 @@ export const useAppStore = defineStore('app', () => {
     if (saved && saved.schemaVersion === 2) {
       data.value = saved as unknown as UserData;
       data.value.workProfiles.forEach((profile) => {
+        const today = localDateKey(new Date());
         profile.calendarOverrides ??= [];
+        profile.employmentStartDate ??= today;
+        profile.trackingStartDate ??= today;
         profile.transport.alarmEnabled ??= true;
         profile.reminders.shiftStartEnabled ??= true;
         profile.reminders.firstBreakEnabled ??= true;
@@ -205,6 +208,13 @@ function mondayKey(date: Date): string {
   const day = value.getDay();
   value.setDate(value.getDate() - (day === 0 ? 6 : day - 1));
   return new Intl.DateTimeFormat('en-CA').format(value);
+}
+
+function localDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function migrateV1(saved: Record<string, unknown>): UserData {

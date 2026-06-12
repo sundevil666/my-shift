@@ -75,6 +75,8 @@ export interface WorkProfile {
   id: string;
   workplaceType: WorkplaceType;
   workplaceName: string;
+  employmentStartDate: string;
+  trackingStartDate: string;
   shifts: ShiftDefinition[];
   pattern: SchedulePattern;
   transport: TransportSettings;
