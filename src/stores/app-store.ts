@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { Dark } from 'quasar';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, toRaw, watch } from 'vue';
 import { createDhlWorkProfile, defaultUserData } from 'src/core/defaults';
 import { resolvedShiftCodeForDate } from 'src/core/schedule';
 import { browserStorage } from 'src/services/storage/storage';
@@ -21,6 +21,7 @@ export const useAppStore = defineStore('app', () => {
   const saveStatus = ref<SaveStatus>('idle');
   let atmosphereTimer: number | undefined;
   let saveTimer: number | undefined;
+  let pendingSave: UserData | undefined;
   const activeProfile = computed<WorkProfile>(() => {
     const profile = data.value.workProfiles.find(
       (item) => item.id === data.value.activeWorkProfileId,
@@ -47,6 +48,7 @@ export const useAppStore = defineStore('app', () => {
     applyTheme(data.value.settings.theme);
     applyShiftAtmosphere();
     scheduleAtmosphereRefresh();
+    window.addEventListener('pagehide', flushSave);
     initialized.value = true;
   }
 
@@ -137,8 +139,19 @@ export const useAppStore = defineStore('app', () => {
   }
 
   function resetApplication() {
+    pendingSave = undefined;
+    if (saveTimer) window.clearTimeout(saveTimer);
     browserStorage.clear();
     window.location.reload();
+  }
+
+  function flushSave() {
+    if (!pendingSave) return;
+    if (saveTimer) window.clearTimeout(saveTimer);
+    saveTimer = undefined;
+    const result = browserStorage.save(pendingSave);
+    pendingSave = undefined;
+    saveStatus.value = result.ok ? 'saved' : 'error';
   }
 
   watch(
@@ -147,11 +160,9 @@ export const useAppStore = defineStore('app', () => {
       if (!initialized.value) return;
 
       saveStatus.value = 'saving';
+      pendingSave = structuredClone(toRaw(value));
       if (saveTimer) window.clearTimeout(saveTimer);
-      saveTimer = window.setTimeout(() => {
-        const result = browserStorage.save(value);
-        saveStatus.value = result.ok ? 'saved' : 'error';
-      }, 250);
+      saveTimer = window.setTimeout(flushSave, 250);
     },
     { deep: true },
   );

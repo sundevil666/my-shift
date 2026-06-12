@@ -17,6 +17,7 @@ import {
   unlockReminderAudio,
   type ReminderKind,
 } from 'src/services/reminders/reminder-feedback';
+import { hasStorageMarker, setStorageMarker } from 'src/services/storage/storage';
 import { useAppStore } from 'stores/app-store';
 
 interface ScheduledReminder {
@@ -167,12 +168,12 @@ export default defineBoot(({ store }) => {
 
     reminders.forEach((reminder) => {
       const delay = reminder.at.getTime() - now.getTime();
-      if (delay <= 0 || localStorage.getItem(reminder.id)) return;
+      if (delay <= 0 || hasStorageMarker(reminder.id)) return;
 
       timers.push(
         window.setTimeout(() => {
           showReminderFeedback(reminder);
-          localStorage.setItem(reminder.id, '1');
+          setStorageMarker(reminder.id);
           schedule();
         }, delay),
       );
@@ -199,6 +200,12 @@ export default defineBoot(({ store }) => {
       app.activeProfile.transport.busStopId,
       app.activeProfile.pattern.startDate,
       app.activeProfile.pattern.sequence.join(','),
+      app.activeProfile.calendarOverrides
+        .map(
+          (override) =>
+            `${override.id}:${override.type}:${override.startDate}:${override.endDate}:${override.shiftId ?? ''}`,
+        )
+        .join(','),
       app.activeProfile.shifts
         .map((shift) => `${shift.id}:${shift.startTime}:${shift.endTime}`)
         .join(','),

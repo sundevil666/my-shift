@@ -39,6 +39,22 @@ export const browserStorage: StorageAdapter = {
   },
 };
 
+export function hasStorageMarker(key: string): boolean {
+  try {
+    return localStorage.getItem(key) !== null;
+  } catch {
+    return false;
+  }
+}
+
+export function setStorageMarker(key: string): void {
+  try {
+    localStorage.setItem(key, '1');
+  } catch {
+    // Reminder delivery should continue when browser storage is unavailable.
+  }
+}
+
 function isQuotaExceededError(error: unknown): boolean {
   return (
     error instanceof DOMException &&
