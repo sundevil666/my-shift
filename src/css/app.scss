@@ -253,6 +253,10 @@ body {
   font-size: 1rem;
 }
 
+.q-btn {
+  text-transform: none;
+}
+
 .q-field--outlined .q-field__control::before {
   border-color: var(--app-border);
 }

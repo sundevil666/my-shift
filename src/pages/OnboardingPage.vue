@@ -44,13 +44,6 @@
             :options="companyOptions"
             :label="$t('onboarding.company')"
           />
-          <q-btn
-            outline
-            disable
-            class="app-action-button"
-            icon="add_business"
-            :label="$t('onboarding.customSoon')"
-          />
 
           <q-btn-toggle
             v-if="company"
