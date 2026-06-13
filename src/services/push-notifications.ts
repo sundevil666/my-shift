@@ -3,7 +3,6 @@ import {
   addMinutes,
   dateKey,
   FIRST_BREAK_AFTER_SHIFT_START_MINUTES,
-  FIRST_BREAK_NOTIFICATION_BEFORE_MINUTES,
   resolvedShiftCodeForDate,
   shiftDateTime,
   shiftEndDateTime,
@@ -18,44 +17,26 @@ interface PushReminder {
 }
 
 const DEVICE_ID_KEY = 'my-shift:push-device-id';
-const pushMessages: Record<
-  Locale,
-  { alarm: string; departure: string; firstBreak: string; shift: string; shiftEnd: string }
-> = {
+const pushMessages: Record<Locale, { alarm: string; departure: string }> = {
   'en-US': {
     alarm: 'Time to wake up',
     departure: 'Time to leave soon',
-    shift: 'Your shift starts in 10 minutes',
-    firstBreak: 'First break starts in 5 minutes',
-    shiftEnd: 'Your shift ends in 20 minutes',
   },
   'ru-RU': {
     alarm: 'Пора просыпаться',
     departure: 'Скоро пора выходить',
-    shift: 'Смена начнётся через 10 минут',
-    firstBreak: 'Первый перерыв через 5 минут',
-    shiftEnd: 'До конца смены осталось 20 минут',
   },
   'uk-UA': {
     alarm: 'Час прокидатися',
     departure: 'Скоро час виходити',
-    shift: 'Зміна почнеться через 10 хвилин',
-    firstBreak: 'Перша перерва через 5 хвилин',
-    shiftEnd: 'До кінця зміни залишилося 20 хвилин',
   },
   'sk-SK': {
     alarm: 'Čas vstávať',
     departure: 'Čoskoro treba vyraziť',
-    shift: 'Zmena sa začne o 10 minút',
-    firstBreak: 'Prvá prestávka sa začne o 5 minút',
-    shiftEnd: 'Do konca zmeny zostáva 20 minút',
   },
 };
 
-export async function syncPushReminders(
-  profile: WorkProfile,
-  locale: Locale,
-): Promise<boolean> {
+export async function syncPushReminders(profile: WorkProfile, locale: Locale): Promise<boolean> {
   if (
     !profile.reminders.enabled ||
     Notification.permission !== 'granted' ||
@@ -133,25 +114,65 @@ function buildPushReminders(profile: WorkProfile, locale: Locale): PushReminder[
       );
     }
     if (profile.reminders.shiftStartEnabled) {
-      addReminder(reminders, addMinutes(shiftStart, -10), `shift:${key}`, messages.shift);
+      addReminder(
+        reminders,
+        addMinutes(shiftStart, -profile.reminders.shiftStartBeforeMinutes),
+        `shift:${key}`,
+        reminderMessage(locale, 'shiftStart', profile.reminders.shiftStartBeforeMinutes),
+      );
     }
     if (profile.reminders.firstBreakEnabled) {
       addReminder(
         reminders,
         addMinutes(
           shiftStart,
-          FIRST_BREAK_AFTER_SHIFT_START_MINUTES - FIRST_BREAK_NOTIFICATION_BEFORE_MINUTES,
+          FIRST_BREAK_AFTER_SHIFT_START_MINUTES - profile.reminders.firstBreakBeforeMinutes,
         ),
         `first-break:${key}`,
-        messages.firstBreak,
+        reminderMessage(locale, 'firstBreak', profile.reminders.firstBreakBeforeMinutes),
       );
     }
     if (profile.reminders.shiftEndEnabled) {
-      addReminder(reminders, addMinutes(shiftEnd, -20), `shift-end:${key}`, messages.shiftEnd);
+      addReminder(
+        reminders,
+        addMinutes(shiftEnd, -profile.reminders.shiftEndBeforeMinutes),
+        `shift-end:${key}`,
+        reminderMessage(locale, 'shiftEnd', profile.reminders.shiftEndBeforeMinutes),
+      );
     }
   }
 
   return reminders;
+}
+
+export function reminderMessage(
+  locale: Locale,
+  event: 'shiftStart' | 'firstBreak' | 'shiftEnd',
+  minutes: number,
+): string {
+  const messages = {
+    'en-US': {
+      shiftStart: `Your shift starts in ${minutes} minutes`,
+      firstBreak: `First break starts in ${minutes} minutes`,
+      shiftEnd: `Your shift ends in ${minutes} minutes`,
+    },
+    'ru-RU': {
+      shiftStart: `Смена начнётся через ${minutes} мин.`,
+      firstBreak: `Первый перерыв через ${minutes} мин.`,
+      shiftEnd: `До конца смены ${minutes} мин.`,
+    },
+    'uk-UA': {
+      shiftStart: `Зміна почнеться через ${minutes} хв.`,
+      firstBreak: `Перша перерва через ${minutes} хв.`,
+      shiftEnd: `До кінця зміни ${minutes} хв.`,
+    },
+    'sk-SK': {
+      shiftStart: `Zmena sa začne o ${minutes} min.`,
+      firstBreak: `Prvá prestávka sa začne o ${minutes} min.`,
+      shiftEnd: `Do konca zmeny zostáva ${minutes} min.`,
+    },
+  } satisfies Record<Locale, Record<typeof event, string>>;
+  return messages[locale][event];
 }
 
 function addReminder(

@@ -5,7 +5,6 @@ import {
   currentWorkingShift,
   dateKey,
   FIRST_BREAK_AFTER_SHIFT_START_MINUTES,
-  FIRST_BREAK_NOTIFICATION_BEFORE_MINUTES,
   nextWorkingShift,
   shiftDateTime,
   shiftEndDateTime,
@@ -18,7 +17,7 @@ import {
   type ReminderKind,
 } from 'src/services/reminders/reminder-feedback';
 import { hasStorageMarker, setStorageMarker } from 'src/services/storage/storage';
-import { syncPushReminders } from 'src/services/push-notifications';
+import { reminderMessage, syncPushReminders } from 'src/services/push-notifications';
 import { useAppStore } from 'stores/app-store';
 
 interface ScheduledReminder {
@@ -35,42 +34,27 @@ const messages: Record<
     alarm: string;
     alarmStop: string;
     departure: string;
-    shift: string;
-    firstBreak: string;
-    shiftEnd: string;
   }
 > = {
   'en-US': {
     alarm: 'Time to wake up',
     alarmStop: 'Stop alarm',
     departure: 'Time to leave soon',
-    shift: 'Your shift starts in 10 minutes',
-    firstBreak: 'First break starts in 5 minutes',
-    shiftEnd: 'Your shift ends in 20 minutes',
   },
   'ru-RU': {
     alarm: 'Пора просыпаться',
     alarmStop: 'Отключить будильник',
     departure: 'Скоро пора выходить',
-    shift: 'Смена начнётся через 10 минут',
-    firstBreak: 'Первый перерыв через 5 минут',
-    shiftEnd: 'До конца смены осталось 20 минут',
   },
   'uk-UA': {
     alarm: 'Час прокидатися',
     alarmStop: 'Вимкнути будильник',
     departure: 'Скоро час виходити',
-    shift: 'Зміна почнеться через 10 хвилин',
-    firstBreak: 'Перша перерва через 5 хвилин',
-    shiftEnd: 'До кінця зміни залишилося 20 хвилин',
   },
   'sk-SK': {
     alarm: 'Čas vstávať',
     alarmStop: 'Vypnúť budík',
     departure: 'Čoskoro treba vyraziť',
-    shift: 'Zmena sa začne o 10 minút',
-    firstBreak: 'Prvá prestávka sa začne o 5 minút',
-    shiftEnd: 'Do konca zmeny zostáva 20 minút',
   },
 };
 
@@ -123,10 +107,7 @@ export default defineBoot(({ store }) => {
 
       if (app.activeProfile.transport.alarmEnabled) {
         reminders.push({
-          at: addMinutes(
-            referenceTime,
-            -app.activeProfile.transport.alarmBeforeReferenceMinutes,
-          ),
+          at: addMinutes(referenceTime, -app.activeProfile.transport.alarmBeforeReferenceMinutes),
           body: localeMessages.alarm,
           id: `my-shift:alarm:${shiftKey}`,
           kind: 'alarm',
@@ -136,10 +117,7 @@ export default defineBoot(({ store }) => {
 
       if (app.activeProfile.transport.leaveReminderEnabled) {
         reminders.push({
-          at: addMinutes(
-            referenceTime,
-            -app.activeProfile.transport.leaveBeforeReferenceMinutes,
-          ),
+          at: addMinutes(referenceTime, -app.activeProfile.transport.leaveBeforeReferenceMinutes),
           body: localeMessages.departure,
           id: `my-shift:departure:${shiftKey}`,
           kind: 'notification',
@@ -148,8 +126,12 @@ export default defineBoot(({ store }) => {
 
       if (app.activeProfile.reminders.shiftStartEnabled) {
         reminders.push({
-          at: addMinutes(shiftStart, -10),
-          body: localeMessages.shift,
+          at: addMinutes(shiftStart, -app.activeProfile.reminders.shiftStartBeforeMinutes),
+          body: reminderMessage(
+            app.data.settings.locale,
+            'shiftStart',
+            app.activeProfile.reminders.shiftStartBeforeMinutes,
+          ),
           id: `my-shift:shift:${shiftKey}`,
           kind: 'notification',
         });
@@ -164,17 +146,28 @@ export default defineBoot(({ store }) => {
           at: addMinutes(
             shiftDateTime(breakShift.date, breakShift.shift.startTime),
             FIRST_BREAK_AFTER_SHIFT_START_MINUTES -
-              FIRST_BREAK_NOTIFICATION_BEFORE_MINUTES,
+              app.activeProfile.reminders.firstBreakBeforeMinutes,
           ),
-          body: localeMessages.firstBreak,
+          body: reminderMessage(
+            app.data.settings.locale,
+            'firstBreak',
+            app.activeProfile.reminders.firstBreakBeforeMinutes,
+          ),
           id: `my-shift:first-break:${breakShiftKey}`,
           kind: 'notification',
         });
       }
       if (app.activeProfile.reminders.shiftEndEnabled) {
         reminders.push({
-          at: addMinutes(shiftEndDateTime(breakShift.date, breakShift.shift), -20),
-          body: localeMessages.shiftEnd,
+          at: addMinutes(
+            shiftEndDateTime(breakShift.date, breakShift.shift),
+            -app.activeProfile.reminders.shiftEndBeforeMinutes,
+          ),
+          body: reminderMessage(
+            app.data.settings.locale,
+            'shiftEnd',
+            app.activeProfile.reminders.shiftEndBeforeMinutes,
+          ),
           id: `my-shift:shift-end:${breakShiftKey}`,
           kind: 'notification',
         });
@@ -215,8 +208,11 @@ export default defineBoot(({ store }) => {
       app.activeProfile.transport.leaveReminderEnabled,
       app.activeProfile.transport.leaveBeforeReferenceMinutes,
       app.activeProfile.reminders.shiftStartEnabled,
+      app.activeProfile.reminders.shiftStartBeforeMinutes,
       app.activeProfile.reminders.firstBreakEnabled,
+      app.activeProfile.reminders.firstBreakBeforeMinutes,
       app.activeProfile.reminders.shiftEndEnabled,
+      app.activeProfile.reminders.shiftEndBeforeMinutes,
       app.activeProfile.transport.mode,
       app.activeProfile.transport.busRouteId,
       app.activeProfile.transport.busStopId,
@@ -237,9 +233,5 @@ export default defineBoot(({ store }) => {
     { immediate: true },
   );
 
-  watch(
-    () => JSON.stringify(app.data),
-    schedulePushSync,
-    { immediate: true },
-  );
+  watch(() => JSON.stringify(app.data), schedulePushSync, { immediate: true });
 });

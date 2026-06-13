@@ -49,8 +49,11 @@ export interface TransportSettings {
 export interface ReminderSettings {
   enabled: boolean;
   shiftStartEnabled: boolean;
+  shiftStartBeforeMinutes: number;
   firstBreakEnabled: boolean;
+  firstBreakBeforeMinutes: number;
   shiftEndEnabled: boolean;
+  shiftEndBeforeMinutes: number;
   beforeDepartureMinutes: number;
   beforeShiftMinutes: number;
 }

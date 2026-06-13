@@ -46,8 +46,11 @@ export const useAppStore = defineStore('app', () => {
         profile.trackingStartDate ??= today;
         profile.transport.alarmEnabled ??= true;
         profile.reminders.shiftStartEnabled ??= true;
+        profile.reminders.shiftStartBeforeMinutes ??= 10;
         profile.reminders.firstBreakEnabled ??= true;
+        profile.reminders.firstBreakBeforeMinutes ??= 5;
         profile.reminders.shiftEndEnabled ??= true;
+        profile.reminders.shiftEndBeforeMinutes ??= 30;
       });
     } else if (saved && saved.schemaVersion === 1) {
       data.value = migrateV1(saved as unknown as Record<string, unknown>);
@@ -109,10 +112,7 @@ export const useAppStore = defineStore('app', () => {
     applyShiftAtmosphere();
   }
 
-  function replaceCalendarOverrides(
-    override: CalendarOverride,
-    replacedOverrideIds: string[],
-  ) {
+  function replaceCalendarOverrides(override: CalendarOverride, replacedOverrideIds: string[]) {
     const replacedIds = new Set(replacedOverrideIds);
     activeProfile.value.calendarOverrides = [
       ...activeProfile.value.calendarOverrides.filter((item) => !replacedIds.has(item.id)),

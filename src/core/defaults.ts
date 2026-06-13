@@ -76,8 +76,11 @@ export function createDhlWorkProfile(): WorkProfile {
     reminders: {
       enabled: true,
       shiftStartEnabled: true,
+      shiftStartBeforeMinutes: 10,
       firstBreakEnabled: true,
+      firstBreakBeforeMinutes: 5,
       shiftEndEnabled: true,
+      shiftEndBeforeMinutes: 30,
       beforeDepartureMinutes: 30,
       beforeShiftMinutes: 15,
     },

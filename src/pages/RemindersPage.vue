@@ -28,28 +28,63 @@
               label
             />
           </q-item-section>
-          <q-item-section side>{{ app.activeProfile.reminders.beforeDepartureMinutes }} min</q-item-section>
+          <q-item-section side
+            >{{ app.activeProfile.reminders.beforeDepartureMinutes }} min</q-item-section
+          >
         </q-item>
-        <q-item>
+        <q-item tag="label">
           <q-item-section>
             <q-item-label>{{ $t('reminders.beforeShift') }}</q-item-label>
             <q-item-label caption>{{ $t('reminders.beforeShiftHint') }}</q-item-label>
+            <q-input
+              v-model.number="app.activeProfile.reminders.shiftStartBeforeMinutes"
+              dense
+              outlined
+              type="number"
+              min="0"
+              suffix="min"
+              :disable="!app.activeProfile.reminders.shiftStartEnabled"
+            />
           </q-item-section>
-          <q-item-section side>10 min</q-item-section>
+          <q-item-section side
+            ><q-toggle v-model="app.activeProfile.reminders.shiftStartEnabled"
+          /></q-item-section>
         </q-item>
-        <q-item>
+        <q-item tag="label">
           <q-item-section>
             <q-item-label>{{ $t('reminders.beforeShiftEnd') }}</q-item-label>
             <q-item-label caption>{{ $t('reminders.beforeShiftEndHint') }}</q-item-label>
+            <q-input
+              v-model.number="app.activeProfile.reminders.shiftEndBeforeMinutes"
+              dense
+              outlined
+              type="number"
+              min="0"
+              suffix="min"
+              :disable="!app.activeProfile.reminders.shiftEndEnabled"
+            />
           </q-item-section>
-          <q-item-section side>20 min</q-item-section>
+          <q-item-section side
+            ><q-toggle v-model="app.activeProfile.reminders.shiftEndEnabled"
+          /></q-item-section>
         </q-item>
-        <q-item>
+        <q-item tag="label">
           <q-item-section>
             <q-item-label>{{ $t('reminders.firstBreak') }}</q-item-label>
             <q-item-label caption>{{ $t('reminders.firstBreakHint') }}</q-item-label>
+            <q-input
+              v-model.number="app.activeProfile.reminders.firstBreakBeforeMinutes"
+              dense
+              outlined
+              type="number"
+              min="0"
+              suffix="min"
+              :disable="!app.activeProfile.reminders.firstBreakEnabled"
+            />
           </q-item-section>
-          <q-item-section side>2 h 15 min</q-item-section>
+          <q-item-section side
+            ><q-toggle v-model="app.activeProfile.reminders.firstBreakEnabled"
+          /></q-item-section>
         </q-item>
       </q-list>
       <q-card-section class="supporting-text"

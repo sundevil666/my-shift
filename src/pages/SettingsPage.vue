@@ -175,7 +175,7 @@
             <div
               v-for="notification in notificationOptions"
               :key="notification.model"
-              class="settings-notification"
+              class="settings-notification settings-notification--wide"
             >
               <q-item dense>
                 <q-item-section>
@@ -192,6 +192,21 @@
                   />
                 </q-item-section>
               </q-item>
+              <q-input
+                v-model.number="app.activeProfile.reminders[notification.minutesModel]"
+                class="settings-notification__input"
+                outlined
+                dense
+                type="number"
+                min="0"
+                max="1440"
+                :disable="
+                  !app.activeProfile.reminders.enabled ||
+                  !app.activeProfile.reminders[notification.model]
+                "
+                :label="$t('settings.notifyBefore')"
+                suffix="min"
+              />
             </div>
           </div>
         </q-card-section>
@@ -280,18 +295,21 @@ const transportOptions = computed(() => [
 const notificationOptions = computed(() => [
   {
     model: 'shiftStartEnabled' as const,
+    minutesModel: 'shiftStartBeforeMinutes' as const,
     icon: 'work',
     label: t('settings.shiftStartEnabled'),
     hint: t('settings.shiftStartHint'),
   },
   {
     model: 'firstBreakEnabled' as const,
+    minutesModel: 'firstBreakBeforeMinutes' as const,
     icon: 'coffee',
     label: t('settings.firstBreakEnabled'),
     hint: t('settings.firstBreakHint'),
   },
   {
     model: 'shiftEndEnabled' as const,
+    minutesModel: 'shiftEndBeforeMinutes' as const,
     icon: 'logout',
     label: t('settings.shiftEndEnabled'),
     hint: t('settings.shiftEndHint'),
