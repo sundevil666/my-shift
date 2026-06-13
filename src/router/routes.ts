@@ -16,6 +16,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'patterns', component: () => import('pages/PatternsPage.vue') },
       { path: 'reminders', component: () => import('pages/RemindersPage.vue') },
       { path: 'whats-new', component: () => import('pages/WhatsNewPage.vue') },
+      { path: 'support', component: () => import('pages/SupportPage.vue') },
       { path: 'settings', component: () => import('pages/SettingsPage.vue') },
     ],
   },

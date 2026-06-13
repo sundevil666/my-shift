@@ -46,6 +46,12 @@ export default {
     subtitle: 'New features and important changes, organized by version.',
     history: 'Version history',
     releases: {
+      v012: {
+        title: 'Voluntary project support',
+        supportPage: 'Added a dedicated page explaining how support for My Shift will work.',
+        supportButton: 'Added a small unobtrusive support button to the menu.',
+        futurePayments: 'Payment details are not published yet and will be added later.',
+      },
       v011: {
         title: 'Safe Android updates',
         nativeUpdate: 'The APK downloads in the app and opens in the system installer.',
@@ -109,6 +115,26 @@ export default {
       name: 'Enter at least 2 characters',
       email: 'Enter a valid email',
       message: 'Enter at least 10 characters',
+    },
+  },
+  support: {
+    button: 'Support the project',
+    eyebrow: 'Project support',
+    title: 'Support My Shift',
+    subtitle: 'An option for people who independently choose to help the app grow.',
+    voluntaryTitle: 'Entirely your choice',
+    voluntaryText:
+      'My Shift remains available without required payments. If the app is useful and you are comfortable supporting its development, simple transfer options will appear here later. This is an option, not a request.',
+    methodsTitle: 'Support methods will be added later',
+    methodsText:
+      'Payments are not accepted yet. Once a convenient and secure payment method is ready, it will appear only on this page.',
+    principles: {
+      choiceTitle: 'Fully voluntary',
+      choiceText: 'No payment reminders, subscriptions, or obligations.',
+      accessTitle: 'Equal access',
+      accessText: 'Support does not unlock hidden features or restrict anyone else.',
+      purposeTitle: 'For development',
+      purposeText: 'Funds can help cover publishing, infrastructure, and new features.',
     },
   },
   shifts: { first: 'First shift', second: 'Second shift', third: 'Night shift', off: 'Day off' },

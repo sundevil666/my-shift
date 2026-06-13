@@ -46,6 +46,12 @@ export default {
     subtitle: 'Nové funkcie a dôležité zmeny zoradené podľa verzií.',
     history: 'História verzií',
     releases: {
+      v012: {
+        title: 'Dobrovoľná podpora projektu',
+        supportPage: 'Pridaná samostatná stránka s princípmi podpory My Shift.',
+        supportButton: 'Do ponuky pribudlo malé nenápadné tlačidlo podpory.',
+        futurePayments: 'Platobné údaje zatiaľ nie sú zverejnené a pribudnú neskôr.',
+      },
       v011: {
         title: 'Bezpečné aktualizácie Androidu',
         nativeUpdate: 'APK sa stiahne v aplikácii a otvorí v systémovom inštalátore.',
@@ -109,6 +115,26 @@ export default {
       name: 'Zadajte aspoň 2 znaky',
       email: 'Zadajte platný email',
       message: 'Zadajte aspoň 10 znakov',
+    },
+  },
+  support: {
+    button: 'Podporiť projekt',
+    eyebrow: 'Podpora projektu',
+    title: 'Podporiť My Shift',
+    subtitle: 'Možnosť pre ľudí, ktorí sa sami rozhodnú pomôcť rozvoju aplikácie.',
+    voluntaryTitle: 'Iba podľa vášho rozhodnutia',
+    voluntaryText:
+      'My Shift zostáva dostupný bez povinných platieb. Ak je pre vás aplikácia užitočná a chcete podporiť jej vývoj, neskôr sa tu objavia jednoduché možnosti prevodu. Je to možnosť, nie žiadosť.',
+    methodsTitle: 'Možnosti podpory pribudnú neskôr',
+    methodsText:
+      'Platby sa zatiaľ neprijímajú. Keď bude pripravený pohodlný a bezpečný spôsob platby, zobrazí sa iba na tejto stránke.',
+    principles: {
+      choiceTitle: 'Úplne dobrovoľné',
+      choiceText: 'Žiadne pripomienky platieb, predplatné ani záväzky.',
+      accessTitle: 'Rovnaký prístup',
+      accessText: 'Podpora neodomyká skryté funkcie ani neobmedzuje ostatných.',
+      purposeTitle: 'Na rozvoj',
+      purposeText: 'Prostriedky pomôžu pokryť publikovanie, infraštruktúru a nové funkcie.',
     },
   },
   shifts: { first: 'Ranná zmena', second: 'Poobedná zmena', third: 'Nočná zmena', off: 'Voľno' },

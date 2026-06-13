@@ -67,6 +67,17 @@
           <q-item-section>{{ $t(item.label) }}</q-item-section>
         </q-item>
       </q-list>
+      <div class="drawer-support">
+        <q-btn
+          flat
+          no-caps
+          icon="favorite_border"
+          color="primary"
+          class="drawer-support__button"
+          :label="$t('support.button')"
+          to="/support"
+        />
+      </div>
       <SidebarShiftCard />
       <div
         v-if="app.saveStatus !== 'idle'"
@@ -96,7 +107,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
+import { RouterView, useRouter } from 'vue-router';
 import LanguageToggle from 'components/LanguageToggle.vue';
 import SidebarShiftCard from 'components/SidebarShiftCard.vue';
 import AppLogo from 'components/AppLogo.vue';

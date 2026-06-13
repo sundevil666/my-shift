@@ -829,6 +829,80 @@ body {
   gap: 10px;
 }
 
+.drawer-support {
+  padding: 0 12px 10px;
+}
+.drawer-support__button {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.support-page {
+  max-width: 920px;
+  margin: 0 auto;
+}
+.support-card {
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--app-surface);
+}
+.support-card__intro {
+  display: grid;
+  gap: 12px;
+  padding: clamp(20px, 4vw, 34px);
+}
+.support-card__icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  background: var(--app-primary-soft);
+  border-radius: 16px;
+  color: var(--q-primary);
+  font-size: 1.75rem;
+}
+.support-card h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+.support-card p {
+  margin: 0;
+  color: var(--app-muted);
+  line-height: 1.65;
+}
+.support-principles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.support-principle {
+  padding: 18px;
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+}
+.support-principle .q-icon {
+  margin-bottom: 10px;
+  color: var(--q-primary);
+  font-size: 1.5rem;
+}
+.support-principle strong {
+  display: block;
+  margin-bottom: 6px;
+}
+.support-coming {
+  padding: 18px;
+  border-top: 1px solid var(--app-border);
+}
+@media (max-width: 700px) {
+  .support-principles {
+    grid-template-columns: 1fr;
+  }
+}
+
 .storage-status .q-icon,
 .storage-status .q-spinner {
   flex: 0 0 auto;
