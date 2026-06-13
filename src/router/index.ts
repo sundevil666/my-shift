@@ -34,9 +34,9 @@ export default defineRouter((/* { store, ssrContext } */) => {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
-  Router.beforeEach((to) => {
+  Router.beforeEach(async (to) => {
     const app = useAppStore();
-    if (!app.initialized) app.initialize();
+    if (!app.initialized) await app.initialize();
     if (!app.data.onboardingCompleted && to.path !== '/onboarding') return '/onboarding';
     if (app.data.onboardingCompleted && to.path === '/onboarding') return '/';
     return true;

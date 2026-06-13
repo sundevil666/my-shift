@@ -22,9 +22,9 @@ declare module 'vue-i18n' {
 }
 /* eslint-enable @typescript-eslint/no-empty-object-type */
 
-export default defineBoot(({ app, store }) => {
+export default defineBoot(async ({ app, store }) => {
   const appStore = useAppStore(store);
-  appStore.initialize();
+  await appStore.initialize();
   const i18n = createI18n<{ message: MessageSchema }, MessageLanguages>({
     locale: appStore.data.settings.locale,
     legacy: false,

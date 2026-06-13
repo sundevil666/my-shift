@@ -9,7 +9,7 @@ import {
 } from 'src/core/schedule';
 import type { Locale, WorkProfile } from 'src/models/app';
 
-interface PushReminder {
+export interface PushReminder {
   at: number;
   body: string;
   id: string;
@@ -39,6 +39,7 @@ const pushMessages: Record<Locale, { alarm: string; departure: string }> = {
 export async function syncPushReminders(profile: WorkProfile, locale: Locale): Promise<boolean> {
   if (
     !profile.reminders.enabled ||
+    typeof Notification === 'undefined' ||
     Notification.permission !== 'granted' ||
     !('serviceWorker' in navigator) ||
     !('PushManager' in window)
@@ -70,7 +71,7 @@ export async function syncPushReminders(profile: WorkProfile, locale: Locale): P
   return response.ok;
 }
 
-function buildPushReminders(profile: WorkProfile, locale: Locale): PushReminder[] {
+export function buildPushReminders(profile: WorkProfile, locale: Locale): PushReminder[] {
   const now = new Date();
   const messages = pushMessages[locale];
   const reminders: PushReminder[] = [];

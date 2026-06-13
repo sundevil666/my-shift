@@ -1,6 +1,7 @@
 {
   "name": "my-shift",
-  "version": "0.0.1",
+  "version": "0.1.1",
+  "androidVersionCode": 2,
   "description": "Local-first shift planning assistant",
   "productName": "My Shift",
   "author": "sundevil <sundevildi@gmail.com>",
@@ -13,9 +14,13 @@
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
     "build": "quasar build -m pwa",
+    "build:android": "quasar build -m capacitor -T android",
+    "build:ios": "quasar build -m capacitor -T ios",
     "postinstall": "quasar prepare"
   },
   "dependencies": {
+    "@capacitor/core": "^8.4.0",
+    "@capacitor/local-notifications": "^8.2.0",
     "@quasar/extras": "^1.16.4",
     "@upstash/qstash": "^2.11.0",
     "@upstash/redis": "^1.38.0",
@@ -29,6 +34,9 @@
     "workbox-precaching": "^7.4.1"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/cli": "^8.4.0",
+    "@capacitor/ios": "^8.4.0",
     "@eslint/js": "^9.39.4",
     "@intlify/unplugin-vue-i18n": "^11.0.0",
     "@quasar/app-vite": "^2.5.1",

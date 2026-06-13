@@ -4,6 +4,7 @@ import { computed, ref, toRaw, watch } from 'vue';
 import { createDhlWorkProfile, defaultUserData } from 'src/core/defaults';
 import { resolvedShiftCodeForDate } from 'src/core/schedule';
 import { browserStorage } from 'src/services/storage/storage';
+import { loadNativeUpdateBackup } from 'src/services/native-updater';
 import type {
   Locale,
   CalendarOverride,
@@ -22,7 +23,7 @@ export const useAppStore = defineStore('app', () => {
   let atmosphereTimer: number | undefined;
   let saveTimer: number | undefined;
   let pendingSave: UserData | undefined;
-  let initializationStarted = false;
+  let initializationPromise: Promise<void> | undefined;
   const activeProfile = computed<WorkProfile>(() => {
     const profile = data.value.workProfiles.find(
       (item) => item.id === data.value.activeWorkProfileId,
@@ -32,11 +33,20 @@ export const useAppStore = defineStore('app', () => {
   const shifts = computed(() => activeProfile.value.shifts);
   const pattern = computed(() => activeProfile.value.pattern);
 
-  function initialize() {
-    if (initializationStarted) return;
-    initializationStarted = true;
+  function initialize(): Promise<void> {
+    initializationPromise ??= initializeData();
+    return initializationPromise;
+  }
 
-    const saved = browserStorage.load();
+  async function initializeData() {
+    let saved = browserStorage.load();
+    if (!saved) {
+      const nativeBackup = await loadNativeUpdateBackup();
+      if (nativeBackup) {
+        browserStorage.save(nativeBackup);
+        saved = nativeBackup;
+      }
+    }
     if (saved && saved.schemaVersion === 2) {
       data.value = saved as unknown as UserData;
       data.value.workProfiles.forEach((profile) => {

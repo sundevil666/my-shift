@@ -7,6 +7,7 @@ export default {
     statistics: 'Štatistiky',
     patterns: 'Pracovné cykly',
     reminders: 'Pripomienky',
+    whatsNew: 'Čo je nové',
     settings: 'Nastavenia',
   },
   common: {
@@ -14,6 +15,10 @@ export default {
     openCalendar: 'Otvoriť kalendár',
     openMenu: 'Otvoriť menu',
     cancel: 'Zrušiť',
+  },
+  install: {
+    android: 'Nainštalovať',
+    androidUnavailable: 'Inštalácia bude dostupná, keď prehliadač dokončí prípravu aplikácie.',
   },
   storage: {
     saving: 'Ukladanie…',
@@ -34,6 +39,77 @@ export default {
     updateAndReset: 'Zálohovať a aktualizovať',
     backupFailed: 'Údaje sa nepodarilo zálohovať. Aktualizácia bola zrušená.',
     newVersion: 'nová',
+    whatsNew: 'Čo je nové',
+  },
+  whatsNew: {
+    title: 'Čo je nové v My Shift',
+    subtitle: 'Nové funkcie a dôležité zmeny zoradené podľa verzií.',
+    history: 'História verzií',
+    releases: {
+      v011: {
+        title: 'Bezpečné aktualizácie Androidu',
+        nativeUpdate: 'APK sa stiahne v aplikácii a otvorí v systémovom inštalátore.',
+        backup: 'Pred aktualizáciou sa automaticky uloží záloha všetkých nastavení.',
+        signing: 'Pridaný trvalý release podpis pre aktualizácie nainštalovanej verzie.',
+      },
+      v010: {
+        title: 'Aktualizácie a spätná väzba',
+        changelog: 'Pridaná stránka s históriou verzií a novými funkciami.',
+        feedback: 'Pridaný chránený formulár na spätnú väzbu a návrhy.',
+        updates: 'Upozornenie na aktualizáciu teraz odkazuje na zoznam zmien.',
+        install: 'Pridané pokyny na inštaláciu pre Android a iPhone.',
+      },
+      v001: {
+        title: 'Prvé vydanie',
+        schedule: 'Rozvrh zmien, denný plán a výpočet spánku a dopravy.',
+        calendar: '12-mesačný kalendár s dovolenkou, PN a zmenami.',
+        reminders: 'Budíky, lokálne upozornenia a push pripomienky.',
+        statistics: 'Štatistiky zmien, hodín a neprítomností.',
+      },
+    },
+  },
+  mobileInstall: {
+    eyebrow: 'Inštalácia',
+    title: 'Inštalácia do telefónu',
+    subtitle: 'Vyberte platformu a použite aktuálne dostupný spôsob inštalácie.',
+    risk:
+      'Ide o ručnú inštaláciu mimo obchodu s aplikáciami. Zostavu inštalujete dobrovoľne a na vlastné riziko. Pred aktualizáciou si zálohujte údaje.',
+    androidNote:
+      'Stiahnite stabilný APK, povoľte inštaláciu z tohto zdroja a potvrďte ju.',
+    iosNote: 'Na iPhone je teraz dostupná inštalácia webovej aplikácie cez Safari.',
+    iosPwaTitle: 'Nainštalovať My Shift na iPhone',
+    iosStepOpen: 'Otvorte web My Shift priamo v Safari.',
+    iosStepShare: 'Klepnite na tlačidlo Zdieľať na paneli Safari.',
+    iosStepHome: 'Vyberte Pridať na plochu.',
+    iosStepConfirm: 'Klepnite na Pridať a spúšťajte My Shift z plochy.',
+    iosNotifications:
+      'Po inštalácii otvorte My Shift z plochy a povoľte upozornenia v nastaveniach aplikácie.',
+    stable: 'Stabilná',
+    advanced: 'Pokročilá',
+    downloadApk: 'Stiahnuť APK',
+    allowInstall:
+      'V otvorených nastaveniach povoľte inštaláciu aplikácií z My Shift a potom znova klepnite na tlačidlo.',
+    installError: 'Aktualizáciu sa nepodarilo stiahnuť. Skontrolujte pripojenie a skúste to znova.',
+  },
+  feedback: {
+    eyebrow: 'Kontaktovať vývojára',
+    title: 'Spätná väzba a návrhy',
+    subtitle: 'Napíšte nám, čo vám chýba alebo čo by mohlo fungovať lepšie.',
+    name: 'Meno a priezvisko',
+    email: 'Email',
+    message: 'Správa',
+    captcha: 'Koľko je {question}?',
+    send: 'Odoslať',
+    success: 'Ďakujeme! Správa bola odoslaná.',
+    error: 'Správu sa nepodarilo odoslať. Skúste to neskôr.',
+    rateLimit: 'Príliš veľa správ. Skúste to o chvíľu.',
+    challengeError: 'Bezpečnostnú kontrolu sa nepodarilo načítať. Obnovte stránku.',
+    validation: {
+      required: 'Povinné pole',
+      name: 'Zadajte aspoň 2 znaky',
+      email: 'Zadajte platný email',
+      message: 'Zadajte aspoň 10 znakov',
+    },
   },
   shifts: { first: 'Ranná zmena', second: 'Poobedná zmena', third: 'Nočná zmena', off: 'Voľno' },
   onboarding: {

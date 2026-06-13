@@ -24,6 +24,18 @@
           <q-icon :name="currentShiftIcon" class="design-icon" />
           <span>{{ currentShiftLabel }}</span>
         </div>
+        <q-btn
+          v-if="showAndroidInstall"
+          unelevated
+          no-caps
+          icon="install_mobile"
+          class="header-install-button"
+          :label="$t('install.android')"
+          :disable="!installPrompt"
+          @click="installAndroidApp"
+        >
+          <q-tooltip v-if="!installPrompt">{{ $t('install.androidUnavailable') }}</q-tooltip>
+        </q-btn>
         <LanguageToggle class="q-mr-sm" />
         <q-btn
           flat
@@ -84,6 +96,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 import LanguageToggle from 'components/LanguageToggle.vue';
 import SidebarShiftCard from 'components/SidebarShiftCard.vue';
 import AppLogo from 'components/AppLogo.vue';
@@ -101,13 +114,28 @@ import {
   resolvedShiftCodeForDate,
 } from 'src/core/schedule';
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+}
+
 const drawerOpen = ref(false);
 const $q = useQuasar();
+const router = useRouter();
 const { locale, t } = useI18n();
 const app = useAppStore();
 const now = ref(new Date());
 const titleColonVisible = ref(true);
 const hiddenEvents = ref<Array<{ kind: Exclude<DayPlanEventKind, 'sleep'>; target: Date }>>([]);
+const installPrompt = ref<BeforeInstallPromptEvent | null>(null);
+const isInstalledApp = ref(
+  window.matchMedia('(display-mode: standalone)').matches ||
+    ('standalone' in navigator &&
+      (navigator as Navigator & { standalone?: boolean }).standalone === true),
+);
+const userAgent = navigator.userAgent;
+const isAndroid = /Android/i.test(userAgent);
+const showAndroidInstall = computed(() => isAndroid && !isInstalledApp.value);
 const productName = 'My Shift';
 const dateTimer = window.setInterval(() => {
   now.value = new Date();
@@ -260,24 +288,36 @@ const showAppUpdateDialog = (event: CustomEvent<AppUpdateDetail>) => {
     }),
     cancel: {
       flat: true,
-      label: t('updates.keepCurrent'),
+      label: t('updates.whatsNew'),
     },
     ok: {
       color: incompatible ? 'negative' : 'primary',
       label: t(incompatible ? 'updates.updateAndReset' : 'updates.updateNow'),
     },
     persistent: true,
-  }).onOk(() => {
-    const activated = activateAppUpdate(detail, incompatible);
-    if (!activated) {
-      $q.notify({
-        type: 'negative',
-        message: t('updates.backupFailed'),
-      });
-    }
-  });
+  })
+    .onOk(() => {
+      const activated = activateAppUpdate(detail, incompatible);
+      if (!activated) {
+        $q.notify({
+          type: 'negative',
+          message: t('updates.backupFailed'),
+        });
+      }
+    })
+    .onCancel(() => void router.push('/whats-new'));
 };
 window.addEventListener(APP_UPDATE_AVAILABLE_EVENT, showAppUpdateDialog);
+const captureInstallPrompt = (event: Event) => {
+  event.preventDefault();
+  installPrompt.value = event as BeforeInstallPromptEvent;
+};
+const markAppInstalled = () => {
+  installPrompt.value = null;
+  isInstalledApp.value = true;
+};
+window.addEventListener('beforeinstallprompt', captureInstallPrompt);
+window.addEventListener('appinstalled', markAppInstalled);
 const saveStatusIcon = computed(() =>
   app.saveStatus === 'error' ? 'error_outline' : 'verified_user',
 );
@@ -320,6 +360,8 @@ onBeforeUnmount(() => {
   window.clearInterval(titleBlinkTimer);
   document.removeEventListener('visibilitychange', syncAfterVisibilityChange);
   window.removeEventListener(APP_UPDATE_AVAILABLE_EVENT, showAppUpdateDialog);
+  window.removeEventListener('beforeinstallprompt', captureInstallPrompt);
+  window.removeEventListener('appinstalled', markAppInstalled);
   document.title = productName;
 });
 
@@ -330,10 +372,21 @@ const navigation = [
   { label: 'nav.statistics', icon: 'query_stats', to: '/statistics' },
   { label: 'nav.patterns', icon: 'repeat', to: '/patterns' },
   { label: 'nav.reminders', icon: 'notifications_active', to: '/reminders' },
+  { label: 'nav.whatsNew', icon: 'new_releases', to: '/whats-new' },
   { label: 'nav.settings', icon: 'tune', to: '/settings' },
 ];
 function toggleTheme() {
   app.setTheme($q.dark.isActive ? 'light' : 'dark');
+}
+
+async function installAndroidApp() {
+  const prompt = installPrompt.value;
+  if (!prompt) return;
+
+  await prompt.prompt();
+  const choice = await prompt.userChoice;
+  installPrompt.value = null;
+  if (choice.outcome === 'accepted') isInstalledApp.value = true;
 }
 
 </script>

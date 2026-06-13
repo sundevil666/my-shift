@@ -317,6 +317,16 @@ body {
   font-size: 1.35rem;
 }
 
+.header-install-button {
+  min-height: 42px;
+  margin-right: 10px;
+  padding: 0 14px;
+  color: var(--shift-accent-text, #ffffff);
+  background: var(--shift-accent, #{$primary}) !important;
+  border-radius: 13px;
+  font-weight: 800;
+}
+
 .app-icon-button {
   min-width: 42px;
   min-height: 42px;
@@ -578,6 +588,15 @@ body {
   }
 
   .header-shift-badge {
+    display: none;
+  }
+
+  .header-install-button {
+    min-width: 42px;
+    padding: 0 10px;
+  }
+
+  .header-install-button .q-btn__content > span {
     display: none;
   }
 
@@ -2072,5 +2091,149 @@ body {
   }
   .tomorrow-next__time {
     text-align: left;
+  }
+}
+
+.whats-new-page {
+  max-width: 980px;
+  margin: 0 auto;
+}
+.release-list {
+  display: grid;
+  gap: 14px;
+}
+.release-card,
+.feedback-card,
+.mobile-install-card {
+  border-radius: 22px;
+  background: var(--app-surface);
+}
+.mobile-install-card {
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.mobile-install-card h2 {
+  margin: 6px 0 8px;
+  font-size: 1.45rem;
+}
+.mobile-install-card p {
+  color: var(--app-muted);
+}
+.mobile-install-card__warning {
+  margin-top: 16px;
+  background: color-mix(in srgb, var(--q-warning) 13%, var(--app-surface));
+}
+.ios-install-guide {
+  color: var(--app-muted);
+}
+.ios-install-guide__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--app-text);
+  font-size: 1.05rem;
+}
+.ios-install-guide__title .q-icon {
+  font-size: 1.5rem;
+}
+.ios-install-guide ol {
+  display: grid;
+  gap: 9px;
+  margin: 14px 0;
+  padding-left: 22px;
+}
+.ios-install-guide__note {
+  background: var(--app-primary-soft);
+  color: var(--app-text);
+}
+.mobile-platform-tabs {
+  padding: 0 12px;
+}
+.mobile-install-panels {
+  background: transparent;
+}
+.mobile-install-card__note {
+  margin: 0 0 12px;
+}
+.mobile-release-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+.mobile-release {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+}
+.mobile-release__version {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mobile-release time {
+  color: var(--app-muted);
+  font-size: 0.85rem;
+}
+.release-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--app-muted);
+}
+.release-card h2,
+.feedback-card h2 {
+  margin: 10px 0 8px;
+  font-size: 1.35rem;
+}
+.release-card ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 20px;
+  color: var(--app-muted);
+}
+.feedback-card {
+  margin-top: 24px;
+}
+.feedback-card p {
+  margin: 0;
+  color: var(--app-muted);
+}
+.feedback-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 14px;
+}
+.feedback-form__message {
+  grid-column: 1 / -1;
+}
+.feedback-form__captcha {
+  max-width: 280px;
+}
+.feedback-honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+@media (max-width: 599px) {
+  .mobile-release {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .mobile-release .q-btn {
+    width: 100%;
+  }
+  .feedback-form__grid {
+    grid-template-columns: 1fr;
+  }
+  .feedback-form__captcha {
+    max-width: none;
   }
 }

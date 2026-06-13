@@ -16,6 +16,8 @@ node_modules
 # Capacitor related directories and files
 /src-capacitor/www
 /src-capacitor/node_modules
+/src-capacitor/android/keystore.properties
+/src-capacitor/android/*.jks
 
 # Log files
 npm-debug.log*

@@ -1,0 +1,11 @@
+{
+  "appId": "com.myshift.app",
+  "appName": "My Shift",
+  "webDir": "www",
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_my_shift",
+      "iconColor": "#3f51b5"
+    }
+  }
+}

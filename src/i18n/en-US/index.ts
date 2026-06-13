@@ -7,6 +7,7 @@ export default {
     statistics: 'Statistics',
     patterns: 'Work patterns',
     reminders: 'Reminders',
+    whatsNew: 'What’s new',
     settings: 'Settings',
   },
   common: {
@@ -14,6 +15,10 @@ export default {
     openCalendar: 'Open calendar',
     openMenu: 'Open menu',
     cancel: 'Cancel',
+  },
+  install: {
+    android: 'Install',
+    androidUnavailable: 'Installation will be available when the browser finishes preparing the app.',
   },
   storage: {
     saving: 'Saving…',
@@ -34,6 +39,77 @@ export default {
     updateAndReset: 'Back up and update',
     backupFailed: 'Could not back up your data. The update was cancelled.',
     newVersion: 'new',
+    whatsNew: 'What’s new',
+  },
+  whatsNew: {
+    title: 'What’s new in My Shift',
+    subtitle: 'New features and important changes, organized by version.',
+    history: 'Version history',
+    releases: {
+      v011: {
+        title: 'Safe Android updates',
+        nativeUpdate: 'The APK downloads in the app and opens in the system installer.',
+        backup: 'A backup of all settings is saved automatically before updating.',
+        signing: 'Added permanent release signing for updates over the installed version.',
+      },
+      v010: {
+        title: 'Updates and feedback',
+        changelog: 'Added a version history page with details about new features.',
+        feedback: 'Added a protected feedback and suggestions form.',
+        updates: 'Update notifications now link directly to the change list.',
+        install: 'Added installation guidance for Android and iPhone.',
+      },
+      v001: {
+        title: 'Initial release',
+        schedule: 'Shift schedule, day plan, sleep and commute calculations.',
+        calendar: '12-month calendar with vacation, sick leave and overrides.',
+        reminders: 'Alarms, local notifications and push reminders.',
+        statistics: 'Statistics for shifts, hours and absences.',
+      },
+    },
+  },
+  mobileInstall: {
+    eyebrow: 'Installation',
+    title: 'Install on your phone',
+    subtitle: 'Choose your platform and use the installation method currently available.',
+    risk:
+      'This is a manual installation outside an app store. You install it voluntarily and at your own risk. Back up your data before updating.',
+    androidNote:
+      'Download the stable APK, allow installation from this source, and confirm.',
+    iosNote: 'On iPhone, the web app can currently be installed through Safari.',
+    iosPwaTitle: 'Install My Shift on iPhone',
+    iosStepOpen: 'Open the My Shift website in Safari.',
+    iosStepShare: 'Tap the Share button in the Safari toolbar.',
+    iosStepHome: 'Choose Add to Home Screen.',
+    iosStepConfirm: 'Tap Add and launch My Shift from the Home Screen.',
+    iosNotifications:
+      'After installation, open My Shift from the Home Screen and allow notifications in the app settings.',
+    stable: 'Stable',
+    advanced: 'Advanced',
+    downloadApk: 'Download APK',
+    allowInstall:
+      'Allow app installation from My Shift in the opened settings, then tap the button again.',
+    installError: 'Could not download the update. Check your connection and try again.',
+  },
+  feedback: {
+    eyebrow: 'Contact the developer',
+    title: 'Feedback and suggestions',
+    subtitle: 'Tell us what is missing or what could work better.',
+    name: 'Full name',
+    email: 'Email',
+    message: 'Message',
+    captcha: 'What is {question}?',
+    send: 'Send',
+    success: 'Thank you! Your message has been sent.',
+    error: 'Could not send your message. Please try again later.',
+    rateLimit: 'Too many messages. Please try again a little later.',
+    challengeError: 'Could not load the security check. Refresh the page.',
+    validation: {
+      required: 'Required field',
+      name: 'Enter at least 2 characters',
+      email: 'Enter a valid email',
+      message: 'Enter at least 10 characters',
+    },
   },
   shifts: { first: 'First shift', second: 'Second shift', third: 'Night shift', off: 'Day off' },
   onboarding: {

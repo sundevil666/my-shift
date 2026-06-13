@@ -1,4 +1,8 @@
 import { Dialog, Notify } from 'quasar';
+import {
+  isNativeApp,
+  requestNativeNotificationPermission,
+} from 'src/services/native-notifications';
 
 export type ReminderKind = 'alarm' | 'notification';
 
@@ -68,6 +72,7 @@ async function playReminderSound(kind: ReminderKind) {
 }
 
 export async function requestReminderPermission(): Promise<NotificationPermission | 'unsupported'> {
+  if (isNativeApp()) return requestNativeNotificationPermission();
   if (!('Notification' in window)) return 'unsupported';
   if (Notification.permission !== 'default') return Notification.permission;
 

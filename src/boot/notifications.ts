@@ -18,6 +18,7 @@ import {
 } from 'src/services/reminders/reminder-feedback';
 import { hasStorageMarker, setStorageMarker } from 'src/services/storage/storage';
 import { reminderMessage, syncPushReminders } from 'src/services/push-notifications';
+import { isNativeApp, syncNativeReminders } from 'src/services/native-notifications';
 import { useAppStore } from 'stores/app-store';
 
 interface ScheduledReminder {
@@ -62,6 +63,7 @@ export default defineBoot(({ store }) => {
   if (typeof window === 'undefined') return;
 
   const app = useAppStore(store);
+  const native = isNativeApp();
   let timers: number[] = [];
   let pushSyncTimer: number | undefined;
 
@@ -72,6 +74,10 @@ export default defineBoot(({ store }) => {
 
   const schedule = () => {
     clearTimers();
+    if (native) {
+      void syncNativeReminders(app.activeProfile, app.data.settings.locale);
+      return;
+    }
     if (!app.activeProfile.reminders.enabled) return;
 
     const now = new Date();
@@ -189,6 +195,7 @@ export default defineBoot(({ store }) => {
   };
 
   const schedulePushSync = () => {
+    if (native) return;
     if (pushSyncTimer) window.clearTimeout(pushSyncTimer);
     pushSyncTimer = window.setTimeout(() => {
       void syncPushReminders(app.activeProfile, app.data.settings.locale);
