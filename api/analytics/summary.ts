@@ -1,5 +1,5 @@
-import { createHash, timingSafeEqual } from 'node:crypto';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { isAdminRequest } from '../_lib/admin-auth.js';
 import { analyticsDb, ensureAnalyticsSchema } from '../_lib/analytics.js';
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
@@ -8,7 +8,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
     response.setHeader('Allow', 'GET');
     return response.status(405).json({ error: 'Method not allowed' });
   }
-  if (!authorized(request)) return response.status(401).json({ error: 'Unauthorized' });
+  if (!isAdminRequest(request)) return response.status(401).json({ error: 'Unauthorized' });
 
   try {
     await ensureAnalyticsSchema();
@@ -45,13 +45,4 @@ export default async function handler(request: VercelRequest, response: VercelRe
     console.error('Analytics summary failed', error);
     return response.status(503).json({ error: 'Analytics unavailable' });
   }
-}
-
-function authorized(request: VercelRequest) {
-  const secret = process.env.ANALYTICS_ADMIN_TOKEN;
-  const supplied = request.headers.authorization?.replace(/^Bearer\s+/i, '');
-  if (!secret || !supplied) return false;
-  const expectedHash = createHash('sha256').update(secret).digest();
-  const suppliedHash = createHash('sha256').update(supplied).digest();
-  return timingSafeEqual(expectedHash, suppliedHash);
 }

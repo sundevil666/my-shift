@@ -37,7 +37,9 @@ export default defineRouter((/* { store, ssrContext } */) => {
   Router.beforeEach(async (to) => {
     const app = useAppStore();
     if (!app.initialized) await app.initialize();
-    if (!app.data.onboardingCompleted && to.path !== '/onboarding') return '/onboarding';
+    if (!app.data.onboardingCompleted && to.path !== '/onboarding' && !to.meta.public) {
+      return '/onboarding';
+    }
     if (app.data.onboardingCompleted && to.path === '/onboarding') return '/';
     return true;
   });

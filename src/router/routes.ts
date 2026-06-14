@@ -6,6 +6,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('pages/OnboardingPage.vue'),
   },
   {
+    path: '/owner-analytics',
+    meta: { public: true },
+    component: () => import('pages/AdminAnalyticsPage.vue'),
+  },
+  {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [

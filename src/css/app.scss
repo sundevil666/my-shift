@@ -180,6 +180,130 @@ body {
   }
 }
 
+.admin-analytics-page {
+  min-height: 100vh;
+  background: var(--app-background);
+}
+.admin-analytics-shell {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  padding: 28px 0 56px;
+}
+.admin-analytics-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.admin-analytics-brand h1,
+.admin-analytics-brand p,
+.admin-login-card h2,
+.admin-login-card p,
+.admin-detail-grid h2,
+.admin-activity-card h2 {
+  margin: 0;
+}
+.admin-analytics-brand p,
+.admin-login-card p,
+.admin-analytics-actions {
+  color: var(--app-muted);
+}
+.admin-analytics-logo {
+  width: 58px;
+  height: 58px;
+}
+.admin-login-card {
+  width: min(460px, 100%);
+  margin: 48px auto 0;
+}
+.admin-login-card p {
+  margin: 8px 0 22px;
+}
+.admin-analytics-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.admin-analytics-actions span {
+  margin-right: auto;
+}
+.admin-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+.admin-metric-grid .q-card-section {
+  display: grid;
+  gap: 8px;
+}
+.admin-metric-grid strong {
+  font-size: 2rem;
+  line-height: 1;
+}
+.admin-metric-grid span {
+  color: var(--app-muted);
+}
+.admin-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+.admin-detail-grid h2,
+.admin-activity-card h2 {
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+}
+.admin-data-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--app-border);
+}
+.admin-data-row:last-child {
+  border-bottom: 0;
+}
+.admin-activity-card {
+  margin-top: 14px;
+}
+.admin-activity-list {
+  display: grid;
+  gap: 12px;
+}
+.admin-activity-list > div {
+  display: grid;
+  grid-template-columns: 120px 1fr 36px;
+  align-items: center;
+  gap: 12px;
+}
+@media (max-width: 900px) {
+  .admin-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 599px) {
+  .admin-analytics-shell {
+    padding-top: 12px;
+  }
+  .admin-analytics-actions {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+  .admin-analytics-actions span {
+    width: 100%;
+  }
+  .admin-metric-grid,
+  .admin-detail-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-activity-list > div {
+    grid-template-columns: 88px 1fr 28px;
+    gap: 8px;
+  }
+}
+
 .q-layout,
 .q-page-container,
 .q-page {
