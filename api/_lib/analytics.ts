@@ -57,6 +57,20 @@ async function createSchema() {
     CREATE INDEX IF NOT EXISTS app_downloads_date_idx ON app_downloads(downloaded_at)
   `;
   await sql`
+    CREATE TABLE IF NOT EXISTS app_version_changes (
+      id BIGSERIAL PRIMARY KEY,
+      installation_id UUID NOT NULL REFERENCES app_installations(installation_id) ON DELETE CASCADE,
+      from_version TEXT NOT NULL,
+      to_version TEXT NOT NULL,
+      changed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (installation_id, from_version, to_version)
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS app_version_changes_date_idx
+    ON app_version_changes(changed_at)
+  `;
+  await sql`
     CREATE TABLE IF NOT EXISTS admin_login_limits (
       key_hash TEXT PRIMARY KEY,
       attempt_count INTEGER NOT NULL,

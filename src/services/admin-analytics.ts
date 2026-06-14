@@ -2,6 +2,8 @@ export interface AnalyticsSummary {
   totals: {
     installations: number;
     downloads: number;
+    successful_updates: number;
+    inactive_30d: number;
     active_1d: number;
     active_7d: number;
     active_30d: number;
@@ -9,6 +11,21 @@ export interface AnalyticsSummary {
   platforms: Array<{ platform: string; installations: number }>;
   versions: Array<{ app_version: string; installations: number }>;
   daily: Array<{ activity_date: string; active: number }>;
+  newInstallations: Array<{ install_date: string; installations: number }>;
+  retention: {
+    eligible_d1: number;
+    retained_d1: number;
+    eligible_d7: number;
+    retained_d7: number;
+    eligible_d30: number;
+    retained_d30: number;
+  };
+  versionChanges: Array<{
+    from_version: string;
+    to_version: string;
+    updates: number;
+    last_update_at: string;
+  }>;
 }
 
 export async function checkAdminSession() {

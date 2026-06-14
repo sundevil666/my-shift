@@ -98,6 +98,69 @@
           </q-card>
         </div>
 
+        <div v-if="summary" class="admin-detail-grid">
+          <q-card flat bordered>
+            <q-card-section>
+              <h2>Возвращаемость</h2>
+              <div v-for="item in retentionMetrics" :key="item.label" class="admin-data-row">
+                <span>{{ item.label }}</span>
+                <strong>{{ item.value }}</strong>
+              </div>
+              <p class="admin-card-note">
+                D7 и D30 считаются в окне ±1 день. Показатель появится, когда установки достигнут
+                нужного возраста.
+              </p>
+            </q-card-section>
+          </q-card>
+          <q-card flat bordered>
+            <q-card-section>
+              <h2>Успешные обновления Android</h2>
+              <div
+                v-for="item in summary.versionChanges"
+                :key="`${item.from_version}:${item.to_version}`"
+                class="admin-data-row"
+              >
+                <span>v{{ item.from_version }} → v{{ item.to_version }}</span>
+                <strong>{{ item.updates }}</strong>
+              </div>
+              <p v-if="!summary.versionChanges.length" class="text-grey-7">
+                Подтверждённых обновлений пока нет.
+              </p>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <q-card v-if="summary" flat bordered class="admin-activity-card">
+          <q-card-section>
+            <h2>Что можно предположить</h2>
+            <ul class="admin-insight-list">
+              <li v-for="insight in insights" :key="insight">{{ insight }}</li>
+            </ul>
+          </q-card-section>
+        </q-card>
+
+        <q-card v-if="summary" flat bordered class="admin-activity-card">
+          <q-card-section>
+            <h2>Новые установки за 30 дней</h2>
+            <div v-if="summary.newInstallations.length" class="admin-activity-list">
+              <div
+                v-for="item in [...summary.newInstallations].reverse()"
+                :key="item.install_date"
+              >
+                <time>{{ formatDate(item.install_date) }}</time>
+                <q-linear-progress
+                  rounded
+                  size="10px"
+                  color="positive"
+                  :value="item.installations / maxDailyInstallations"
+                />
+                <strong>{{ item.installations }}</strong>
+              </div>
+            </div>
+            <p v-else class="text-grey-7">Данных пока нет.</p>
+          </q-card-section>
+        </q-card>
+
         <q-card v-if="summary" flat bordered class="admin-activity-card">
           <q-card-section>
             <h2>Активность за 30 дней</h2>
@@ -148,14 +211,54 @@ const metrics = computed(() => {
     ? [
         { icon: 'install_mobile', label: 'Установки', value: totals.installations },
         { icon: 'download', label: 'Скачивания APK', value: totals.downloads },
+        { icon: 'system_update_alt', label: 'Успешные обновления', value: totals.successful_updates },
         { icon: 'today', label: 'Активны сегодня', value: totals.active_1d },
         { icon: 'date_range', label: 'Активны за 7 дней', value: totals.active_7d },
         { icon: 'calendar_month', label: 'Активны за 30 дней', value: totals.active_30d },
       ]
     : [];
 });
+const retentionMetrics = computed(() => {
+  const retention = summary.value?.retention;
+  if (!retention) return [];
+  return [
+    retentionMetric('D1 — вернулись на следующий день', retention.retained_d1, retention.eligible_d1),
+    retentionMetric('D7 — вернулись через неделю', retention.retained_d7, retention.eligible_d7),
+    retentionMetric('D30 — вернулись через месяц', retention.retained_d30, retention.eligible_d30),
+  ];
+});
+const insights = computed(() => {
+  if (!summary.value) return [];
+  const { totals, retention, versions } = summary.value;
+  const result: string[] = [];
+  if (totals.installations < 10) {
+    result.push('Данных пока мало: выводы будут надёжнее после первых 10–20 установок.');
+  }
+  if (totals.downloads > 0 && totals.installations === 0) {
+    result.push('APK скачивают, но приложение ещё не запускали или запуск не дошёл до сервера.');
+  }
+  if (retention.eligible_d1 > 0) {
+    const rate = retention.retained_d1 / retention.eligible_d1;
+    result.push(
+      rate >= 0.4
+        ? 'Возвращаемость на следующий день выглядит хорошей.'
+        : 'Низкая D1-возвращаемость: стоит проверить первый запуск и понятность настройки.',
+    );
+  }
+  if (versions.length > 1) {
+    result.push('Используется несколько версий: часть пользователей ещё не обновилась.');
+  }
+  if (totals.inactive_30d > 0) {
+    result.push(`Неактивны более 30 дней: ${totals.inactive_30d}.`);
+  }
+  if (!result.length) result.push('Пока нет достаточных данных для содержательного вывода.');
+  return result;
+});
 const maxDailyActive = computed(() =>
   Math.max(1, ...(summary.value?.daily.map((item) => item.active) ?? [1])),
+);
+const maxDailyInstallations = computed(() =>
+  Math.max(1, ...(summary.value?.newInstallations.map((item) => item.installations) ?? [1])),
 );
 
 onMounted(async () => {
@@ -219,5 +322,12 @@ function formatDate(value: string) {
     month: 'short',
     year: 'numeric',
   }).format(new Date(value));
+}
+
+function retentionMetric(label: string, retained: number, eligible: number) {
+  return {
+    label,
+    value: eligible ? `${Math.round((retained / eligible) * 100)}% (${retained}/${eligible})` : 'ещё рано',
+  };
 }
 </script>

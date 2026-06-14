@@ -39,6 +39,15 @@ export default async function handler(request: VercelRequest, response: VercelRe
     await ensureAnalyticsSchema();
     const sql = analyticsDb();
     await sql`
+      INSERT INTO app_version_changes (installation_id, from_version, to_version)
+      SELECT installation_id, app_version, ${body.appVersion}
+      FROM app_installations
+      WHERE installation_id = ${body.installationId}
+        AND platform = 'android'
+        AND app_version <> ${body.appVersion}
+      ON CONFLICT (installation_id, from_version, to_version) DO NOTHING
+    `;
+    await sql`
       INSERT INTO app_installations (installation_id, platform, app_version)
       VALUES (${body.installationId}, ${body.platform}, ${body.appVersion})
       ON CONFLICT (installation_id) DO UPDATE SET

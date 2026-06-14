@@ -265,6 +265,18 @@ body {
 .admin-data-row:last-child {
   border-bottom: 0;
 }
+.admin-card-note {
+  margin: 14px 0 0;
+  color: var(--app-muted);
+  font-size: 0.86rem;
+}
+.admin-insight-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 20px;
+  color: var(--app-muted);
+}
 .admin-activity-card {
   margin-top: 14px;
 }

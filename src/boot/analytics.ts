@@ -9,7 +9,8 @@ export default defineBoot(() => {
   if (typeof window === 'undefined' || window.location.hostname === 'localhost') return;
 
   const today = new Date().toISOString().slice(0, 10);
-  if (localStorage.getItem(lastActivityKey) === today) return;
+  const activityMarker = `${today}:${process.env.APP_VERSION}`;
+  if (localStorage.getItem(lastActivityKey) === activityMarker) return;
 
   const installationId = getInstallationId();
   const endpoint = Capacitor.isNativePlatform()
@@ -26,7 +27,7 @@ export default defineBoot(() => {
     keepalive: true,
   })
     .then((response) => {
-      if (response.ok) localStorage.setItem(lastActivityKey, today);
+      if (response.ok) localStorage.setItem(lastActivityKey, activityMarker);
     })
     .catch(() => {
       // Analytics must never prevent offline or local-first use.
