@@ -88,16 +88,20 @@ export function employmentDuration(startDate: string, now = new Date()) {
   if (start.getTime() > end.getTime()) return { years: 0, months: 0, days: 0 };
 
   let years = end.getFullYear() - start.getFullYear();
-  let months = end.getMonth() - start.getMonth();
-  let days = end.getDate() - start.getDate();
-  if (days < 0) {
-    months -= 1;
-    days += new Date(end.getFullYear(), end.getMonth(), 0).getDate();
-  }
-  if (months < 0) {
+  let cursor = addCalendarYears(start, years);
+  if (cursor.getTime() > end.getTime()) {
     years -= 1;
-    months += 12;
+    cursor = addCalendarYears(start, years);
   }
+
+  let months = 0;
+  while (months < 11) {
+    const next = addCalendarMonths(cursor, 1);
+    if (next.getTime() > end.getTime()) break;
+    cursor = next;
+    months += 1;
+  }
+  const days = Math.round((end.getTime() - cursor.getTime()) / DAY_MS);
   return { years, months, days };
 }
 
@@ -112,6 +116,19 @@ function parseDate(value: string): Date {
 
 function atStartOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function addCalendarYears(date: Date, years: number): Date {
+  return clampedDate(date.getFullYear() + years, date.getMonth(), date.getDate());
+}
+
+function addCalendarMonths(date: Date, months: number): Date {
+  return clampedDate(date.getFullYear(), date.getMonth() + months, date.getDate());
+}
+
+function clampedDate(year: number, month: number, day: number): Date {
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  return new Date(year, month, Math.min(day, lastDay));
 }
 
 function shiftDurationHours(startTime: string, endTime: string): number {

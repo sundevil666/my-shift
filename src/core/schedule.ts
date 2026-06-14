@@ -92,6 +92,7 @@ export function currentWorkingShift(
   for (const offset of [-1, 0]) {
     const date = new Date(now);
     date.setDate(now.getDate() + offset);
+    date.setHours(0, 0, 0, 0);
     const code = resolvedShiftCodeForDate(date, pattern, overrides);
     if (code === 'off') continue;
     const shift = shifts.find((item) => item.id === code);
@@ -114,6 +115,7 @@ export function nextWorkingShift(
   for (let offset = 0; offset < pattern.sequence.length * 7 * 3; offset += 1) {
     const date = new Date(now);
     date.setDate(now.getDate() + offset);
+    date.setHours(0, 0, 0, 0);
     const code = resolvedShiftCodeForDate(date, pattern, overrides);
     if (code === 'off') continue;
     const shift = shifts.find((item) => item.id === code);
