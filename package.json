@@ -14,6 +14,7 @@
     "test": "vitest run",
     "typecheck": "vue-tsc --noEmit",
     "check": "npm run lint && npm run typecheck && npm test && npm run build",
+    "setup:hooks": "git config core.hooksPath .githooks",
     "dev": "quasar dev",
     "build": "quasar build -m pwa",
     "build:android": "quasar build -m capacitor -T android",

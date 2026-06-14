@@ -12,9 +12,17 @@ npm run dev
 Checks and production build:
 
 ```bash
-npm run lint
-npm run build
+npm run check
 ```
+
+Enable the repository's Git hooks after cloning:
+
+```bash
+npm run setup:hooks
+```
+
+The pre-push hook runs ESLint, TypeScript checks, all unit tests and the production PWA build.
+Git cancels the push if any check fails.
 
 ## Web Push setup
 
