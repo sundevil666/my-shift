@@ -7,7 +7,7 @@ export interface AppUpdateDetail {
   release: string | null;
 }
 
-export const CURRENT_APP_VERSION = '0.1.3';
+export const CURRENT_APP_VERSION = '0.1.4';
 
 interface UpdateMetadata {
   release?: string;

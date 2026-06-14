@@ -16,6 +16,12 @@ export default {
     openMenu: 'Open menu',
     cancel: 'Cancel',
   },
+  share: {
+    button: 'Share the app',
+    title: 'My Shift',
+    text: 'My Shift keeps your shifts, alarms and reminders together. Install the app:',
+    copied: 'App link copied',
+  },
   install: {
     android: 'Install',
     androidUnavailable: 'Installation will be available when the browser finishes preparing the app.',
@@ -46,6 +52,12 @@ export default {
     subtitle: 'New features and important changes, organized by version.',
     history: 'Version history',
     releases: {
+      v014: {
+        title: 'Share the app',
+        systemShare: 'Added sharing through the system contacts and messaging menu.',
+        platformLink: 'Android shares the APK link while the PWA shares the website installation page.',
+        fallback: 'The link is copied automatically when system sharing is unavailable.',
+      },
       v013: {
         title: 'Transfers to support the project',
         bankDetails: 'Added details for a Slovak EUR account and Revolut.',

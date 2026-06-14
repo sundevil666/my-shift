@@ -2,9 +2,9 @@
   "android": {
     "stable": [
       {
-        "version": "0.1.3",
+        "version": "0.1.4",
         "date": "2026-06-14",
-        "url": "https://raw.githubusercontent.com/sundevil666/my-shift/main/public/downloads/my-shift-android-0.1.3.apk",
+        "url": "https://raw.githubusercontent.com/sundevil666/my-shift/main/public/downloads/my-shift-android-0.1.4.apk",
         "status": "available"
       }
     ],

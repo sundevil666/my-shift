@@ -16,6 +16,12 @@ export default {
     openMenu: 'Otvoriť menu',
     cancel: 'Zrušiť',
   },
+  share: {
+    button: 'Zdieľať aplikáciu',
+    title: 'My Shift',
+    text: 'My Shift spája pracovné zmeny, budíky a pripomienky. Nainštalovať aplikáciu:',
+    copied: 'Odkaz na aplikáciu bol skopírovaný',
+  },
   install: {
     android: 'Nainštalovať',
     androidUnavailable: 'Inštalácia bude dostupná, keď prehliadač dokončí prípravu aplikácie.',
@@ -46,6 +52,12 @@ export default {
     subtitle: 'Nové funkcie a dôležité zmeny zoradené podľa verzií.',
     history: 'História verzií',
     releases: {
+      v014: {
+        title: 'Zdieľanie aplikácie',
+        systemShare: 'Pridané zdieľanie cez systémovú ponuku kontaktov a komunikátorov.',
+        platformLink: 'Android zdieľa odkaz na APK a PWA stránku s pokynmi na inštaláciu.',
+        fallback: 'Ak systémové zdieľanie nie je dostupné, odkaz sa automaticky skopíruje.',
+      },
       v013: {
         title: 'Prevody na podporu projektu',
         bankDetails: 'Pridané údaje slovenského EUR účtu a Revolutu.',

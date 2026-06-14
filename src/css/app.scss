@@ -829,10 +829,12 @@ body {
   gap: 10px;
 }
 
-.drawer-support {
+.drawer-actions {
+  display: grid;
+  gap: 6px;
   padding: 0 12px 10px;
 }
-.drawer-support__button {
+.drawer-action__button {
   width: 100%;
   min-height: 38px;
   border: 1px solid var(--app-border);

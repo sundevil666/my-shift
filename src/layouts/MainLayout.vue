@@ -67,13 +67,21 @@
           <q-item-section>{{ $t(item.label) }}</q-item-section>
         </q-item>
       </q-list>
-      <div class="drawer-support">
+      <div class="drawer-actions">
+        <q-btn
+          flat
+          no-caps
+          icon="ios_share"
+          class="drawer-action__button"
+          :label="$t('share.button')"
+          @click="shareApp"
+        />
         <q-btn
           flat
           no-caps
           icon="favorite_border"
           color="primary"
-          class="drawer-support__button"
+          class="drawer-action__button"
           :label="$t('support.button')"
           to="/support"
         />
@@ -105,7 +113,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
-import { useQuasar } from 'quasar';
+import { copyToClipboard, useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { RouterView, useRouter } from 'vue-router';
 import LanguageToggle from 'components/LanguageToggle.vue';
@@ -148,6 +156,8 @@ const userAgent = navigator.userAgent;
 const isAndroid = /Android/i.test(userAgent);
 const showAndroidInstall = computed(() => isAndroid && !isInstalledApp.value);
 const productName = 'My Shift';
+const androidDownloadUrl =
+  'https://raw.githubusercontent.com/sundevil666/my-shift/main/public/downloads/my-shift-android-0.1.4.apk';
 const dateTimer = window.setInterval(() => {
   now.value = new Date();
   if (now.value.getSeconds() === 0) app.applyShiftAtmosphere(now.value);
@@ -398,6 +408,34 @@ async function installAndroidApp() {
   const choice = await prompt.userChoice;
   installPrompt.value = null;
   if (choice.outcome === 'accepted') isInstalledApp.value = true;
+}
+
+async function shareApp() {
+  const isNativeAndroid = window.location.protocol === 'capacitor:' && isAndroid;
+  const url = isNativeAndroid
+    ? androidDownloadUrl
+    : `${window.location.origin}${window.location.pathname}#/whats-new`;
+  const shareData = {
+    title: t('share.title'),
+    text: t('share.text'),
+    url,
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+      return;
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+    }
+  }
+
+  await copyToClipboard(url);
+  $q.notify({
+    type: 'positive',
+    message: t('share.copied'),
+    timeout: 1_500,
+  });
 }
 
 </script>
