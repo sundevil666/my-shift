@@ -46,6 +46,12 @@ export default {
     subtitle: 'Nové funkcie a dôležité zmeny zoradené podľa verzií.',
     history: 'História verzií',
     releases: {
+      v013: {
+        title: 'Prevody na podporu projektu',
+        bankDetails: 'Pridané údaje slovenského EUR účtu a Revolutu.',
+        copy: 'Hlavné platobné údaje možno skopírovať jedným tlačidlom.',
+        voluntary: 'Podpora zostáva úplne dobrovoľná a neovplyvňuje funkcie aplikácie.',
+      },
       v012: {
         title: 'Dobrovoľná podpora projektu',
         supportPage: 'Pridaná samostatná stránka s princípmi podpory My Shift.',
@@ -124,10 +130,33 @@ export default {
     subtitle: 'Možnosť pre ľudí, ktorí sa sami rozhodnú pomôcť rozvoju aplikácie.',
     voluntaryTitle: 'Iba podľa vášho rozhodnutia',
     voluntaryText:
-      'My Shift zostáva dostupný bez povinných platieb. Ak je pre vás aplikácia užitočná a chcete podporiť jej vývoj, neskôr sa tu objavia jednoduché možnosti prevodu. Je to možnosť, nie žiadosť.',
-    methodsTitle: 'Možnosti podpory pribudnú neskôr',
+      'My Shift zostáva dostupný bez povinných platieb. Ak je pre vás aplikácia užitočná a chcete podporiť jej vývoj, nižšie nájdete údaje na priamy prevod. Je to možnosť, nie žiadosť.',
+    methodsTitle: 'Prevod v eurách',
     methodsText:
-      'Platby sa zatiaľ neprijímajú. Keď bude pripravený pohodlný a bezpečný spôsob platby, zobrazí sa iba na tejto stránke.',
+      'Vyberte si účet a použite údaje vo svojej bankovej aplikácii.',
+    euroOnly: 'EUR',
+    copy: 'Kopírovať',
+    copied: 'Údaje boli skopírované',
+    transferNote:
+      'Pred odoslaním skontrolujte meno príjemcu a IBAN v bankovej aplikácii. Prevod je úplne dobrovoľný a neodomyká ďalšie funkcie.',
+    fields: {
+      beneficiary: 'Príjemca',
+      iban: 'IBAN',
+      bic: 'BIC / SWIFT',
+      bank: 'Banka a adresa',
+      correspondentBic: 'BIC korešpondenčnej banky',
+      currency: 'Mena',
+    },
+    accounts: {
+      slovak: {
+        title: 'Slovenský bankový účet',
+        subtitle: 'Priamy SEPA prevod',
+      },
+      revolut: {
+        title: 'Revolut',
+        subtitle: 'Bankový prevod v eurách',
+      },
+    },
     principles: {
       choiceTitle: 'Úplne dobrovoľné',
       choiceText: 'Žiadne pripomienky platieb, predplatné ani záväzky.',

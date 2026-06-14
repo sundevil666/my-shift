@@ -21,11 +21,52 @@
         </div>
       </q-card-section>
 
-      <q-card-section class="support-coming">
-        <q-banner rounded class="bg-primary-1 text-dark">
-          <template #avatar><q-icon name="payments" color="primary" /></template>
-          <strong>{{ $t('support.methodsTitle') }}</strong>
-          <div>{{ $t('support.methodsText') }}</div>
+      <q-card-section class="support-methods">
+        <div class="support-methods__heading">
+          <div>
+            <h2>{{ $t('support.methodsTitle') }}</h2>
+            <p>{{ $t('support.methodsText') }}</p>
+          </div>
+          <q-chip icon="euro" color="primary" text-color="white">
+            {{ $t('support.euroOnly') }}
+          </q-chip>
+        </div>
+
+        <div class="support-accounts">
+          <article v-for="account in accounts" :key="account.id" class="support-account">
+            <div class="support-account__title">
+              <q-icon :name="account.icon" />
+              <div>
+                <strong>{{ $t(account.title) }}</strong>
+                <small>{{ $t(account.subtitle) }}</small>
+              </div>
+            </div>
+
+            <dl>
+              <div v-for="field in account.fields" :key="field.label" class="support-detail">
+                <dt>{{ $t(field.label) }}</dt>
+                <dd>
+                  <span>{{ field.value }}</span>
+                  <q-btn
+                    v-if="field.copy"
+                    flat
+                    round
+                    dense
+                    icon="content_copy"
+                    :aria-label="$t('support.copy')"
+                    @click="copyValue(field.value)"
+                  >
+                    <q-tooltip>{{ $t('support.copy') }}</q-tooltip>
+                  </q-btn>
+                </dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+
+        <q-banner rounded class="support-transfer-note">
+          <template #avatar><q-icon name="verified_user" color="primary" /></template>
+          {{ $t('support.transferNote') }}
         </q-banner>
       </q-card-section>
     </q-card>
@@ -33,7 +74,12 @@
 </template>
 
 <script setup lang="ts">
+import { copyToClipboard, useQuasar } from 'quasar';
+import { useI18n } from 'vue-i18n';
 import PageHeader from 'components/PageHeader.vue';
+
+const $q = useQuasar();
+const { t } = useI18n();
 
 const principles = [
   {
@@ -52,4 +98,45 @@ const principles = [
     text: 'support.principles.purposeText',
   },
 ] as const;
+
+const accounts = [
+  {
+    id: 'slovak-bank',
+    icon: 'account_balance',
+    title: 'support.accounts.slovak.title',
+    subtitle: 'support.accounts.slovak.subtitle',
+    fields: [
+      { label: 'support.fields.beneficiary', value: 'Tokmakov Serhii', copy: true },
+      { label: 'support.fields.iban', value: 'SK83 0900 0000 0052 3003 3548', copy: true },
+      { label: 'support.fields.currency', value: 'EUR', copy: false },
+    ],
+  },
+  {
+    id: 'revolut',
+    icon: 'payments',
+    title: 'support.accounts.revolut.title',
+    subtitle: 'support.accounts.revolut.subtitle',
+    fields: [
+      { label: 'support.fields.beneficiary', value: 'Serhii Tokmakov', copy: true },
+      { label: 'support.fields.iban', value: 'LT98 3250 0443 3790 9986', copy: true },
+      { label: 'support.fields.bic', value: 'REVOLT21', copy: true },
+      {
+        label: 'support.fields.bank',
+        value: 'Revolut Bank UAB, Konstitucijos ave. 21B, 08130 Vilnius, Lithuania',
+        copy: true,
+      },
+      { label: 'support.fields.correspondentBic', value: 'CHASDEFX', copy: true },
+      { label: 'support.fields.currency', value: 'EUR', copy: false },
+    ],
+  },
+] as const;
+
+async function copyValue(value: string) {
+  await copyToClipboard(value);
+  $q.notify({
+    type: 'positive',
+    message: t('support.copied'),
+    timeout: 1_500,
+  });
+}
 </script>

@@ -46,6 +46,12 @@ export default {
     subtitle: 'New features and important changes, organized by version.',
     history: 'Version history',
     releases: {
+      v013: {
+        title: 'Transfers to support the project',
+        bankDetails: 'Added details for a Slovak EUR account and Revolut.',
+        copy: 'Key transfer details can be copied with one button.',
+        voluntary: 'Support remains entirely voluntary and does not affect app features.',
+      },
       v012: {
         title: 'Voluntary project support',
         supportPage: 'Added a dedicated page explaining how support for My Shift will work.',
@@ -124,10 +130,33 @@ export default {
     subtitle: 'An option for people who independently choose to help the app grow.',
     voluntaryTitle: 'Entirely your choice',
     voluntaryText:
-      'My Shift remains available without required payments. If the app is useful and you are comfortable supporting its development, simple transfer options will appear here later. This is an option, not a request.',
-    methodsTitle: 'Support methods will be added later',
+      'My Shift remains available without required payments. If the app is useful and you are comfortable supporting its development, direct transfer details are available below. This is an option, not a request.',
+    methodsTitle: 'Euro transfer',
     methodsText:
-      'Payments are not accepted yet. Once a convenient and secure payment method is ready, it will appear only on this page.',
+      'Choose an account and use the details in your banking app.',
+    euroOnly: 'EUR',
+    copy: 'Copy',
+    copied: 'Details copied',
+    transferNote:
+      'Check the beneficiary name and IBAN in your banking app before sending. The transfer is entirely voluntary and does not unlock extra features.',
+    fields: {
+      beneficiary: 'Beneficiary',
+      iban: 'IBAN',
+      bic: 'BIC / SWIFT',
+      bank: 'Bank and address',
+      correspondentBic: 'Correspondent bank BIC',
+      currency: 'Currency',
+    },
+    accounts: {
+      slovak: {
+        title: 'Slovak bank account',
+        subtitle: 'Direct SEPA transfer',
+      },
+      revolut: {
+        title: 'Revolut',
+        subtitle: 'Euro bank transfer',
+      },
+    },
     principles: {
       choiceTitle: 'Fully voluntary',
       choiceText: 'No payment reminders, subscriptions, or obligations.',

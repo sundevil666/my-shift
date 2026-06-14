@@ -230,6 +230,16 @@ const mobileReleases = ref<MobileReleaseManifest>({
 const form = reactive({ name: '', email: '', message: '', answer: '', website: '' });
 const releases = [
   {
+    version: '0.1.3',
+    date: '2026-06-14',
+    title: 'whatsNew.releases.v013.title',
+    features: [
+      'whatsNew.releases.v013.bankDetails',
+      'whatsNew.releases.v013.copy',
+      'whatsNew.releases.v013.voluntary',
+    ],
+  },
+  {
     version: '0.1.2',
     date: '2026-06-14',
     title: 'whatsNew.releases.v012.title',
