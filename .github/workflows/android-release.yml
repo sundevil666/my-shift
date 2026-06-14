@@ -19,7 +19,7 @@ jobs:
       - name: Set release version
         run: |
           echo "RELEASE_VERSION_CODE=$((GITHUB_RUN_NUMBER + 1000))" >> "$GITHUB_ENV"
-          echo "RELEASE_VERSION=0.1.${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
+          echo "RELEASE_VERSION=0.1.$((GITHUB_RUN_NUMBER + 1000))" >> "$GITHUB_ENV"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -42,6 +42,9 @@ jobs:
           printf 'storeFile=my-shift-release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
             "$ANDROID_KEYSTORE_PASSWORD" "$ANDROID_KEY_ALIAS" "$ANDROID_KEY_PASSWORD" \
             > src-capacitor/android/keystore.properties
+          printf 'releaseVersionCode=%s\nreleaseVersion=%s\n' \
+            "$RELEASE_VERSION_CODE" "$RELEASE_VERSION" \
+            >> src-capacitor/android/gradle.properties
       - run: npm run build:android
       - name: Prepare release assets
         run: |
