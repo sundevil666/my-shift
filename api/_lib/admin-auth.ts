@@ -38,6 +38,12 @@ export function isAdminPassword(value: unknown) {
   );
 }
 
+export function adminRateLimitKey(value: string) {
+  return createHmac('sha256', requireEnvironment('ANALYTICS_ADMIN_TOKEN'))
+    .update(`login:${value}`)
+    .digest('hex');
+}
+
 function sign(payload: string) {
   return createHmac('sha256', requireEnvironment('ANALYTICS_ADMIN_TOKEN'))
     .update(payload)

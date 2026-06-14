@@ -56,6 +56,13 @@ async function createSchema() {
   await sql`
     CREATE INDEX IF NOT EXISTS app_downloads_date_idx ON app_downloads(downloaded_at)
   `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS admin_login_limits (
+      key_hash TEXT PRIMARY KEY,
+      attempt_count INTEGER NOT NULL,
+      expires_at TIMESTAMPTZ NOT NULL
+    )
+  `;
 }
 
 export function isAnalyticsPlatform(value: unknown): value is AnalyticsPlatform {
