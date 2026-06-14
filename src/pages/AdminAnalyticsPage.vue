@@ -1,5 +1,5 @@
 <template>
-  <q-page padding class="admin-analytics-page">
+  <main class="admin-analytics-page q-pa-md">
     <div class="admin-analytics-shell">
       <div class="admin-analytics-brand">
         <AppLogo class="admin-analytics-logo" />
@@ -118,7 +118,7 @@
         </q-card>
       </template>
     </div>
-  </q-page>
+  </main>
 </template>
 
 <script setup lang="ts">
