@@ -15,6 +15,20 @@ interface FeedbackBody {
 }
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
+  const origin = request.headers.origin;
+  if (
+    typeof origin === 'string' &&
+    /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/.test(origin)
+  ) {
+    response.setHeader('Access-Control-Allow-Origin', origin);
+    response.setHeader('Vary', 'Origin');
+  }
+  if (request.method === 'OPTIONS') {
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    return response.status(204).end();
+  }
+
   response.setHeader('Cache-Control', 'no-store');
   if (request.method === 'GET') return createChallenge(response);
   if (request.method !== 'POST') {

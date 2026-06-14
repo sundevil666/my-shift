@@ -27,7 +27,7 @@ export const RELEASE_MANIFEST_URLS = [
 export async function loadReleaseManifest(
   fetcher: typeof fetch = fetch,
 ): Promise<MobileReleaseManifest | null> {
-  for (const source of RELEASE_MANIFEST_URLS) {
+  for (const source of releaseManifestUrls()) {
     try {
       const separator = source.includes('?') ? '&' : '?';
       const response = await fetcher(`${source}${separator}time=${Date.now()}`, {
@@ -41,6 +41,16 @@ export async function loadReleaseManifest(
     }
   }
   return null;
+}
+
+function releaseManifestUrls(): readonly string[] {
+  if (
+    typeof window !== 'undefined' &&
+    ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname)
+  ) {
+    return ['/mobile-releases.json'];
+  }
+  return RELEASE_MANIFEST_URLS;
 }
 
 export function latestAvailableRelease(

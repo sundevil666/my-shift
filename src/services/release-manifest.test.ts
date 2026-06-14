@@ -43,4 +43,18 @@ describe('release manifest', () => {
     expect(await loadReleaseManifest(fetcher)).toEqual(manifest);
     expect(fetcher).toHaveBeenCalledTimes(2);
   });
+
+  it('uses the local manifest during local development', async () => {
+    vi.stubGlobal('window', { location: { hostname: 'localhost' } });
+    const manifest: MobileReleaseManifest = {
+      android: { stable: releases, advanced: [] },
+      ios: { stable: [], advanced: [] },
+    };
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify(manifest)));
+
+    expect(await loadReleaseManifest(fetcher)).toEqual(manifest);
+    expect(fetcher).toHaveBeenCalledOnce();
+    expect(fetcher.mock.calls[0]?.[0]).toMatch(/^\/mobile-releases\.json\?time=/);
+    vi.unstubAllGlobals();
+  });
 });
