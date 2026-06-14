@@ -983,10 +983,23 @@ body {
 }
 .drawer-action__button {
   width: 100%;
-  min-height: 38px;
+  min-height: 42px;
+  padding: 4px 10px;
   border: 1px solid var(--app-border);
   border-radius: 12px;
+  font-size: 0.86rem;
   font-weight: 600;
+}
+
+.drawer-action__button .q-btn__content {
+  flex-wrap: nowrap;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.drawer-action__button .q-icon {
+  flex: 0 0 auto;
+  font-size: 1.2rem;
 }
 
 .support-page {
