@@ -106,7 +106,6 @@ const accounts = [
     title: 'support.accounts.slovak.title',
     subtitle: 'support.accounts.slovak.subtitle',
     fields: [
-      { label: 'support.fields.beneficiary', value: 'Tokmakov Serhii', copy: true },
       { label: 'support.fields.iban', value: 'SK83 0900 0000 0052 3003 3548', copy: true },
       { label: 'support.fields.currency', value: 'EUR', copy: false },
     ],
@@ -117,15 +116,7 @@ const accounts = [
     title: 'support.accounts.revolut.title',
     subtitle: 'support.accounts.revolut.subtitle',
     fields: [
-      { label: 'support.fields.beneficiary', value: 'Serhii Tokmakov', copy: true },
       { label: 'support.fields.iban', value: 'LT98 3250 0443 3790 9986', copy: true },
-      { label: 'support.fields.bic', value: 'REVOLT21', copy: true },
-      {
-        label: 'support.fields.bank',
-        value: 'Revolut Bank UAB, Konstitucijos ave. 21B, 08130 Vilnius, Lithuania',
-        copy: true,
-      },
-      { label: 'support.fields.correspondentBic', value: 'CHASDEFX', copy: true },
       { label: 'support.fields.currency', value: 'EUR', copy: false },
     ],
   },

@@ -35,6 +35,11 @@ export default {
     localOnly: 'Your data is not sent to a server.',
   },
   updates: {
+    startupTitle: 'A new version is available',
+    startupMessage:
+      'Before continuing, you can update My Shift to version {version}. Your settings and schedule will be preserved.',
+    downloadAndInstall: 'Download and install',
+    later: 'Continue without updating',
     title: 'Update available',
     message: 'Version {version} is ready. Your saved data is compatible.',
     incompatibleTitle: 'Update requires a data reset',
@@ -52,6 +57,12 @@ export default {
     subtitle: 'New features and important changes, organized by version.',
     history: 'Version history',
     releases: {
+      v015: {
+        title: 'Update check at startup',
+        startupCheck: 'The APK and PWA check for a new version whenever they start.',
+        safeInstall: 'Android downloads the update and opens the secure system installation confirmation.',
+        privateSupport: 'The support page now shows only IBANs, without a name or bank addresses.',
+      },
       v014: {
         title: 'Share the app',
         systemShare: 'Added sharing through the system contacts and messaging menu.',
@@ -150,13 +161,9 @@ export default {
     copy: 'Copy',
     copied: 'Details copied',
     transferNote:
-      'Check the beneficiary name and IBAN in your banking app before sending. The transfer is entirely voluntary and does not unlock extra features.',
+      'Check the IBAN in your banking app before sending. Your bank will show the beneficiary while preparing the transfer. The transfer is entirely voluntary.',
     fields: {
-      beneficiary: 'Beneficiary',
       iban: 'IBAN',
-      bic: 'BIC / SWIFT',
-      bank: 'Bank and address',
-      correspondentBic: 'Correspondent bank BIC',
       currency: 'Currency',
     },
     accounts: {

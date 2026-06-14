@@ -35,6 +35,11 @@ export default {
     localOnly: 'Údaje sa neodosielajú na server.',
   },
   updates: {
+    startupTitle: 'Je dostupná nová verzia',
+    startupMessage:
+      'Pred pokračovaním môžete aktualizovať My Shift na verziu {version}. Nastavenia a rozvrh zostanú zachované.',
+    downloadAndInstall: 'Stiahnuť a nainštalovať',
+    later: 'Pokračovať bez aktualizácie',
     title: 'Je dostupná aktualizácia',
     message: 'Verzia {version} je pripravená. Vaše uložené údaje sú kompatibilné.',
     incompatibleTitle: 'Aktualizácia vyžaduje obnovenie údajov',
@@ -52,6 +57,12 @@ export default {
     subtitle: 'Nové funkcie a dôležité zmeny zoradené podľa verzií.',
     history: 'História verzií',
     releases: {
+      v015: {
+        title: 'Kontrola aktualizácií pri spustení',
+        startupCheck: 'APK aj PWA kontrolujú novú verziu pri každom spustení.',
+        safeInstall: 'Android stiahne aktualizáciu a otvorí bezpečné systémové potvrdenie inštalácie.',
+        privateSupport: 'Na stránke podpory zostali iba IBAN-y bez mena a adries bánk.',
+      },
       v014: {
         title: 'Zdieľanie aplikácie',
         systemShare: 'Pridané zdieľanie cez systémovú ponuku kontaktov a komunikátorov.',
@@ -150,13 +161,9 @@ export default {
     copy: 'Kopírovať',
     copied: 'Údaje boli skopírované',
     transferNote:
-      'Pred odoslaním skontrolujte meno príjemcu a IBAN v bankovej aplikácii. Prevod je úplne dobrovoľný a neodomyká ďalšie funkcie.',
+      'Pred odoslaním skontrolujte IBAN v bankovej aplikácii. Banka zobrazí meno príjemcu pri príprave prevodu. Prevod je úplne dobrovoľný.',
     fields: {
-      beneficiary: 'Príjemca',
       iban: 'IBAN',
-      bic: 'BIC / SWIFT',
-      bank: 'Banka a adresa',
-      correspondentBic: 'BIC korešpondenčnej banky',
       currency: 'Mena',
     },
     accounts: {

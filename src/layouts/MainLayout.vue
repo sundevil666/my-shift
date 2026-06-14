@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { copyToClipboard, useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { RouterView, useRouter } from 'vue-router';
@@ -125,8 +125,13 @@ import type { DayPlanEventKind } from 'src/core/day-plan';
 import {
   activateAppUpdate,
   APP_UPDATE_AVAILABLE_EVENT,
+  CURRENT_APP_VERSION,
   type AppUpdateDetail,
 } from 'src/services/app-update';
+import {
+  canInstallNativeAndroidUpdate,
+  installNativeAndroidUpdate,
+} from 'src/services/native-updater';
 import {
   currentWorkingShift,
   nextWorkingShift,
@@ -157,7 +162,8 @@ const isAndroid = /Android/i.test(userAgent);
 const showAndroidInstall = computed(() => isAndroid && !isInstalledApp.value);
 const productName = 'My Shift';
 const androidDownloadUrl =
-  'https://raw.githubusercontent.com/sundevil666/my-shift/main/public/downloads/my-shift-android-0.1.4.apk';
+  'https://raw.githubusercontent.com/sundevil666/my-shift/main/public/downloads/my-shift-android-0.1.5.apk';
+let startupUpdateChecked = false;
 const dateTimer = window.setInterval(() => {
   now.value = new Date();
   if (now.value.getSeconds() === 0) app.applyShiftAtmosphere(now.value);
@@ -329,6 +335,10 @@ const showAppUpdateDialog = (event: CustomEvent<AppUpdateDetail>) => {
     .onCancel(() => void router.push('/whats-new'));
 };
 window.addEventListener(APP_UPDATE_AVAILABLE_EVENT, showAppUpdateDialog);
+
+onMounted(() => {
+  void checkForStartupUpdate();
+});
 const captureInstallPrompt = (event: Event) => {
   event.preventDefault();
   installPrompt.value = event as BeforeInstallPromptEvent;
@@ -408,6 +418,92 @@ async function installAndroidApp() {
   const choice = await prompt.userChoice;
   installPrompt.value = null;
   if (choice.outcome === 'accepted') isInstalledApp.value = true;
+}
+
+interface StartupRelease {
+  version: string;
+  url: string | null;
+  status: 'available' | 'preparing';
+}
+
+interface StartupReleaseManifest {
+  android?: {
+    stable?: StartupRelease[];
+  };
+}
+
+function compareVersions(left: string, right: string) {
+  const leftParts = left.split('.').map(Number);
+  const rightParts = right.split('.').map(Number);
+  const length = Math.max(leftParts.length, rightParts.length);
+  for (let index = 0; index < length; index += 1) {
+    const difference = (leftParts[index] ?? 0) - (rightParts[index] ?? 0);
+    if (difference !== 0) return difference;
+  }
+  return 0;
+}
+
+async function checkForStartupUpdate() {
+  if (startupUpdateChecked) return;
+  startupUpdateChecked = true;
+
+  if (canInstallNativeAndroidUpdate()) {
+    try {
+      const response = await fetch(`/mobile-releases.json?time=${Date.now()}`, {
+        cache: 'no-store',
+      });
+      if (!response.ok) return;
+      const manifest = (await response.json()) as StartupReleaseManifest;
+      const release = manifest.android?.stable?.find(
+        (item) =>
+          item.status === 'available' &&
+          Boolean(item.url) &&
+          compareVersions(item.version, CURRENT_APP_VERSION) > 0,
+      );
+      if (!release?.url) return;
+
+      $q.dialog({
+        title: t('updates.startupTitle'),
+        message: t('updates.startupMessage', { version: release.version }),
+        cancel: {
+          flat: true,
+          label: t('updates.later'),
+        },
+        ok: {
+          color: 'primary',
+          label: t('updates.downloadAndInstall'),
+        },
+        persistent: true,
+      }).onOk(() => void installStartupAndroidUpdate(release.url!));
+    } catch {
+      // Starting the app remains possible while offline.
+    }
+    return;
+  }
+
+  if ('serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.getRegistration();
+      await registration?.update();
+    } catch {
+      // Starting the PWA remains possible while offline.
+    }
+  }
+}
+
+async function installStartupAndroidUpdate(url: string) {
+  try {
+    await installNativeAndroidUpdate(url, app.data);
+  } catch (error) {
+    $q.notify({
+      type: 'warning',
+      message: t(
+        error instanceof Error && error.message.includes('install-permission-required')
+          ? 'mobileInstall.allowInstall'
+          : 'mobileInstall.installError',
+      ),
+    });
+  }
 }
 
 async function shareApp() {
