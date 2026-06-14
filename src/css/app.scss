@@ -212,6 +212,9 @@ body {
   width: 58px;
   height: 58px;
 }
+.admin-home-button {
+  margin-left: auto;
+}
 .admin-login-card {
   width: min(460px, 100%);
   margin: 48px auto 0;
@@ -298,6 +301,14 @@ body {
 @media (max-width: 599px) {
   .admin-analytics-shell {
     padding-top: 12px;
+  }
+  .admin-analytics-brand {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .admin-home-button {
+    width: 100%;
+    margin-left: 0;
   }
   .admin-analytics-actions {
     align-items: stretch;

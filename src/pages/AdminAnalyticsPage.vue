@@ -8,6 +8,14 @@
           <h1>Статистика приложения</h1>
           <p>Закрытая панель владельца</p>
         </div>
+        <q-btn
+          flat
+          no-caps
+          icon="home"
+          label="На главную"
+          class="admin-home-button"
+          href="/#/"
+        />
       </div>
 
       <q-card v-if="checking" flat bordered class="admin-login-card">
