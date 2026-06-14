@@ -10,6 +10,23 @@
       </q-chip>
     </PageHeader>
 
+    <q-card flat bordered class="useful-card">
+      <q-card-section>
+        <div class="text-overline text-primary">{{ $t('whatsNew.useful.eyebrow') }}</div>
+        <h2>{{ $t('whatsNew.useful.title') }}</h2>
+        <p>{{ $t('whatsNew.useful.subtitle') }}</p>
+        <div class="useful-card__grid">
+          <div v-for="tip in usefulTips" :key="tip.title" class="useful-card__item">
+            <q-icon :name="tip.icon" color="primary" size="24px" />
+            <div>
+              <strong>{{ $t(tip.title) }}</strong>
+              <p>{{ $t(tip.text) }}</p>
+            </div>
+          </div>
+        </div>
+      </q-card-section>
+    </q-card>
+
     <q-card flat bordered class="mobile-install-card">
       <q-card-section>
         <div class="text-overline text-primary">{{ $t('mobileInstall.eyebrow') }}</div>
@@ -114,18 +131,28 @@
     </q-card>
 
     <section class="release-list" :aria-label="$t('whatsNew.history')">
-      <q-card v-for="release in releases" :key="release.version" flat bordered class="release-card">
-        <q-card-section>
-          <div class="release-card__meta">
-            <q-badge color="primary">v{{ release.version }}</q-badge>
-            <time :datetime="release.date">{{ formatDate(release.date) }}</time>
-          </div>
-          <h2>{{ $t(release.title) }}</h2>
-          <ul>
-            <li v-for="feature in release.features" :key="feature">{{ $t(feature) }}</li>
-          </ul>
-        </q-card-section>
-      </q-card>
+      <section v-for="group in releaseGroups" :key="group.date" class="release-group">
+        <time class="release-group__date" :datetime="group.date">{{ formatDate(group.date) }}</time>
+        <div class="release-group__items">
+          <q-card
+            v-for="release in group.releases"
+            :key="release.version"
+            flat
+            bordered
+            class="release-card"
+          >
+            <q-card-section>
+              <div class="release-card__meta">
+                <q-badge color="primary">v{{ release.version }}</q-badge>
+              </div>
+              <h2>{{ $t(release.title) }}</h2>
+              <ul>
+                <li v-for="feature in release.features" :key="feature">{{ $t(feature) }}</li>
+              </ul>
+            </q-card-section>
+          </q-card>
+        </div>
+      </section>
     </section>
 
     <q-card flat bordered class="feedback-card">
@@ -171,7 +198,12 @@
             :disable="!challenge"
             :rules="[requiredRule]"
           />
-          <input v-model="form.website" class="feedback-honeypot" tabindex="-1" autocomplete="off" />
+          <input
+            v-model="form.website"
+            class="feedback-honeypot"
+            tabindex="-1"
+            autocomplete="off"
+          />
         </q-card-section>
         <q-card-actions align="right" class="q-px-md q-pb-md">
           <q-btn
@@ -191,16 +223,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import PageHeader from 'components/PageHeader.vue';
 import { CURRENT_APP_VERSION } from 'src/services/app-update';
-import {
-  loadFeedbackChallenge,
-  sendFeedback,
-  type FeedbackChallenge,
-} from 'src/services/feedback';
+import { loadFeedbackChallenge, sendFeedback, type FeedbackChallenge } from 'src/services/feedback';
 import {
   canInstallNativeAndroidUpdate,
   installNativeAndroidUpdate,
@@ -231,6 +259,28 @@ const mobileReleases = ref<MobileReleaseManifest>({
   ios: { stable: [], advanced: [] },
 });
 const form = reactive({ name: '', email: '', message: '', answer: '', website: '' });
+const usefulTips = [
+  {
+    icon: 'system_update',
+    title: 'whatsNew.useful.updatesTitle',
+    text: 'whatsNew.useful.updatesText',
+  },
+  {
+    icon: 'backup',
+    title: 'whatsNew.useful.backupTitle',
+    text: 'whatsNew.useful.backupText',
+  },
+  {
+    icon: 'install_mobile',
+    title: 'whatsNew.useful.installTitle',
+    text: 'whatsNew.useful.installText',
+  },
+  {
+    icon: 'share',
+    title: 'whatsNew.useful.shareTitle',
+    text: 'whatsNew.useful.shareText',
+  },
+] as const;
 const releases = [
   {
     version: '0.1.5',
@@ -240,6 +290,8 @@ const releases = [
       'whatsNew.releases.v015.startupCheck',
       'whatsNew.releases.v015.safeInstall',
       'whatsNew.releases.v015.privateSupport',
+      'whatsNew.releases.v015.anonymousAnalytics',
+      'whatsNew.releases.v015.privateDiagnostics',
     ],
   },
   {
@@ -250,26 +302,6 @@ const releases = [
       'whatsNew.releases.v014.systemShare',
       'whatsNew.releases.v014.platformLink',
       'whatsNew.releases.v014.fallback',
-    ],
-  },
-  {
-    version: '0.1.3',
-    date: '2026-06-14',
-    title: 'whatsNew.releases.v013.title',
-    features: [
-      'whatsNew.releases.v013.bankDetails',
-      'whatsNew.releases.v013.copy',
-      'whatsNew.releases.v013.voluntary',
-    ],
-  },
-  {
-    version: '0.1.2',
-    date: '2026-06-14',
-    title: 'whatsNew.releases.v012.title',
-    features: [
-      'whatsNew.releases.v012.supportPage',
-      'whatsNew.releases.v012.supportButton',
-      'whatsNew.releases.v012.futurePayments',
     ],
   },
   {
@@ -305,6 +337,17 @@ const releases = [
     ],
   },
 ] as const;
+const releaseGroups = computed(() => {
+  const groups = new Map<string, Array<(typeof releases)[number]>>();
+
+  for (const release of releases) {
+    const group = groups.get(release.date) ?? [];
+    group.push(release);
+    groups.set(release.date, group);
+  }
+
+  return [...groups].map(([date, groupedReleases]) => ({ date, releases: groupedReleases }));
+});
 
 const requiredRule = (value: string) => Boolean(value?.trim()) || t('feedback.validation.required');
 const nameRule = (value: string) => value.trim().length >= 2 || t('feedback.validation.name');
@@ -394,9 +437,11 @@ async function submitFeedback() {
   } catch (error) {
     $q.notify({
       type: 'negative',
-      message: t(error instanceof Error && error.message === 'rate-limit'
-        ? 'feedback.rateLimit'
-        : 'feedback.error'),
+      message: t(
+        error instanceof Error && error.message === 'rate-limit'
+          ? 'feedback.rateLimit'
+          : 'feedback.error',
+      ),
     });
   } finally {
     sending.value = false;

@@ -71,6 +71,9 @@ cannot be transferred automatically between unrelated domains by design.
 
 Cloud push is opt-in. Disabling consent cancels scheduled QStash messages and unsubscribes the
 browser. Feedback sends the entered name, email and message through Resend.
+Unexpected application errors send a limited technical report through Resend. Reports contain the
+error message and stack trace, app version, platform and page URL without query parameters. They do
+not include schedule data, settings or local storage.
 
 ## Feedback email setup
 
@@ -80,3 +83,6 @@ Add these variables to the Vercel Production environment:
 - `RESEND_API_KEY`: Resend API key.
 - `FEEDBACK_FROM_EMAIL`: verified sender, for example `My Shift <feedback@example.com>`.
 - `FEEDBACK_CAPTCHA_SECRET`: a long random secret used to sign captcha challenges.
+
+The same Resend configuration is used for automatic error reports sent to
+`sundevildi@gmail.com`.

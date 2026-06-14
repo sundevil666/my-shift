@@ -24,15 +24,20 @@ export default {
     localTitle: 'Local schedule data',
     localText: 'Your schedule, workplace settings and calendar are stored only on this device.',
     pushTitle: 'Cloud push reminders',
-    pushText: 'With your consent, reminder times, notification text and an anonymous device subscription are processed by Vercel and Upstash for up to 15 days.',
+    pushText:
+      'With your consent, reminder times, notification text and an anonymous device subscription are processed by Vercel and Upstash for up to 15 days.',
     feedbackTitle: 'Feedback',
-    feedbackText: 'When you submit feedback, your name, email and message are sent through Resend to the developer.',
+    feedbackText:
+      'When you submit feedback, your name, email and message are sent through Resend to the developer.',
     analyticsTitle: 'Anonymous analytics',
-    analyticsText: 'The app sends a random installation ID, platform, version and activity date, and counts APK downloads. Schedule data, settings, name, email, IP address and location are not stored.',
+    analyticsText:
+      'The app sends a random installation ID, platform, version and activity date, counts APK downloads, and sends technical error details and the page without parameters after a failure. Schedule data, settings, name, email, IP address and location are not stored.',
     controlTitle: 'Your control',
-    controlText: 'You can withdraw push consent, export data for a domain migration, import it on another domain, or reset the application.',
+    controlText:
+      'You can withdraw push consent, export data for a domain migration, import it on another domain, or reset the application.',
     cloudPushConsent: 'Allow cloud push reminders',
-    consentHint: 'Local and Android notifications work without sending your schedule to the push service.',
+    consentHint:
+      'Local and Android notifications work without sending your schedule to the push service.',
     exportData: 'Export data',
     importData: 'Import data',
     importSuccess: 'Data imported successfully.',
@@ -46,7 +51,8 @@ export default {
   },
   install: {
     android: 'Install',
-    androidUnavailable: 'Installation will be available when the browser finishes preparing the app.',
+    androidUnavailable:
+      'Installation will be available when the browser finishes preparing the app.',
   },
   storage: {
     saving: 'Saving…',
@@ -78,30 +84,39 @@ export default {
     title: 'What’s new in My Shift',
     subtitle: 'New features and important changes, organized by version.',
     history: 'Version history',
+    useful: {
+      eyebrow: 'Good to know',
+      title: 'Make the most of the new features',
+      subtitle: 'A few actions that make My Shift more reliable and convenient.',
+      updatesTitle: 'Update at startup',
+      updatesText:
+        'The app will notify you about a new version while keeping your schedule and settings.',
+      backupTitle: 'Keep a backup',
+      backupText: 'Export your data from the privacy page before an important update.',
+      installTitle: 'Install on your phone',
+      installText:
+        'Android has an APK, while iPhone can add the app to the Home Screen through Safari.',
+      shareTitle: 'Share with a coworker',
+      shareText: 'The menu button sends the correct link for the platform you are using.',
+    },
     releases: {
       v015: {
         title: 'Update check at startup',
         startupCheck: 'The APK and PWA check for a new version whenever they start.',
-        safeInstall: 'Android downloads the update and opens the secure system installation confirmation.',
+        safeInstall:
+          'Android downloads the update and opens the secure system installation confirmation.',
         privateSupport: 'The support page now shows only IBANs, without a name or bank addresses.',
+        anonymousAnalytics:
+          'Added anonymous version, platform and activity statistics to help improve the app.',
+        privateDiagnostics:
+          'After a failure, only technical error details and the page without parameters are sent, never your schedule or settings.',
       },
       v014: {
         title: 'Share the app',
         systemShare: 'Added sharing through the system contacts and messaging menu.',
-        platformLink: 'Android shares the APK link while the PWA shares the website installation page.',
+        platformLink:
+          'Android shares the APK link while the PWA shares the website installation page.',
         fallback: 'The link is copied automatically when system sharing is unavailable.',
-      },
-      v013: {
-        title: 'Transfers to support the project',
-        bankDetails: 'Added details for a Slovak EUR account and Revolut.',
-        copy: 'Key transfer details can be copied with one button.',
-        voluntary: 'Support remains entirely voluntary and does not affect app features.',
-      },
-      v012: {
-        title: 'Voluntary project support',
-        supportPage: 'Added a dedicated page explaining how support for My Shift will work.',
-        supportButton: 'Added a small unobtrusive support button to the menu.',
-        futurePayments: 'Payment details are not published yet and will be added later.',
       },
       v011: {
         title: 'Safe Android updates',
@@ -129,10 +144,8 @@ export default {
     eyebrow: 'Installation',
     title: 'Install on your phone',
     subtitle: 'Choose your platform and use the installation method currently available.',
-    risk:
-      'This is a manual installation outside an app store. You install it voluntarily and at your own risk. Back up your data before updating.',
-    androidNote:
-      'Download the stable APK, allow installation from this source, and confirm.',
+    risk: 'This is a manual installation outside an app store. You install it voluntarily and at your own risk. Back up your data before updating.',
+    androidNote: 'Download the stable APK, allow installation from this source, and confirm.',
     iosNote: 'On iPhone, the web app can currently be installed through Safari.',
     iosPwaTitle: 'Install My Shift on iPhone',
     iosStepOpen: 'Open the My Shift website in Safari.',
@@ -177,8 +190,7 @@ export default {
     voluntaryText:
       'My Shift remains available without required payments. If the app is useful and you are comfortable supporting its development, direct transfer details are available below. This is an option, not a request.',
     methodsTitle: 'Euro transfer',
-    methodsText:
-      'Choose an account and use the details in your banking app.',
+    methodsText: 'Choose an account and use the details in your banking app.',
     euroOnly: 'EUR',
     copy: 'Copy',
     copied: 'Details copied',

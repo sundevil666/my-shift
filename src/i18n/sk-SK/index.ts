@@ -24,13 +24,17 @@ export default {
     localTitle: 'Lokálne údaje',
     localText: 'Rozvrh, pracovné nastavenia a kalendár sú uložené iba v tomto zariadení.',
     pushTitle: 'Cloudové push pripomienky',
-    pushText: 'S vaším súhlasom spracujú Vercel a Upstash časy, text pripomienok a anonymné predplatné zariadenia najviac 15 dní.',
+    pushText:
+      'S vaším súhlasom spracujú Vercel a Upstash časy, text pripomienok a anonymné predplatné zariadenia najviac 15 dní.',
     feedbackTitle: 'Spätná väzba',
-    feedbackText: 'Pri odoslaní spätnej väzby sa meno, email a správa odošlú vývojárovi cez Resend.',
+    feedbackText:
+      'Pri odoslaní spätnej väzby sa meno, email a správa odošlú vývojárovi cez Resend.',
     analyticsTitle: 'Anonymná štatistika',
-    analyticsText: 'Aplikácia odosiela náhodné ID inštalácie, platformu, verziu a dátum aktivity a počíta stiahnutia APK. Rozvrh, nastavenia, meno, email, IP adresa ani poloha sa neukladajú.',
+    analyticsText:
+      'Aplikácia odosiela náhodné ID inštalácie, platformu, verziu a dátum aktivity, počíta stiahnutia APK a pri zlyhaní odošle technický popis chyby a stránku bez parametrov. Rozvrh, nastavenia, meno, email, IP adresa ani poloha sa neukladajú.',
     controlTitle: 'Vaša kontrola',
-    controlText: 'Súhlas môžete odvolať, údaje exportovať pri zmene domény, importovať alebo aplikáciu obnoviť.',
+    controlText:
+      'Súhlas môžete odvolať, údaje exportovať pri zmene domény, importovať alebo aplikáciu obnoviť.',
     cloudPushConsent: 'Povoliť cloudové push pripomienky',
     consentHint: 'Lokálne a Android upozornenia fungujú bez odoslania rozvrhu push službe.',
     exportData: 'Exportovať údaje',
@@ -78,30 +82,36 @@ export default {
     title: 'Čo je nové v My Shift',
     subtitle: 'Nové funkcie a dôležité zmeny zoradené podľa verzií.',
     history: 'História verzií',
+    useful: {
+      eyebrow: 'Užitočné informácie',
+      title: 'Využite nové možnosti',
+      subtitle: 'Niekoľko krokov pre spoľahlivejšie a pohodlnejšie používanie My Shift.',
+      updatesTitle: 'Aktualizujte pri spustení',
+      updatesText: 'Aplikácia oznámi novú verziu a zachová váš rozvrh aj nastavenia.',
+      backupTitle: 'Uchovajte si zálohu',
+      backupText: 'Pred dôležitou aktualizáciou exportujte údaje na stránke súkromia.',
+      installTitle: 'Nainštalujte do telefónu',
+      installText: 'Pre Android je dostupný APK, na iPhone inštalácia na plochu cez Safari.',
+      shareTitle: 'Zdieľajte s kolegom',
+      shareText: 'Tlačidlo v ponuke odošle správny odkaz pre používanú platformu.',
+    },
     releases: {
       v015: {
         title: 'Kontrola aktualizácií pri spustení',
         startupCheck: 'APK aj PWA kontrolujú novú verziu pri každom spustení.',
-        safeInstall: 'Android stiahne aktualizáciu a otvorí bezpečné systémové potvrdenie inštalácie.',
+        safeInstall:
+          'Android stiahne aktualizáciu a otvorí bezpečné systémové potvrdenie inštalácie.',
         privateSupport: 'Na stránke podpory zostali iba IBAN-y bez mena a adries bánk.',
+        anonymousAnalytics:
+          'Pridaná anonymná štatistika verzií, platforiem a aktivity na zlepšovanie aplikácie.',
+        privateDiagnostics:
+          'Pri zlyhaní sa odošle iba technický popis chyby a stránka bez parametrov, nikdy nie rozvrh ani nastavenia.',
       },
       v014: {
         title: 'Zdieľanie aplikácie',
         systemShare: 'Pridané zdieľanie cez systémovú ponuku kontaktov a komunikátorov.',
         platformLink: 'Android zdieľa odkaz na APK a PWA stránku s pokynmi na inštaláciu.',
         fallback: 'Ak systémové zdieľanie nie je dostupné, odkaz sa automaticky skopíruje.',
-      },
-      v013: {
-        title: 'Prevody na podporu projektu',
-        bankDetails: 'Pridané údaje slovenského EUR účtu a Revolutu.',
-        copy: 'Hlavné platobné údaje možno skopírovať jedným tlačidlom.',
-        voluntary: 'Podpora zostáva úplne dobrovoľná a neovplyvňuje funkcie aplikácie.',
-      },
-      v012: {
-        title: 'Dobrovoľná podpora projektu',
-        supportPage: 'Pridaná samostatná stránka s princípmi podpory My Shift.',
-        supportButton: 'Do ponuky pribudlo malé nenápadné tlačidlo podpory.',
-        futurePayments: 'Platobné údaje zatiaľ nie sú zverejnené a pribudnú neskôr.',
       },
       v011: {
         title: 'Bezpečné aktualizácie Androidu',
@@ -129,10 +139,8 @@ export default {
     eyebrow: 'Inštalácia',
     title: 'Inštalácia do telefónu',
     subtitle: 'Vyberte platformu a použite aktuálne dostupný spôsob inštalácie.',
-    risk:
-      'Ide o ručnú inštaláciu mimo obchodu s aplikáciami. Zostavu inštalujete dobrovoľne a na vlastné riziko. Pred aktualizáciou si zálohujte údaje.',
-    androidNote:
-      'Stiahnite stabilný APK, povoľte inštaláciu z tohto zdroja a potvrďte ju.',
+    risk: 'Ide o ručnú inštaláciu mimo obchodu s aplikáciami. Zostavu inštalujete dobrovoľne a na vlastné riziko. Pred aktualizáciou si zálohujte údaje.',
+    androidNote: 'Stiahnite stabilný APK, povoľte inštaláciu z tohto zdroja a potvrďte ju.',
     iosNote: 'Na iPhone je teraz dostupná inštalácia webovej aplikácie cez Safari.',
     iosPwaTitle: 'Nainštalovať My Shift na iPhone',
     iosStepOpen: 'Otvorte web My Shift priamo v Safari.',
@@ -177,8 +185,7 @@ export default {
     voluntaryText:
       'My Shift zostáva dostupný bez povinných platieb. Ak je pre vás aplikácia užitočná a chcete podporiť jej vývoj, nižšie nájdete údaje na priamy prevod. Je to možnosť, nie žiadosť.',
     methodsTitle: 'Prevod v eurách',
-    methodsText:
-      'Vyberte si účet a použite údaje vo svojej bankovej aplikácii.',
+    methodsText: 'Vyberte si účet a použite údaje vo svojej bankovej aplikácii.',
     euroOnly: 'EUR',
     copy: 'Kopírovať',
     copied: 'Údaje boli skopírované',

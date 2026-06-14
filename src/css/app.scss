@@ -2245,13 +2245,56 @@ body {
 }
 .release-list {
   display: grid;
+  gap: 24px;
+}
+.release-group {
+  display: grid;
+  gap: 10px;
+}
+.release-group__date {
+  color: var(--app-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.release-group__items {
+  display: grid;
   gap: 14px;
 }
 .release-card,
 .feedback-card,
+.useful-card,
 .mobile-install-card {
   border-radius: 22px;
   background: var(--app-surface);
+}
+.useful-card {
+  margin-bottom: 20px;
+}
+.useful-card h2,
+.useful-card p {
+  margin-top: 0;
+}
+.useful-card__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+.useful-card__item {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--q-primary) 6%, var(--app-surface));
+}
+.useful-card__item p {
+  margin: 4px 0 0;
+  color: var(--app-muted);
+}
+@media (max-width: 599px) {
+  .useful-card__grid {
+    grid-template-columns: 1fr;
+  }
 }
 .mobile-install-card {
   margin-bottom: 24px;
