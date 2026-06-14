@@ -23,6 +23,7 @@
   "dependencies": {
     "@capacitor/core": "^8.4.0",
     "@capacitor/local-notifications": "^8.2.0",
+    "@neondatabase/serverless": "^1.1.0",
     "@quasar/extras": "^1.16.4",
     "@upstash/qstash": "^2.11.0",
     "@upstash/redis": "^1.38.0",

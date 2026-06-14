@@ -60,6 +60,17 @@ export function latestAvailableRelease(
   );
 }
 
+const analyticsOrigin = 'https://my-shift-iota.vercel.app';
+
+export function trackedDownloadUrl(release: MobileRelease, absolute = false): string | null {
+  if (!release.url) return null;
+  const params = new URLSearchParams({
+    version: release.version,
+    url: release.url,
+  });
+  return `${absolute ? analyticsOrigin : ''}/api/analytics/download?${params.toString()}`;
+}
+
 function isReleaseManifest(value: unknown): value is MobileReleaseManifest {
   if (!value || typeof value !== 'object') return false;
   const manifest = value as Partial<MobileReleaseManifest>;

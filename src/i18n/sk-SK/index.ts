@@ -27,6 +27,8 @@ export default {
     pushText: 'S vaším súhlasom spracujú Vercel a Upstash časy, text pripomienok a anonymné predplatné zariadenia najviac 15 dní.',
     feedbackTitle: 'Spätná väzba',
     feedbackText: 'Pri odoslaní spätnej väzby sa meno, email a správa odošlú vývojárovi cez Resend.',
+    analyticsTitle: 'Anonymná štatistika',
+    analyticsText: 'Aplikácia odosiela náhodné ID inštalácie, platformu, verziu a dátum aktivity a počíta stiahnutia APK. Rozvrh, nastavenia, meno, email, IP adresa ani poloha sa neukladajú.',
     controlTitle: 'Vaša kontrola',
     controlText: 'Súhlas môžete odvolať, údaje exportovať pri zmene domény, importovať alebo aplikáciu obnoviť.',
     cloudPushConsent: 'Povoliť cloudové push pripomienky',

@@ -135,6 +135,7 @@ import {
 import {
   latestAvailableRelease,
   loadReleaseManifest,
+  trackedDownloadUrl,
   type MobileRelease,
 } from 'src/services/release-manifest';
 import {
@@ -433,7 +434,8 @@ async function checkForStartupUpdate() {
     try {
       const manifest = await loadReleaseManifest();
       const releases = manifest?.android.stable ?? [];
-      androidDownloadUrl.value = latestAvailableRelease(releases)?.url ?? null;
+      const latestRelease = latestAvailableRelease(releases);
+      androidDownloadUrl.value = latestRelease ? trackedDownloadUrl(latestRelease) : null;
       const release = latestAvailableRelease(releases, CURRENT_ANDROID_VERSION_CODE);
       if (!release) return;
 
@@ -469,7 +471,11 @@ async function checkForStartupUpdate() {
 async function installStartupAndroidUpdate(release: MobileRelease) {
   if (!release.url || !release.sha256) return;
   try {
-    await installNativeAndroidUpdate(release.url, release.sha256, app.data);
+    await installNativeAndroidUpdate(
+      trackedDownloadUrl(release, true) ?? release.url,
+      release.sha256,
+      app.data,
+    );
   } catch (error) {
     $q.notify({
       type: 'warning',

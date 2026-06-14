@@ -27,6 +27,8 @@ export default {
     pushText: 'With your consent, reminder times, notification text and an anonymous device subscription are processed by Vercel and Upstash for up to 15 days.',
     feedbackTitle: 'Feedback',
     feedbackText: 'When you submit feedback, your name, email and message are sent through Resend to the developer.',
+    analyticsTitle: 'Anonymous analytics',
+    analyticsText: 'The app sends a random installation ID, platform, version and activity date, and counts APK downloads. Schedule data, settings, name, email, IP address and location are not stored.',
     controlTitle: 'Your control',
     controlText: 'You can withdraw push consent, export data for a domain migration, import it on another domain, or reset the application.',
     cloudPushConsent: 'Allow cloud push reminders',

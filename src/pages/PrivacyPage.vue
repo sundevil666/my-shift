@@ -13,6 +13,8 @@
         <p>{{ $t('privacy.pushText') }}</p>
         <h2>{{ $t('privacy.feedbackTitle') }}</h2>
         <p>{{ $t('privacy.feedbackText') }}</p>
+        <h2>{{ $t('privacy.analyticsTitle') }}</h2>
+        <p>{{ $t('privacy.analyticsText') }}</p>
         <h2>{{ $t('privacy.controlTitle') }}</h2>
         <p>{{ $t('privacy.controlText') }}</p>
       </q-card-section>

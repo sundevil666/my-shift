@@ -94,7 +94,11 @@
                 no-caps
                 color="primary"
                 icon="download"
-                :href="nativeAndroid && target === 'android' ? undefined : release.url"
+                :href="
+                  nativeAndroid && target === 'android'
+                    ? undefined
+                    : (trackedDownloadUrl(release) ?? undefined)
+                "
                 :target="nativeAndroid && target === 'android' ? undefined : '_blank'"
                 :rel="nativeAndroid && target === 'android' ? undefined : 'noopener'"
                 :label="$t('mobileInstall.downloadApk')"
@@ -203,6 +207,7 @@ import {
 } from 'src/services/native-updater';
 import {
   loadReleaseManifest,
+  trackedDownloadUrl,
   type MobileRelease,
   type MobileReleaseManifest,
   type ReleaseChannel as Channel,
@@ -335,7 +340,11 @@ async function installAndroidRelease(release: MobileRelease) {
   if (!release.url || !release.sha256) return;
   installingVersion.value = release.version;
   try {
-    await installNativeAndroidUpdate(release.url, release.sha256, app.data);
+    await installNativeAndroidUpdate(
+      trackedDownloadUrl(release, true) ?? release.url,
+      release.sha256,
+      app.data,
+    );
   } catch (error) {
     $q.notify({
       type: 'warning',
