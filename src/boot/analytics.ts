@@ -6,7 +6,14 @@ const lastActivityKey = 'my-shift:last-activity-date';
 const analyticsOrigin = 'https://my-shift-iota.vercel.app';
 
 export default defineBoot(() => {
-  if (typeof window === 'undefined' || window.location.hostname === 'localhost') return;
+  if (
+    typeof window === 'undefined' ||
+    window.location.hostname === 'localhost' ||
+    window.location.hash.startsWith('#/owner-analytics') ||
+    new URLSearchParams(window.location.search).get('analytics') === 'off'
+  ) {
+    return;
+  }
 
   const today = new Date().toISOString().slice(0, 10);
   const activityMarker = `${today}:${process.env.APP_VERSION}`;
