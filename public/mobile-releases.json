@@ -3,8 +3,10 @@
     "stable": [
       {
         "version": "0.1.5",
+        "versionCode": 6,
         "date": "2026-06-14",
         "url": "https://raw.githubusercontent.com/sundevil666/my-shift/main/public/downloads/my-shift-android-0.1.5.apk",
+        "sha256": "38ea7b1cdf7d93bcac485d96c1c294b9d669bb5314f254f197d0618e37018f0f",
         "status": "available"
       }
     ],

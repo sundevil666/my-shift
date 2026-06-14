@@ -26,8 +26,10 @@ paid per-minute Vercel Cron job.
 2. Run `npm run generate:vapid` once.
 3. Add the variables from `.env.example` to the Vercel Production environment.
 4. Set `VAPID_SUBJECT` to a contact URI such as `mailto:admin@example.com`.
-5. Deploy the `main` branch.
-6. Open the installed PWA and press **Notification test** to grant permission
+5. Set `PUBLIC_APP_ORIGIN` to the canonical HTTPS origin used by QStash callbacks.
+6. Deploy the `main` branch.
+7. Open the installed PWA, explicitly enable cloud push, and press **Notification test**
+   to grant permission
    and schedule reminders for the next 14 days.
 
 The PWA resynchronizes future reminders whenever the local schedule changes.
@@ -46,8 +48,29 @@ Release signing uses the ignored files
 `src-capacitor/android/keystore.properties`. Keep an encrypted backup of both files. Losing the
 keystore makes it impossible to install future updates over existing installations.
 
+Every push to `main` runs `.github/workflows/android-release.yml`, creates a monotonically
+increasing Android `versionCode`, builds a signed APK, calculates SHA-256 and publishes the APK
+and `mobile-releases.json` in the latest GitHub Release. Configure these repository secrets:
+
+- `ANDROID_KEYSTORE_BASE64`: base64-encoded `my-shift-release.jks`.
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+
+The app verifies SHA-256 before opening Android's installer and tries the latest GitHub Release,
+the raw repository manifest and the current domain in that order.
+
 Installed Android releases download the next APK, save a native backup of all user settings, and
 open the Android package installer. Android always requires the user to confirm installation.
+
+## Domain migration and privacy
+
+Schedule data remains local. The Privacy section in Settings can export a versioned JSON backup
+on the old domain and import it on the new domain. Browser storage and notification permissions
+cannot be transferred automatically between unrelated domains by design.
+
+Cloud push is opt-in. Disabling consent cancels scheduled QStash messages and unsubscribes the
+browser. Feedback sends the entered name, email and message through Resend.
 
 ## Feedback email setup
 

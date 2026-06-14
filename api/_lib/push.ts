@@ -48,6 +48,18 @@ export function getQStashReceiver(): Receiver {
 export const deviceMessageIdsKey = (deviceId: string) =>
   `my-shift:qstash-message-ids:${deviceId}`;
 
+export async function enforceRateLimit(
+  key: string,
+  limit: number,
+  windowSeconds: number,
+): Promise<boolean> {
+  const redis = getRedis();
+  const redisKey = `my-shift:rate:${key}`;
+  const count = await redis.incr(redisKey);
+  if (count === 1) await redis.expire(redisKey, windowSeconds);
+  return count <= limit;
+}
+
 function requireEnvironment(name: string): string {
   const value = process.env[name];
   if (!value) throw new Error(`Missing ${name}`);

@@ -64,6 +64,7 @@ export interface AppSettings {
   sleepHours: number;
   workplaceType: WorkplaceType;
   workplaceName: string;
+  cloudPushConsent: boolean;
 }
 
 export interface UserData {

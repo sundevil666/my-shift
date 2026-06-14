@@ -257,6 +257,44 @@
           />
         </q-card-section>
       </q-card>
+
+      <q-card flat bordered class="settings-card settings-card--privacy">
+        <q-card-section class="settings-card__header">
+          <div class="section-title">{{ $t('privacy.title') }}</div>
+          <div class="supporting-text">{{ $t('privacy.consentHint') }}</div>
+        </q-card-section>
+        <q-card-section class="settings-card__body q-gutter-md">
+          <q-toggle
+            :model-value="app.data.settings.cloudPushConsent"
+            :label="$t('privacy.cloudPushConsent')"
+            @update:model-value="updateCloudPushConsent"
+          />
+          <div class="row q-gutter-sm">
+            <q-btn
+              outline
+              no-caps
+              icon="download"
+              :label="$t('privacy.exportData')"
+              @click="exportData"
+            />
+            <q-btn
+              outline
+              no-caps
+              icon="upload"
+              :label="$t('privacy.importData')"
+              @click="migrationInput?.click()"
+            />
+            <q-btn flat no-caps icon="privacy_tip" :label="$t('privacy.title')" to="/privacy" />
+            <input
+              ref="migrationInput"
+              type="file"
+              accept="application/json,.json"
+              hidden
+              @change="importData"
+            />
+          </div>
+        </q-card-section>
+      </q-card>
     </div>
   </q-page>
 </template>
@@ -273,6 +311,8 @@ import {
   showReminderFeedback,
 } from 'src/services/reminders/reminder-feedback';
 import { syncPushReminders } from 'src/services/push-notifications';
+import { removePushSubscription } from 'src/services/push-notifications';
+import { parseMigration, serializeMigration } from 'src/services/data-migration';
 import { useAppStore } from 'stores/app-store';
 
 const app = useAppStore();
@@ -280,6 +320,7 @@ const $q = useQuasar();
 const { t, locale } = useI18n();
 const routeQuery = ref('');
 const stopQuery = ref('');
+const migrationInput = ref<HTMLInputElement | null>(null);
 const scheduleDate = computed(() =>
   new Intl.DateTimeFormat(locale.value).format(new Date(`${DHL_SCHEDULE_VALID_FROM}T00:00:00`)),
 );
@@ -371,7 +412,7 @@ async function testAlarm() {
 }
 async function testNotification() {
   const permission = await requestReminderPermission();
-  if (permission === 'granted') {
+  if (permission === 'granted' && app.data.settings.cloudPushConsent) {
     await syncPushReminders(app.activeProfile, app.data.settings.locale);
   }
   if (permission !== 'granted') {
@@ -404,6 +445,39 @@ function confirmReset() {
     },
     persistent: true,
   }).onOk(() => app.resetApplication());
+}
+
+async function updateCloudPushConsent(value: boolean) {
+  app.data.settings.cloudPushConsent = value;
+  if (value) {
+    await syncPushReminders(app.activeProfile, app.data.settings.locale);
+  } else {
+    await removePushSubscription();
+  }
+}
+
+function exportData() {
+  const blob = new Blob([serializeMigration(app.data)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `my-shift-data-${new Date().toISOString().slice(0, 10)}.json`;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+async function importData(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = '';
+  if (!file) return;
+  const imported = parseMigration(await file.text());
+  if (!imported) {
+    $q.notify({ type: 'negative', message: t('privacy.importError') });
+    return;
+  }
+  app.importUserData(imported);
+  $q.notify({ type: 'positive', message: t('privacy.importSuccess') });
 }
 </script>
 

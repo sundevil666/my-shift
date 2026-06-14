@@ -3,6 +3,7 @@
 
 import { defineConfig } from '#q-app/wrappers';
 import { fileURLToPath } from 'node:url';
+import appPackage from './package.json' with { type: 'json' };
 
 export default defineConfig((ctx) => {
   return {
@@ -33,6 +34,11 @@ export default defineConfig((ctx) => {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#build
     build: {
+      env: {
+        APP_VERSION: process.env.RELEASE_VERSION ?? appPackage.version,
+        ANDROID_VERSION_CODE:
+          process.env.RELEASE_VERSION_CODE ?? String(appPackage.androidVersionCode),
+      },
       target: {
         browser: 'baseline-widely-available',
         node: 'node22',

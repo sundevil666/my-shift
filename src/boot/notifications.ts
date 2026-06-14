@@ -198,7 +198,9 @@ export default defineBoot(({ store }) => {
     if (native) return;
     if (pushSyncTimer) window.clearTimeout(pushSyncTimer);
     pushSyncTimer = window.setTimeout(() => {
-      void syncPushReminders(app.activeProfile, app.data.settings.locale);
+      if (app.data.settings.cloudPushConsent) {
+        void syncPushReminders(app.activeProfile, app.data.settings.locale);
+      }
     }, 1_000);
   };
 
@@ -235,6 +237,7 @@ export default defineBoot(({ store }) => {
         .map((shift) => `${shift.id}:${shift.startTime}:${shift.endTime}`)
         .join(','),
       app.data.settings.locale,
+      app.data.settings.cloudPushConsent,
     ],
     schedule,
     { immediate: true },

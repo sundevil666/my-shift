@@ -5,3 +5,9 @@ declare namespace NodeJS {
     VUE_ROUTER_BASE: string | undefined;
   }
 }
+declare namespace NodeJS {
+  interface ProcessEnv {
+    APP_VERSION: string;
+    ANDROID_VERSION_CODE: string;
+  }
+}

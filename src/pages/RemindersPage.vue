@@ -109,7 +109,9 @@ async function requestNotificationPermission(enabled: boolean) {
   if (permission !== 'granted') {
     app.activeProfile.reminders.enabled = false;
   } else {
-    await syncPushReminders(app.activeProfile, app.data.settings.locale);
+    if (app.data.settings.cloudPushConsent) {
+      await syncPushReminders(app.activeProfile, app.data.settings.locale);
+    }
   }
 }
 </script>

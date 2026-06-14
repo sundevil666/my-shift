@@ -3,6 +3,8 @@ apply plugin: 'com.android.application'
 import groovy.json.JsonSlurper
 
 def appPackage = new JsonSlurper().parseText(rootProject.file("../../package.json").text)
+def releaseVersionCode = System.getenv("RELEASE_VERSION_CODE")
+def releaseVersion = System.getenv("RELEASE_VERSION")
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 if (keystorePropertiesFile.exists()) {
@@ -16,8 +18,8 @@ android {
         applicationId "com.myshift.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode appPackage.androidVersionCode as Integer
-        versionName appPackage.version
+        versionCode (releaseVersionCode ?: appPackage.androidVersionCode) as Integer
+        versionName releaseVersion ?: appPackage.version
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -37,9 +39,10 @@ android {
     }
     buildTypes {
         release {
-            if (keystorePropertiesFile.exists()) {
-                signingConfig signingConfigs.release
+            if (!keystorePropertiesFile.exists()) {
+                throw new GradleException("Release keystore configuration is required")
             }
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

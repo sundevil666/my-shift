@@ -125,13 +125,18 @@ import type { DayPlanEventKind } from 'src/core/day-plan';
 import {
   activateAppUpdate,
   APP_UPDATE_AVAILABLE_EVENT,
-  CURRENT_APP_VERSION,
+  CURRENT_ANDROID_VERSION_CODE,
   type AppUpdateDetail,
 } from 'src/services/app-update';
 import {
   canInstallNativeAndroidUpdate,
   installNativeAndroidUpdate,
 } from 'src/services/native-updater';
+import {
+  latestAvailableRelease,
+  loadReleaseManifest,
+  type MobileRelease,
+} from 'src/services/release-manifest';
 import {
   currentWorkingShift,
   nextWorkingShift,
@@ -161,8 +166,7 @@ const userAgent = navigator.userAgent;
 const isAndroid = /Android/i.test(userAgent);
 const showAndroidInstall = computed(() => isAndroid && !isInstalledApp.value);
 const productName = 'My Shift';
-const androidDownloadUrl =
-  'https://raw.githubusercontent.com/sundevil666/my-shift/main/public/downloads/my-shift-android-0.1.5.apk';
+const androidDownloadUrl = ref<string | null>(null);
 let startupUpdateChecked = false;
 const dateTimer = window.setInterval(() => {
   now.value = new Date();
@@ -405,6 +409,7 @@ const navigation = [
   { label: 'nav.reminders', icon: 'notifications_active', to: '/reminders' },
   { label: 'nav.whatsNew', icon: 'new_releases', to: '/whats-new' },
   { label: 'nav.settings', icon: 'tune', to: '/settings' },
+  { label: 'nav.privacy', icon: 'privacy_tip', to: '/privacy' },
 ];
 function toggleTheme() {
   app.setTheme($q.dark.isActive ? 'light' : 'dark');
@@ -420,47 +425,17 @@ async function installAndroidApp() {
   if (choice.outcome === 'accepted') isInstalledApp.value = true;
 }
 
-interface StartupRelease {
-  version: string;
-  url: string | null;
-  status: 'available' | 'preparing';
-}
-
-interface StartupReleaseManifest {
-  android?: {
-    stable?: StartupRelease[];
-  };
-}
-
-function compareVersions(left: string, right: string) {
-  const leftParts = left.split('.').map(Number);
-  const rightParts = right.split('.').map(Number);
-  const length = Math.max(leftParts.length, rightParts.length);
-  for (let index = 0; index < length; index += 1) {
-    const difference = (leftParts[index] ?? 0) - (rightParts[index] ?? 0);
-    if (difference !== 0) return difference;
-  }
-  return 0;
-}
-
 async function checkForStartupUpdate() {
   if (startupUpdateChecked) return;
   startupUpdateChecked = true;
 
   if (canInstallNativeAndroidUpdate()) {
     try {
-      const response = await fetch(`/mobile-releases.json?time=${Date.now()}`, {
-        cache: 'no-store',
-      });
-      if (!response.ok) return;
-      const manifest = (await response.json()) as StartupReleaseManifest;
-      const release = manifest.android?.stable?.find(
-        (item) =>
-          item.status === 'available' &&
-          Boolean(item.url) &&
-          compareVersions(item.version, CURRENT_APP_VERSION) > 0,
-      );
-      if (!release?.url) return;
+      const manifest = await loadReleaseManifest();
+      const releases = manifest?.android.stable ?? [];
+      androidDownloadUrl.value = latestAvailableRelease(releases)?.url ?? null;
+      const release = latestAvailableRelease(releases, CURRENT_ANDROID_VERSION_CODE);
+      if (!release) return;
 
       $q.dialog({
         title: t('updates.startupTitle'),
@@ -474,7 +449,7 @@ async function checkForStartupUpdate() {
           label: t('updates.downloadAndInstall'),
         },
         persistent: true,
-      }).onOk(() => void installStartupAndroidUpdate(release.url!));
+      }).onOk(() => void installStartupAndroidUpdate(release));
     } catch {
       // Starting the app remains possible while offline.
     }
@@ -491,9 +466,10 @@ async function checkForStartupUpdate() {
   }
 }
 
-async function installStartupAndroidUpdate(url: string) {
+async function installStartupAndroidUpdate(release: MobileRelease) {
+  if (!release.url || !release.sha256) return;
   try {
-    await installNativeAndroidUpdate(url, app.data);
+    await installNativeAndroidUpdate(release.url, release.sha256, app.data);
   } catch (error) {
     $q.notify({
       type: 'warning',
@@ -509,7 +485,7 @@ async function installStartupAndroidUpdate(url: string) {
 async function shareApp() {
   const isNativeAndroid = window.location.protocol === 'capacitor:' && isAndroid;
   const url = isNativeAndroid
-    ? androidDownloadUrl
+    ? androidDownloadUrl.value ?? `${window.location.origin}/#/whats-new`
     : `${window.location.origin}${window.location.pathname}#/whats-new`;
   const shareData = {
     title: t('share.title'),

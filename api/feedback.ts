@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { enforceRateLimit } from './_lib/push.js';
 
 const recipient = 'sundevildi@gmail.com';
 const subject = 'My Shift — Отзывы и предложения';
@@ -22,6 +23,12 @@ export default async function handler(request: VercelRequest, response: VercelRe
   }
 
   const body = request.body as FeedbackBody;
+  const clientAddress = String(request.headers['x-forwarded-for'] ?? 'unknown')
+    .split(',')[0]
+    ?.trim();
+  if (!(await enforceRateLimit(`feedback:${clientAddress}`, 5, 60 * 60))) {
+    return response.status(429).json({ error: 'Rate limit exceeded' });
+  }
   if (body.website) return response.status(200).json({ ok: true });
   if (!isValidBody(body) || !verifyChallenge(body.challengeToken, body.answer)) {
     return response.status(400).json({ error: 'Invalid feedback' });

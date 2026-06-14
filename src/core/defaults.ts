@@ -45,6 +45,7 @@ export const defaultUserData: UserData = {
     sleepHours: 8,
     workplaceType: 'dhl',
     workplaceName: 'DHL',
+    cloudPushConsent: false,
   },
 };
 

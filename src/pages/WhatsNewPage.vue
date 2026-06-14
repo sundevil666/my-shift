@@ -201,6 +201,13 @@ import {
   canInstallNativeAndroidUpdate,
   installNativeAndroidUpdate,
 } from 'src/services/native-updater';
+import {
+  loadReleaseManifest,
+  type MobileRelease,
+  type MobileReleaseManifest,
+  type ReleaseChannel as Channel,
+  type ReleasePlatform as Platform,
+} from 'src/services/release-manifest';
 import { useAppStore } from 'stores/app-store';
 
 const app = useAppStore();
@@ -211,15 +218,6 @@ const sending = ref(false);
 const nativeAndroid = canInstallNativeAndroidUpdate();
 const installingVersion = ref<string | null>(null);
 const platforms = ['android', 'ios'] as const;
-type Platform = (typeof platforms)[number];
-type Channel = 'stable' | 'advanced';
-interface MobileRelease {
-  version: string;
-  date: string;
-  url: string | null;
-  status: 'available' | 'preparing';
-}
-type MobileReleaseManifest = Record<Platform, Record<Channel, MobileRelease[]>>;
 
 const platform = ref<Platform>(detectPlatform());
 const channel = ref<Channel>('stable');
@@ -329,21 +327,15 @@ function hasAdvancedRelease(target: Platform) {
 }
 
 async function loadMobileReleases() {
-  try {
-    const response = await fetch(`/mobile-releases.json?time=${Date.now()}`, {
-      cache: 'no-store',
-    });
-    if (response.ok) mobileReleases.value = (await response.json()) as MobileReleaseManifest;
-  } catch {
-    // The page remains usable when release metadata is temporarily unavailable.
-  }
+  const manifest = await loadReleaseManifest();
+  if (manifest) mobileReleases.value = manifest;
 }
 
 async function installAndroidRelease(release: MobileRelease) {
-  if (!release.url) return;
+  if (!release.url || !release.sha256) return;
   installingVersion.value = release.version;
   try {
-    await installNativeAndroidUpdate(release.url, app.data);
+    await installNativeAndroidUpdate(release.url, release.sha256, app.data);
   } catch (error) {
     $q.notify({
       type: 'warning',

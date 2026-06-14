@@ -71,6 +71,21 @@ export async function syncPushReminders(profile: WorkProfile, locale: Locale): P
   return response.ok;
 }
 
+export async function removePushSubscription(): Promise<void> {
+  if (!('serviceWorker' in navigator)) return;
+  const registration = await navigator.serviceWorker.ready;
+  const subscription = await registration.pushManager.getSubscription();
+  const deviceId = localStorage.getItem(DEVICE_ID_KEY);
+  if (deviceId) {
+    await fetch('/api/push/subscribe', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceId }),
+    }).catch(() => undefined);
+  }
+  await subscription?.unsubscribe();
+}
+
 export function buildPushReminders(profile: WorkProfile, locale: Locale): PushReminder[] {
   const now = new Date();
   const messages = pushMessages[locale];

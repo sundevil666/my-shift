@@ -5,6 +5,7 @@ import { createDhlWorkProfile, defaultUserData } from 'src/core/defaults';
 import { resolvedShiftCodeForDate } from 'src/core/schedule';
 import { browserStorage } from 'src/services/storage/storage';
 import { loadNativeUpdateBackup } from 'src/services/native-updater';
+import { migrateUserData } from 'src/services/data-migration';
 import type {
   Locale,
   CalendarOverride,
@@ -47,8 +48,9 @@ export const useAppStore = defineStore('app', () => {
         saved = nativeBackup;
       }
     }
-    if (saved && saved.schemaVersion === 2) {
-      data.value = saved as unknown as UserData;
+    const migrated = migrateUserData(saved);
+    if (migrated) {
+      data.value = migrated;
       data.value.workProfiles.forEach((profile) => {
         const today = localDateKey(new Date());
         profile.calendarOverrides ??= [];
@@ -62,8 +64,6 @@ export const useAppStore = defineStore('app', () => {
         profile.reminders.shiftEndEnabled ??= true;
         profile.reminders.shiftEndBeforeMinutes ??= 30;
       });
-    } else if (saved && saved.schemaVersion === 1) {
-      data.value = migrateV1(saved as unknown as Record<string, unknown>);
     }
     applyTheme(data.value.settings.theme);
     applyShiftAtmosphere();
@@ -162,6 +162,14 @@ export const useAppStore = defineStore('app', () => {
     window.location.reload();
   }
 
+  function importUserData(imported: UserData) {
+    data.value = structuredClone(imported);
+    const result = browserStorage.save(data.value);
+    saveStatus.value = result.ok ? 'saved' : 'error';
+    applyTheme(data.value.settings.theme);
+    applyShiftAtmosphere();
+  }
+
   function flushSave() {
     if (!pendingSave) return;
     if (saveTimer) window.clearTimeout(saveTimer);
@@ -202,6 +210,7 @@ export const useAppStore = defineStore('app', () => {
     replaceCalendarOverrides,
     applyShiftAtmosphere,
     resetApplication,
+    importUserData,
   };
 });
 
@@ -225,16 +234,4 @@ function localDateKey(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
-}
-
-function migrateV1(saved: Record<string, unknown>): UserData {
-  const result = structuredClone(defaultUserData);
-  const oldSettings = (saved.settings ?? {}) as Record<string, unknown>;
-  result.settings = {
-    ...result.settings,
-    locale: (oldSettings.locale as Locale) ?? result.settings.locale,
-    theme: (oldSettings.theme as ThemeMode) ?? result.settings.theme,
-    sleepHours: Number(oldSettings.sleepHours ?? result.settings.sleepHours),
-  };
-  return result;
 }

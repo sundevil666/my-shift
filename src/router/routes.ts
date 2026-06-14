@@ -18,6 +18,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'whats-new', component: () => import('pages/WhatsNewPage.vue') },
       { path: 'support', component: () => import('pages/SupportPage.vue') },
       { path: 'settings', component: () => import('pages/SettingsPage.vue') },
+      { path: 'privacy', component: () => import('pages/PrivacyPage.vue') },
     ],
   },
 

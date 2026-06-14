@@ -7,7 +7,8 @@ export interface AppUpdateDetail {
   release: string | null;
 }
 
-export const CURRENT_APP_VERSION = '0.1.5';
+export const CURRENT_APP_VERSION = process.env.APP_VERSION;
+export const CURRENT_ANDROID_VERSION_CODE = Number(process.env.ANDROID_VERSION_CODE);
 
 interface UpdateMetadata {
   release?: string;
