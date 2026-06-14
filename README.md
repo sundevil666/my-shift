@@ -21,8 +21,8 @@ Enable the repository's Git hooks after cloning:
 npm run setup:hooks
 ```
 
-The pre-push hook runs ESLint, TypeScript checks, all unit tests and the production PWA build.
-Git cancels the push if any check fails.
+The pre-push hook scans Git-tracked files for secrets, then runs ESLint, TypeScript checks, all
+unit tests and the production PWA build. Git cancels the push if any check fails.
 
 ## Web Push setup
 
