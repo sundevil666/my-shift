@@ -17,7 +17,8 @@ node_modules
 /src-capacitor/www
 /src-capacitor/node_modules
 /src-capacitor/android/keystore.properties
-/src-capacitor/android/*.jks
+*.jks
+*.keystore
 
 # Log files
 npm-debug.log*
@@ -31,6 +32,13 @@ yarn-error.log*
 *.njsproj
 *.sln
 
-# local .env files
-.env.local*
+# Local environment files and private credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.mobileprovision
 .vercel

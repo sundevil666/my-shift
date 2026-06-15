@@ -87,6 +87,8 @@ export async function removePushSubscription(): Promise<void> {
 }
 
 export function buildPushReminders(profile: WorkProfile, locale: Locale): PushReminder[] {
+  if (!profile.reminders.enabled) return [];
+
   const now = new Date();
   const messages = pushMessages[locale];
   const reminders: PushReminder[] = [];

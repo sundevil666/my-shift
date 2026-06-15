@@ -51,9 +51,7 @@ describe('push reminders', () => {
     const today = buildPushReminders(profile, 'en-US').filter(({ id }) =>
       id.includes('2026-01-05'),
     );
-    expect(today.map(({ id }) => id)).toEqual([
-      'my-shift:shift-end:2026-01-05:shift-1',
-    ]);
+    expect(today.map(({ id }) => id)).toEqual(['my-shift:shift-end:2026-01-05:shift-1']);
   });
 
   it('uses car travel time and respects disabled reminder types', () => {
@@ -80,6 +78,13 @@ describe('push reminders', () => {
     expect(today).toHaveLength(1);
     expect(new Date(today[0]!.at)).toEqual(new Date(2026, 0, 5, 5));
     expect(today[0]?.body).toBe('Čas vstávať');
+  });
+
+  it('builds no reminders when reminders are disabled globally', () => {
+    const profile = createDhlWorkProfile();
+    profile.reminders.enabled = false;
+
+    expect(buildPushReminders(profile, 'en-US')).toEqual([]);
   });
 
   it('formats every supported reminder locale', () => {

@@ -172,7 +172,25 @@ body {
   background: linear-gradient(135deg, #a61b1b, #d13b32) !important;
 }
 
+.ios-notification-prompt {
+  position: relative;
+  z-index: 2;
+  margin: 16px 24px 0;
+  color: var(--app-text);
+  background: color-mix(in srgb, var(--app-primary-soft) 72%, var(--app-surface));
+  border: 1px solid color-mix(in srgb, #{$primary} 32%, transparent);
+}
+
+.ios-notification-prompt strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
 @media (max-width: 599px) {
+  .ios-notification-prompt {
+    margin: 12px 12px 0;
+  }
+
   .storage-notification {
     min-width: 0;
     width: calc(100vw - 24px);
@@ -819,6 +837,17 @@ body {
   transform: scale(0.98);
 }
 
+.app-drawer .nav-pending {
+  opacity: 0.52;
+}
+
+.app-download-banner {
+  margin: 16px 20px 0;
+  border: 1px solid color-mix(in srgb, #{$primary} 24%, transparent);
+  background: var(--app-surface);
+  box-shadow: 0 10px 30px var(--app-shadow);
+}
+
 .sidebar-shift-card {
   margin: 8px 14px 0;
   overflow: hidden;
@@ -1386,48 +1415,74 @@ body {
   text-transform: uppercase;
 }
 
-.event-row--action:not(.event-row--past) .event-row__priority {
+.event-row--alarm:not(.event-row--past) .event-row__priority {
   color: #ffffff;
   background: color-mix(in srgb, #{$primary} 88%, #123846);
   border-color: transparent;
   box-shadow: 0 2px 8px color-mix(in srgb, #{$primary} 24%, transparent);
 }
 
-.event-row--action:not(.event-row--active, .event-row--past) {
+.event-row--alarm:not(.event-row--active, .event-row--past) {
   margin-inline: -6px;
   padding-inline: 6px;
   background: color-mix(in srgb, var(--app-primary-soft) 55%, transparent);
   border-radius: 10px;
 }
 
-.event-row--action:not(.event-row--past) .event-row__marker {
+.event-row--alarm:not(.event-row--past) .event-row__marker {
   opacity: 1;
 }
 
-.event-row--action:not(.event-row--active, .event-row--past) .event-row__countdown,
-.event-row--action:not(.event-row--active, .event-row--past) .event-row__time {
+.event-row--alarm:not(.event-row--active, .event-row--past) .event-row__countdown,
+.event-row--alarm:not(.event-row--active, .event-row--past) .event-row__time {
   color: var(--app-text);
   font-weight: 800;
 }
 
-.event-row--reference:not(.event-row--active, .event-row--past) {
-  min-height: 62px;
+.event-row--notification:not(.event-row--active, .event-row--past) {
+  min-height: 52px;
   background: color-mix(in srgb, var(--app-surface-soft) 34%, transparent);
 }
 
-.event-row--reference:not(.event-row--active) .event-row__label {
+.event-row--notification:not(.event-row--active) .event-row__label {
   font-size: 0.72rem;
 }
 
-.event-row--reference:not(.event-row--active) .event-row__countdown {
+.event-row--notification:not(.event-row--active) .event-row__countdown {
   color: var(--app-text-muted);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-weight: 600;
 }
 
-.event-row--reference:not(.event-row--active) .event-row__time {
-  font-size: 1.42rem;
+.event-row--notification:not(.event-row--active) .event-row__time {
+  font-size: 1.18rem;
   opacity: 0.74;
+}
+
+.event-row--notification:not(.event-row--active) .event-row__marker {
+  color: var(--app-text-muted);
+  font-size: 1.05rem;
+}
+
+.event-row--event:not(.event-row--active, .event-row--past) {
+  min-height: 78px;
+}
+
+.event-row--event:not(.event-row--past) .event-row__label,
+.event-row--event:not(.event-row--past) .event-row__countdown,
+.event-row--event:not(.event-row--past) .event-row__time {
+  color: var(--app-text);
+  font-weight: 800;
+}
+
+.event-row--event:not(.event-row--past) .event-row__time {
+  font-size: 1.9rem;
+}
+
+.event-row--event:not(.event-row--past) .event-row__priority {
+  color: $primary;
+  background: var(--app-primary-soft);
+  border-color: color-mix(in srgb, #{$primary} 28%, transparent);
 }
 
 .event-row--active .event-row__priority {
@@ -2188,6 +2243,14 @@ body {
     min-height: 68px;
     margin-inline: -5px;
     padding-inline: 5px;
+  }
+
+  .event-row--notification:not(.event-row--active) {
+    min-height: 48px;
+  }
+
+  .event-row--event:not(.event-row--active) {
+    min-height: 68px;
   }
 
   .event-row__marker {

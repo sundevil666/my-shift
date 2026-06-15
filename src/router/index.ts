@@ -7,6 +7,7 @@ import {
 } from 'vue-router';
 import routes from './routes';
 import { useAppStore } from 'stores/app-store';
+import { appReadiness } from 'src/services/app-readiness';
 
 /*
  * If not building with SSR mode, you can
@@ -41,6 +42,15 @@ export default defineRouter((/* { store, ssrContext } */) => {
       return '/onboarding';
     }
     if (app.data.onboardingCompleted && to.path === '/onboarding') return '/';
+    if (
+      appReadiness.state.started &&
+      to.path !== '/' &&
+      !to.meta.public &&
+      !appReadiness.isAvailable(to.path)
+    ) {
+      window.dispatchEvent(new CustomEvent('app-route-unavailable'));
+      return false;
+    }
     return true;
   });
 

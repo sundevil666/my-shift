@@ -82,12 +82,7 @@ const timer = window.setInterval(() => (now.value = new Date()), 1_000);
 onBeforeUnmount(() => window.clearInterval(timer));
 
 const currentShift = computed(() =>
-  currentWorkingShift(
-    now.value,
-    app.pattern,
-    app.shifts,
-    app.activeProfile.calendarOverrides,
-  ),
+  currentWorkingShift(now.value, app.pattern, app.shifts, app.activeProfile.calendarOverrides),
 );
 const currentShiftCode = computed(() =>
   resolvedShiftCodeForDate(now.value, app.pattern, app.activeProfile.calendarOverrides),
@@ -104,12 +99,7 @@ const selectedShiftName = computed(
 const nextShift = computed(() =>
   currentShift.value
     ? null
-    : nextWorkingShift(
-        now.value,
-        app.pattern,
-        app.shifts,
-        app.activeProfile.calendarOverrides,
-      ),
+    : nextWorkingShift(now.value, app.pattern, app.shifts, app.activeProfile.calendarOverrides),
 );
 const displayedShift = computed(() => currentShift.value ?? nextShift.value);
 const shiftStart = computed(() =>
@@ -124,9 +114,7 @@ const selectedRoute = computed(() =>
   dhlBusRoutes.find((route) => route.id === app.activeProfile.transport.busRouteId),
 );
 const selectedStop = computed(() =>
-  selectedRoute.value?.stops.find(
-    (stop) => stop.id === app.activeProfile.transport.busStopId,
-  ),
+  selectedRoute.value?.stops.find((stop) => stop.id === app.activeProfile.transport.busStopId),
 );
 const referenceTime = computed(() => {
   if (!nextShift.value) return now.value;
@@ -146,7 +134,13 @@ const events = computed(() =>
   currentShift.value
     ? [
         ...(firstBreakTime.value.getTime() > now.value.getTime()
-          ? [{ icon: 'free_breakfast', label: t('dashboard.untilFirstBreak'), target: firstBreakTime.value }]
+          ? [
+              {
+                icon: 'free_breakfast',
+                label: t('dashboard.untilFirstBreak'),
+                target: firstBreakTime.value,
+              },
+            ]
           : []),
         {
           icon: 'schedule',
@@ -155,8 +149,10 @@ const events = computed(() =>
         },
       ]
     : [
-        { icon: 'alarm', label: t('dashboard.untilWake'), target: alarmTime.value },
-        ...(app.activeProfile.transport.leaveReminderEnabled
+        ...(app.activeProfile.reminders.enabled && app.activeProfile.transport.alarmEnabled
+          ? [{ icon: 'alarm', label: t('dashboard.untilWake'), target: alarmTime.value }]
+          : []),
+        ...(app.activeProfile.reminders.enabled && app.activeProfile.transport.leaveReminderEnabled
           ? [{ icon: 'directions_walk', label: t('dashboard.untilLeave'), target: leaveHome.value }]
           : []),
         {
@@ -165,11 +161,17 @@ const events = computed(() =>
           target: referenceTime.value,
         },
         { icon: 'schedule', label: t('dashboard.untilShift'), target: shiftStart.value },
-        { icon: 'free_breakfast', label: t('dashboard.untilFirstBreak'), target: firstBreakTime.value },
+        {
+          icon: 'free_breakfast',
+          label: t('dashboard.untilFirstBreak'),
+          target: firstBreakTime.value,
+        },
       ],
 );
 const nextEvent = computed(
-  () => events.value.find((event) => event.target.getTime() > now.value.getTime()) ?? events.value.at(-1)!,
+  () =>
+    events.value.find((event) => event.target.getTime() > now.value.getTime()) ??
+    events.value.at(-1)!,
 );
 const countdown = computed(() => {
   const totalSeconds = Math.max(

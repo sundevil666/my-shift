@@ -102,8 +102,7 @@
           :class="{
             'event-row--active': index === activeEventIndex,
             'event-row--past': item.target.getTime() <= now.getTime(),
-            'event-row--action': item.priority === 'action',
-            'event-row--reference': item.priority === 'reference',
+            [`event-row--${item.type}`]: true,
           }"
         >
           <div class="event-row__marker">
@@ -113,11 +112,7 @@
             <div class="event-row__label">
               {{ item.label }}
               <span class="event-row__priority">
-                {{
-                  item.priority === 'action'
-                    ? $t('dashboard.actionRequired')
-                    : $t('dashboard.referenceInfo')
-                }}
+                {{ $t(`dashboard.timelineType.${item.type}`) }}
               </span>
               <span class="event-row__status lt-sm">
                 {{
@@ -321,9 +316,7 @@ const shiftName = (code: string | undefined) => {
   return shift ? (shift.nameKey ? t(shift.nameKey) : shift.name) : t('shifts.off');
 };
 const scheduledWeekShiftName = computed(() => shiftName(scheduledWeekShiftCode.value));
-const currentWeekShiftName = computed(() =>
-  shiftName(currentWeekOverride.value?.shiftId),
-);
+const currentWeekShiftName = computed(() => shiftName(currentWeekOverride.value?.shiftId));
 const currentWeekLabel = computed(() => {
   const start = new Date(`${currentWeekRange.value.startDate}T12:00:00`);
   const end = new Date(`${currentWeekRange.value.endDate}T12:00:00`);
@@ -373,9 +366,7 @@ function saveWeekOverride() {
     cancel: { flat: true, label: t('common.cancel') },
     ok: { color: 'primary', label: t('dashboard.replaceWeekChange') },
     persistent: true,
-  }).onOk(() =>
-    commitWeekOverride(overlapping.map((item) => item.id)),
-  );
+  }).onOk(() => commitWeekOverride(overlapping.map((item) => item.id)));
 }
 
 function cancelWeekOverride() {
@@ -420,66 +411,134 @@ const readableTextColor = (color: string) => {
   const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
   return luminance > 150 ? '#17242a' : '#ffffff';
 };
-const countdowns = computed(() => [
-  {
-    icon: 'alarm',
-    label: t('dashboard.untilWake'),
-    countdown: countdownWithSeconds(alarmTime.value),
-    time: time(alarmTime.value),
-    kind: 'wake',
-    priority: 'action' as const,
-    target: alarmTime.value,
-  },
-  ...(app.activeProfile.transport.leaveReminderEnabled
-    ? [
-        {
-          icon: 'directions_walk',
-          label: t('dashboard.untilLeave'),
-          countdown: countdownWithSeconds(leaveHome.value),
-          time: time(leaveHome.value),
-          kind: 'leave',
-          priority: 'action' as const,
-          target: leaveHome.value,
-        },
-      ]
-    : []),
-  {
-    icon: app.activeProfile.transport.mode === 'bus' ? 'directions_bus' : 'directions_car',
-    label: t('dashboard.untilTransport'),
-    countdown: countdownWithSeconds(referenceTime.value),
-    time: time(referenceTime.value),
-    kind: 'transport',
-    priority: 'reference' as const,
-    target: referenceTime.value,
-  },
-  {
-    icon: 'schedule',
-    label: t('dashboard.untilShift'),
-    countdown: countdownWithSeconds(shiftStart.value),
-    time: time(shiftStart.value),
-    kind: 'shift',
-    priority: 'reference' as const,
-    target: shiftStart.value,
-  },
-  {
-    icon: 'free_breakfast',
-    label: t('dashboard.untilFirstBreak'),
-    countdown: countdownWithSeconds(firstBreakTime.value),
-    time: time(firstBreakTime.value),
-    kind: 'break',
-    priority: 'reference' as const,
-    target: firstBreakTime.value,
-  },
-  {
-    icon: 'event_available',
-    label: t('dashboard.untilShiftEnd'),
-    countdown: countdownWithSeconds(heroTarget.value),
-    time: time(heroTarget.value),
-    kind: 'shift-end',
-    priority: 'reference' as const,
-    target: heroTarget.value,
-  },
-]);
+type TimelineItem = {
+  icon: string;
+  label: string;
+  kind: string;
+  type: 'alarm' | 'notification' | 'event';
+  target: Date;
+};
+
+const timelineItem = (
+  item: TimelineItem,
+): TimelineItem & { countdown: ReturnType<typeof countdownWithSeconds>; time: string } => ({
+  ...item,
+  countdown: countdownWithSeconds(item.target),
+  time: time(item.target),
+});
+
+const countdowns = computed(() => {
+  const remindersEnabled = app.activeProfile.reminders.enabled;
+  const items: TimelineItem[] = [
+    ...(remindersEnabled && app.activeProfile.transport.alarmEnabled
+      ? [
+          {
+            icon: 'alarm',
+            label: t('dashboard.wakeAlarm'),
+            kind: 'wake',
+            type: 'alarm' as const,
+            target: alarmTime.value,
+          },
+        ]
+      : []),
+    ...(remindersEnabled && app.activeProfile.transport.leaveReminderEnabled
+      ? [
+          {
+            icon: 'notifications_active',
+            label: t('dashboard.leaveNotification', {
+              minutes: app.activeProfile.transport.leaveBeforeReferenceMinutes,
+            }),
+            kind: 'leave',
+            type: 'notification' as const,
+            target: leaveHome.value,
+          },
+        ]
+      : []),
+    {
+      icon: app.activeProfile.transport.mode === 'bus' ? 'directions_bus' : 'directions_car',
+      label:
+        app.activeProfile.transport.mode === 'bus'
+          ? t('dashboard.transportEventBus')
+          : t('dashboard.transportEventCar'),
+      kind: 'transport',
+      type: 'event',
+      target: referenceTime.value,
+    },
+    ...(remindersEnabled && app.activeProfile.reminders.shiftStartEnabled
+      ? [
+          {
+            icon: 'notifications_active',
+            label: t('dashboard.shiftStartNotification', {
+              minutes: app.activeProfile.reminders.shiftStartBeforeMinutes,
+            }),
+            kind: 'shift-reminder',
+            type: 'notification' as const,
+            target: addMinutes(
+              shiftStart.value,
+              -app.activeProfile.reminders.shiftStartBeforeMinutes,
+            ),
+          },
+        ]
+      : []),
+    {
+      icon: 'schedule',
+      label: t('dashboard.shiftStartEvent'),
+      kind: 'shift',
+      type: 'event',
+      target: shiftStart.value,
+    },
+    ...(remindersEnabled && app.activeProfile.reminders.firstBreakEnabled
+      ? [
+          {
+            icon: 'notifications_active',
+            label: t('dashboard.firstBreakNotification', {
+              minutes: app.activeProfile.reminders.firstBreakBeforeMinutes,
+            }),
+            kind: 'break-reminder',
+            type: 'notification' as const,
+            target: addMinutes(
+              firstBreakTime.value,
+              -app.activeProfile.reminders.firstBreakBeforeMinutes,
+            ),
+          },
+        ]
+      : []),
+    {
+      icon: 'free_breakfast',
+      label: t('dashboard.firstBreakEvent'),
+      kind: 'break',
+      type: 'event',
+      target: firstBreakTime.value,
+    },
+    ...(remindersEnabled && app.activeProfile.reminders.shiftEndEnabled
+      ? [
+          {
+            icon: 'notifications_active',
+            label: t('dashboard.shiftEndNotification', {
+              minutes: app.activeProfile.reminders.shiftEndBeforeMinutes,
+            }),
+            kind: 'shift-end-reminder',
+            type: 'notification' as const,
+            target: addMinutes(
+              heroTarget.value,
+              -app.activeProfile.reminders.shiftEndBeforeMinutes,
+            ),
+          },
+        ]
+      : []),
+    {
+      icon: 'event_available',
+      label: t('dashboard.shiftEndEvent'),
+      kind: 'shift-end',
+      type: 'event',
+      target: heroTarget.value,
+    },
+  ];
+
+  return items
+    .sort((left, right) => left.target.getTime() - right.target.getTime())
+    .map(timelineItem);
+});
 const activeEventIndex = computed(() =>
   countdowns.value.findIndex((item) => item.target.getTime() > now.value.getTime()),
 );
@@ -513,10 +572,10 @@ const weekPreview = computed(() =>
               })
             : t('shifts.off')
           : override.type === 'extra-shift' && shift
-          ? t('calendar.extraShiftWithName', {
-              shift: shift.nameKey ? t(shift.nameKey) : shift.name,
-            })
-          : t(`calendar.types.${override.type}`)
+            ? t('calendar.extraShiftWithName', {
+                shift: shift.nameKey ? t(shift.nameKey) : shift.name,
+              })
+            : t(`calendar.types.${override.type}`)
         : shift
           ? shift.nameKey
             ? t(shift.nameKey)

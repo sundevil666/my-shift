@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router';
+import { appReadiness } from 'src/services/app-readiness';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -14,16 +15,16 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/DashboardPage.vue') },
-      { path: 'tomorrow', component: () => import('pages/TomorrowPage.vue') },
-      { path: 'calendar', component: () => import('pages/CalendarPage.vue') },
-      { path: 'statistics', component: () => import('pages/StatisticsPage.vue') },
-      { path: 'patterns', component: () => import('pages/PatternsPage.vue') },
-      { path: 'reminders', component: () => import('pages/RemindersPage.vue') },
-      { path: 'whats-new', component: () => import('pages/WhatsNewPage.vue') },
-      { path: 'support', component: () => import('pages/SupportPage.vue') },
-      { path: 'settings', component: () => import('pages/SettingsPage.vue') },
-      { path: 'privacy', component: () => import('pages/PrivacyPage.vue') },
+      { path: '', component: () => appReadiness.loadRoute('/') },
+      { path: 'tomorrow', component: () => appReadiness.loadRoute('/tomorrow') },
+      { path: 'calendar', component: () => appReadiness.loadRoute('/calendar') },
+      { path: 'statistics', component: () => appReadiness.loadRoute('/statistics') },
+      { path: 'patterns', component: () => appReadiness.loadRoute('/patterns') },
+      { path: 'reminders', component: () => appReadiness.loadRoute('/reminders') },
+      { path: 'whats-new', component: () => appReadiness.loadRoute('/whats-new') },
+      { path: 'support', component: () => appReadiness.loadRoute('/support') },
+      { path: 'settings', component: () => appReadiness.loadRoute('/settings') },
+      { path: 'privacy', component: () => appReadiness.loadRoute('/privacy') },
     ],
   },
 

@@ -111,7 +111,7 @@ export default defineBoot(({ store }) => {
           ? shiftDateTime(upcomingShift.date, busTime)
           : shiftStart;
 
-      if (app.activeProfile.transport.alarmEnabled) {
+      if (app.activeProfile.reminders.enabled && app.activeProfile.transport.alarmEnabled) {
         reminders.push({
           at: addMinutes(referenceTime, -app.activeProfile.transport.alarmBeforeReferenceMinutes),
           body: localeMessages.alarm,
@@ -121,7 +121,7 @@ export default defineBoot(({ store }) => {
         });
       }
 
-      if (app.activeProfile.transport.leaveReminderEnabled) {
+      if (app.activeProfile.reminders.enabled && app.activeProfile.transport.leaveReminderEnabled) {
         reminders.push({
           at: addMinutes(referenceTime, -app.activeProfile.transport.leaveBeforeReferenceMinutes),
           body: localeMessages.departure,
@@ -130,7 +130,7 @@ export default defineBoot(({ store }) => {
         });
       }
 
-      if (app.activeProfile.reminders.shiftStartEnabled) {
+      if (app.activeProfile.reminders.enabled && app.activeProfile.reminders.shiftStartEnabled) {
         reminders.push({
           at: addMinutes(shiftStart, -app.activeProfile.reminders.shiftStartBeforeMinutes),
           body: reminderMessage(
@@ -147,7 +147,7 @@ export default defineBoot(({ store }) => {
     const breakShift = currentShift ?? upcomingShift;
     if (breakShift) {
       const breakShiftKey = `${dateKey(breakShift.date)}:${breakShift.shift.id}`;
-      if (app.activeProfile.reminders.firstBreakEnabled) {
+      if (app.activeProfile.reminders.enabled && app.activeProfile.reminders.firstBreakEnabled) {
         reminders.push({
           at: addMinutes(
             shiftDateTime(breakShift.date, breakShift.shift.startTime),
@@ -163,7 +163,7 @@ export default defineBoot(({ store }) => {
           kind: 'notification',
         });
       }
-      if (app.activeProfile.reminders.shiftEndEnabled) {
+      if (app.activeProfile.reminders.enabled && app.activeProfile.reminders.shiftEndEnabled) {
         reminders.push({
           at: addMinutes(
             shiftEndDateTime(breakShift.date, breakShift.shift),

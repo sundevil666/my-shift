@@ -17,20 +17,50 @@
               @update:model-value="requestNotificationPermission"
           /></q-item-section>
         </q-item>
-        <q-item>
+        <q-item tag="label">
           <q-item-section>
-            <q-item-label>{{ $t('reminders.beforeDeparture') }}</q-item-label>
-            <q-slider
-              v-model="app.activeProfile.reminders.beforeDepartureMinutes"
-              :min="5"
-              :max="120"
-              :step="5"
-              label
+            <q-item-label>{{ $t('reminders.alarm') }}</q-item-label>
+            <q-item-label caption>{{ $t('reminders.alarmHint') }}</q-item-label>
+            <q-input
+              v-model.number="app.activeProfile.transport.alarmBeforeReferenceMinutes"
+              dense
+              outlined
+              type="number"
+              min="0"
+              suffix="min"
+              :disable="
+                !app.activeProfile.reminders.enabled || !app.activeProfile.transport.alarmEnabled
+              "
             />
           </q-item-section>
           <q-item-section side
-            >{{ app.activeProfile.reminders.beforeDepartureMinutes }} min</q-item-section
-          >
+            ><q-toggle
+              v-model="app.activeProfile.transport.alarmEnabled"
+              :disable="!app.activeProfile.reminders.enabled"
+          /></q-item-section>
+        </q-item>
+        <q-item tag="label">
+          <q-item-section>
+            <q-item-label>{{ $t('reminders.leave') }}</q-item-label>
+            <q-item-label caption>{{ $t('reminders.leaveHint') }}</q-item-label>
+            <q-input
+              v-model.number="app.activeProfile.transport.leaveBeforeReferenceMinutes"
+              dense
+              outlined
+              type="number"
+              min="0"
+              suffix="min"
+              :disable="
+                !app.activeProfile.reminders.enabled ||
+                !app.activeProfile.transport.leaveReminderEnabled
+              "
+            />
+          </q-item-section>
+          <q-item-section side
+            ><q-toggle
+              v-model="app.activeProfile.transport.leaveReminderEnabled"
+              :disable="!app.activeProfile.reminders.enabled"
+          /></q-item-section>
         </q-item>
         <q-item tag="label">
           <q-item-section>
@@ -43,11 +73,16 @@
               type="number"
               min="0"
               suffix="min"
-              :disable="!app.activeProfile.reminders.shiftStartEnabled"
+              :disable="
+                !app.activeProfile.reminders.enabled ||
+                !app.activeProfile.reminders.shiftStartEnabled
+              "
             />
           </q-item-section>
           <q-item-section side
-            ><q-toggle v-model="app.activeProfile.reminders.shiftStartEnabled"
+            ><q-toggle
+              v-model="app.activeProfile.reminders.shiftStartEnabled"
+              :disable="!app.activeProfile.reminders.enabled"
           /></q-item-section>
         </q-item>
         <q-item tag="label">
@@ -61,11 +96,15 @@
               type="number"
               min="0"
               suffix="min"
-              :disable="!app.activeProfile.reminders.shiftEndEnabled"
+              :disable="
+                !app.activeProfile.reminders.enabled || !app.activeProfile.reminders.shiftEndEnabled
+              "
             />
           </q-item-section>
           <q-item-section side
-            ><q-toggle v-model="app.activeProfile.reminders.shiftEndEnabled"
+            ><q-toggle
+              v-model="app.activeProfile.reminders.shiftEndEnabled"
+              :disable="!app.activeProfile.reminders.enabled"
           /></q-item-section>
         </q-item>
         <q-item tag="label">
@@ -79,11 +118,16 @@
               type="number"
               min="0"
               suffix="min"
-              :disable="!app.activeProfile.reminders.firstBreakEnabled"
+              :disable="
+                !app.activeProfile.reminders.enabled ||
+                !app.activeProfile.reminders.firstBreakEnabled
+              "
             />
           </q-item-section>
           <q-item-section side
-            ><q-toggle v-model="app.activeProfile.reminders.firstBreakEnabled"
+            ><q-toggle
+              v-model="app.activeProfile.reminders.firstBreakEnabled"
+              :disable="!app.activeProfile.reminders.enabled"
           /></q-item-section>
         </q-item>
       </q-list>

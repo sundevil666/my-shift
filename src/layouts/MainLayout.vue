@@ -59,12 +59,19 @@
           :key="item.to"
           v-ripple
           clickable
-          :to="item.to"
+          :to="isRouteAvailable(item.to) ? item.to : undefined"
+          :aria-disabled="!isRouteAvailable(item.to)"
+          :class="{ 'nav-pending': !isRouteAvailable(item.to) }"
           exact
           active-class="nav-active"
+          @click="notifyUnavailable(item.to)"
         >
           <q-item-section avatar><q-icon :name="item.icon" class="design-icon" /></q-item-section>
           <q-item-section>{{ $t(item.label) }}</q-item-section>
+          <q-item-section v-if="!isRouteAvailable(item.to)" side>
+            <q-spinner-dots v-if="readiness.state.loading" size="20px" />
+            <q-icon v-else name="cloud_off" />
+          </q-item-section>
         </q-item>
       </q-list>
       <div class="drawer-actions">
@@ -83,7 +90,9 @@
           color="primary"
           class="drawer-action__button"
           :label="$t('support.button')"
-          to="/support"
+          :aria-disabled="!isRouteAvailable('/support')"
+          :to="isRouteAvailable('/support') ? '/support' : undefined"
+          @click="notifyUnavailable('/support')"
         />
       </div>
       <SidebarShiftCard />
@@ -106,6 +115,64 @@
 
     <q-page-container class="app-page-container">
       <div class="app-moire" aria-hidden="true" />
+      <q-banner
+        v-if="readiness.state.started && !readiness.state.complete"
+        rounded
+        class="app-download-banner"
+        role="status"
+        aria-live="polite"
+      >
+        <template #avatar>
+          <q-spinner v-if="readiness.state.loading" color="primary" size="28px" />
+          <q-icon v-else name="cloud_off" color="warning" size="28px" />
+        </template>
+        <strong>
+          {{ $t(readiness.state.failed ? 'appDownload.pausedTitle' : 'appDownload.title') }}
+        </strong>
+        <div>
+          {{
+            $t(readiness.state.failed ? 'appDownload.pausedMessage' : 'appDownload.message', {
+              loaded: readiness.loaded.value,
+              total: readiness.total,
+            })
+          }}
+        </div>
+        <q-linear-progress
+          rounded
+          size="8px"
+          class="q-mt-sm"
+          :value="readiness.progress.value / 100"
+          color="primary"
+          track-color="grey-4"
+        />
+        <template v-if="readiness.state.failed" #action>
+          <q-btn
+            flat
+            color="primary"
+            :label="$t('appDownload.retry')"
+            :loading="readiness.state.loading"
+            @click="retryAppDownload"
+          />
+        </template>
+      </q-banner>
+      <q-banner v-if="showIosNotificationPrompt" rounded class="ios-notification-prompt">
+        <template #avatar>
+          <q-icon name="notifications_active" color="primary" />
+        </template>
+        <strong>{{ $t('notifications.iosTitle') }}</strong>
+        <div>{{ iosNotificationMessage }}</div>
+        <template #action>
+          <q-btn
+            unelevated
+            color="primary"
+            icon="notifications_active"
+            :label="$t('notifications.iosEnable')"
+            :loading="enablingIosNotifications"
+            :disable="notificationPermission === 'denied'"
+            @click="enableIosNotifications"
+          />
+        </template>
+      </q-banner>
       <router-view />
     </q-page-container>
   </q-layout>
@@ -143,6 +210,9 @@ import {
   nextWorkingShift,
   resolvedShiftCodeForDate,
 } from 'src/core/schedule';
+import { requestReminderPermission } from 'src/services/reminders/reminder-feedback';
+import { syncPushReminders } from 'src/services/push-notifications';
+import { appReadiness } from 'src/services/app-readiness';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -154,6 +224,7 @@ const $q = useQuasar();
 const router = useRouter();
 const { locale, t } = useI18n();
 const app = useAppStore();
+const readiness = appReadiness;
 const now = ref(new Date());
 const titleColonVisible = ref(true);
 const hiddenEvents = ref<Array<{ kind: Exclude<DayPlanEventKind, 'sleep'>; target: Date }>>([]);
@@ -165,7 +236,24 @@ const isInstalledApp = ref(
 );
 const userAgent = navigator.userAgent;
 const isAndroid = /Android/i.test(userAgent);
+const isIos = /iPad|iPhone|iPod/i.test(userAgent);
 const showAndroidInstall = computed(() => isAndroid && !isInstalledApp.value);
+const notificationPermission = ref<NotificationPermission | 'unsupported'>(
+  'Notification' in window ? Notification.permission : 'unsupported',
+);
+const enablingIosNotifications = ref(false);
+const showIosNotificationPrompt = computed(
+  () =>
+    isIos &&
+    isInstalledApp.value &&
+    app.activeProfile.reminders.enabled &&
+    (notificationPermission.value !== 'granted' || !app.data.settings.cloudPushConsent),
+);
+const iosNotificationMessage = computed(() =>
+  notificationPermission.value === 'denied'
+    ? t('notifications.iosDenied')
+    : t('notifications.iosMessage'),
+);
 const productName = 'My Shift';
 const androidDownloadUrl = ref<string | null>(null);
 let startupUpdateChecked = false;
@@ -183,6 +271,28 @@ const todayLabel = computed(() =>
     month: 'long',
   }).format(now.value),
 );
+
+async function enableIosNotifications() {
+  enablingIosNotifications.value = true;
+  try {
+    const permission = await requestReminderPermission();
+    notificationPermission.value = permission;
+    if (permission !== 'granted') return;
+
+    app.data.settings.cloudPushConsent = true;
+    const synced = await syncPushReminders(app.activeProfile, app.data.settings.locale);
+    if (!synced) {
+      $q.notify({ type: 'warning', message: t('notifications.iosSyncFailed') });
+    }
+  } finally {
+    enablingIosNotifications.value = false;
+  }
+}
+
+function refreshNotificationPermission() {
+  notificationPermission.value =
+    'Notification' in window ? Notification.permission : 'unsupported';
+}
 const currentShiftCode = computed(() =>
   resolvedShiftCodeForDate(now.value, app.pattern, app.activeProfile.calendarOverrides),
 );
@@ -342,7 +452,12 @@ const showAppUpdateDialog = (event: CustomEvent<AppUpdateDetail>) => {
 window.addEventListener(APP_UPDATE_AVAILABLE_EVENT, showAppUpdateDialog);
 
 onMounted(() => {
+  refreshNotificationPermission();
+  window.addEventListener('focus', refreshNotificationPermission);
   void checkForStartupUpdate();
+  void startAppDownload();
+  window.addEventListener('online', retryAppDownload);
+  window.addEventListener('app-route-unavailable', showUnavailableNotification);
 });
 const captureInstallPrompt = (event: Event) => {
   event.preventDefault();
@@ -398,6 +513,9 @@ onBeforeUnmount(() => {
   window.removeEventListener(APP_UPDATE_AVAILABLE_EVENT, showAppUpdateDialog);
   window.removeEventListener('beforeinstallprompt', captureInstallPrompt);
   window.removeEventListener('appinstalled', markAppInstalled);
+  window.removeEventListener('focus', refreshNotificationPermission);
+  window.removeEventListener('online', retryAppDownload);
+  window.removeEventListener('app-route-unavailable', showUnavailableNotification);
   document.title = productName;
 });
 
@@ -412,6 +530,35 @@ const navigation = [
   { label: 'nav.settings', icon: 'tune', to: '/settings' },
   { label: 'nav.privacy', icon: 'privacy_tip', to: '/privacy' },
 ];
+const isRouteAvailable = (path: string) => readiness.isAvailable(path);
+const showUnavailableNotification = () => {
+  $q.notify({
+    group: 'app-download',
+    type: 'warning',
+    icon: 'cloud_off',
+    message: t('appDownload.unavailable'),
+    caption: t('appDownload.unavailableHint'),
+    timeout: 4000,
+  });
+};
+const notifyUnavailable = (path: string) => {
+  if (!isRouteAvailable(path)) showUnavailableNotification();
+};
+async function startAppDownload() {
+  await readiness.preload();
+  if (readiness.state.complete) {
+    $q.notify({
+      group: 'app-download',
+      type: 'positive',
+      icon: 'offline_pin',
+      message: t('appDownload.complete'),
+      timeout: 3500,
+    });
+  }
+}
+function retryAppDownload() {
+  void startAppDownload();
+}
 function toggleTheme() {
   app.setTheme($q.dark.isActive ? 'light' : 'dark');
 }
