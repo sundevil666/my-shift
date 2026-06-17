@@ -175,6 +175,17 @@
       </q-banner>
       <router-view />
     </q-page-container>
+
+    <div
+      v-if="pwaUpdateAvailable"
+      class="pwa-update-indicator"
+      role="status"
+      aria-live="polite"
+      :aria-label="$t('updates.installingIndicator')"
+    >
+      <q-icon name="sync" size="22px" />
+      <q-tooltip>{{ $t('updates.installingIndicator') }}</q-tooltip>
+    </div>
   </q-layout>
 </template>
 
@@ -225,6 +236,7 @@ const router = useRouter();
 const { locale, t } = useI18n();
 const app = useAppStore();
 const readiness = appReadiness;
+const pwaUpdateAvailable = ref(false);
 const now = ref(new Date());
 const titleColonVisible = ref(true);
 const hiddenEvents = ref<Array<{ kind: Exclude<DayPlanEventKind, 'sleep'>; target: Date }>>([]);
@@ -422,6 +434,7 @@ document.addEventListener('visibilitychange', syncAfterVisibilityChange);
 const showAppUpdateDialog = (event: CustomEvent<AppUpdateDetail>) => {
   const detail = event.detail;
   const incompatible = !detail.compatible;
+  pwaUpdateAvailable.value = true;
 
   $q.dialog({
     title: t(incompatible ? 'updates.incompatibleTitle' : 'updates.title'),

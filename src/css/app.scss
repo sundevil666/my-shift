@@ -848,6 +848,38 @@ body {
   box-shadow: 0 10px 30px var(--app-shadow);
 }
 
+.pwa-update-indicator {
+  position: fixed;
+  right: 16px;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 6000;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  color: #ffffff;
+  background: var(--q-primary);
+  border: 1px solid color-mix(in srgb, #ffffff 24%, transparent);
+  border-radius: 50%;
+  place-items: center;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--q-primary) 38%, transparent);
+}
+
+.pwa-update-indicator .q-icon {
+  animation: pwa-update-spin 1.1s linear infinite;
+}
+
+@keyframes pwa-update-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pwa-update-indicator .q-icon {
+    animation: none;
+  }
+}
+
 .sidebar-shift-card {
   margin: 8px 14px 0;
   overflow: hidden;

@@ -97,6 +97,7 @@ export default {
     backupFailed: 'Údaje sa nepodarilo zálohovať. Aktualizácia bola zrušená.',
     newVersion: 'nová',
     whatsNew: 'Čo je nové',
+    installingIndicator: 'Je dostupná aktualizácia aplikácie',
   },
   whatsNew: {
     title: 'Čo je nové v My Shift',

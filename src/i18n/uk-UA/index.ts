@@ -98,6 +98,7 @@ export default {
     backupFailed: 'Не вдалося зберегти копію даних. Оновлення скасовано.',
     newVersion: 'нова',
     whatsNew: 'Що нового',
+    installingIndicator: 'Доступне оновлення застосунку',
   },
   whatsNew: {
     title: 'Що нового в My Shift',

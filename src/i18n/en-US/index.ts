@@ -98,6 +98,7 @@ export default {
     backupFailed: 'Could not back up your data. The update was cancelled.',
     newVersion: 'new',
     whatsNew: 'What’s new',
+    installingIndicator: 'An app update is available',
   },
   whatsNew: {
     title: 'What’s new in My Shift',

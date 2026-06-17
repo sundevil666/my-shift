@@ -97,6 +97,7 @@ export default {
     backupFailed: 'Не удалось сохранить копию данных. Обновление отменено.',
     newVersion: 'новая',
     whatsNew: 'Что нового',
+    installingIndicator: 'Доступно обновление приложения',
   },
   whatsNew: {
     title: 'Что нового в My Shift',
