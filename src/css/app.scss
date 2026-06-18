@@ -813,6 +813,12 @@ body {
 .app-drawer {
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+}
+
+.app-drawer,
+.app-drawer * {
+  box-sizing: border-box;
 }
 
 .app-drawer .q-item {
@@ -882,6 +888,8 @@ body {
 
 .sidebar-shift-card {
   margin: 8px 14px 0;
+  width: auto;
+  max-width: calc(100% - 28px);
   overflow: hidden;
   color: white;
   border-radius: 18px;
@@ -1041,9 +1049,13 @@ body {
   display: grid;
   gap: 6px;
   padding: 0 12px 10px;
+  width: 100%;
+  min-width: 0;
 }
 .drawer-action__button {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   min-height: 42px;
   padding: 4px 10px;
   border: 1px solid var(--app-border);
@@ -1053,9 +1065,17 @@ body {
 }
 
 .drawer-action__button .q-btn__content {
+  min-width: 0;
   flex-wrap: nowrap;
   gap: 6px;
+  justify-content: flex-start;
   white-space: nowrap;
+}
+
+.drawer-action__button .block {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .drawer-action__button .q-icon {
