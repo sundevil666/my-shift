@@ -47,7 +47,7 @@
           <strong>{{ activeEvent.label }}</strong>
           <div class="mobile-next-event__countdown">
             {{ activeEvent.countdown.main }}
-            <Transition name="second-tick" mode="out-in">
+            <Transition v-if="activeEvent.countdown.showSeconds" name="second-tick" mode="out-in">
               <small :key="activeEvent.countdown.seconds">
                 {{ activeEvent.countdown.seconds }}s
               </small>
@@ -126,7 +126,10 @@
             </div>
             <div class="event-row__countdown">
               <span>{{ item.countdown.main }}</span>
-              <span v-if="index === activeEventIndex" class="event-row__seconds-wrap">
+              <span
+                v-if="index === activeEventIndex && item.countdown.showSeconds"
+                class="event-row__seconds-wrap"
+              >
                 <Transition name="second-tick" mode="out-in">
                   <span :key="item.countdown.seconds" class="event-row__seconds">
                     {{ item.countdown.seconds }}s
@@ -401,6 +404,7 @@ const countdownWithSeconds = (target: Date) => {
   return {
     main: formatCountdown(target, now.value),
     seconds: String(totalSeconds % 60).padStart(2, '0'),
+    showSeconds: totalSeconds < 86_400,
   };
 };
 const readableTextColor = (color: string) => {

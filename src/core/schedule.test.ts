@@ -112,7 +112,7 @@ describe('schedule', () => {
 
   it('formats countdowns and clamps expired targets to zero', () => {
     const now = new Date(2026, 0, 1, 10);
-    expect(formatCountdown(new Date(2026, 0, 2, 12, 5), now)).toBe('1d 02h 05m');
+    expect(formatCountdown(new Date(2026, 0, 2, 12, 5), now)).toBe('1d 02h');
     expect(formatCountdown(new Date(2026, 0, 1, 9), now)).toBe('00h 00m');
   });
 });

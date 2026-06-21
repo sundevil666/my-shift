@@ -43,7 +43,7 @@
         <div class="sidebar-next-event__details">
           <div class="sidebar-next-event__countdown">
             <span>{{ countdown.main }}</span>
-            <span class="sidebar-next-event__seconds-wrap">
+            <span v-if="countdown.showSeconds" class="sidebar-next-event__seconds-wrap">
               <Transition name="second-tick" mode="out-in">
                 <span :key="countdown.seconds" class="sidebar-next-event__seconds">
                   {{ countdown.seconds }}s
@@ -181,6 +181,7 @@ const countdown = computed(() => {
   return {
     main: formatCountdown(nextEvent.value.target, now.value),
     seconds: String(totalSeconds % 60).padStart(2, '0'),
+    showSeconds: totalSeconds < 86_400,
   };
 });
 const time = (date: Date) =>

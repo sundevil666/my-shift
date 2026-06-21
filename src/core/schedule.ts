@@ -131,8 +131,9 @@ export function formatCountdown(target: Date, now: Date): string {
   const days = Math.floor(totalMinutes / 1440);
   const hours = Math.floor((totalMinutes % 1440) / 60);
   const minutes = totalMinutes % 60;
+  if (days) return `${days}d ${String(hours).padStart(2, '0')}h`;
+
   return [
-    days ? `${days}d` : '',
     `${String(hours).padStart(2, '0')}h`,
     `${String(minutes).padStart(2, '0')}m`,
   ]
