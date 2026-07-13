@@ -306,6 +306,17 @@
           </div>
           <div v-if="isAndroidNative">
             <q-btn
+              outline
+              class="app-action-button full-width"
+              color="negative"
+              icon="alarm_off"
+              no-caps
+              :label="$t('settings.clearAndroidTestAlarm')"
+              @click="clearTestAlarm"
+            />
+          </div>
+          <div v-if="isAndroidNative">
+            <q-btn
               class="app-action-button full-width"
               color="secondary"
               icon="music_note"
@@ -409,6 +420,7 @@ import {
 } from 'src/services/reminders/reminder-feedback';
 import {
   chooseAndroidAlarmSound,
+  clearAndroidTestAlarm,
   getAndroidSystemAlarmStatus,
   isNativeAndroidApp,
   openAndroidAlarmSettings,
@@ -533,12 +545,6 @@ async function testAlarm() {
   }
 
   if (isAndroidNative) {
-    const permission = await requestReminderPermission();
-    if (permission !== 'granted') {
-      $q.notify({ type: 'warning', message: t('settings.notificationsPermissionRequired') });
-      return;
-    }
-
     const scheduled = await scheduleAndroidTestAlarm(t('settings.testAlarmMessage'));
     await refreshAndroidAlarmStatus();
     $q.notify({
@@ -555,6 +561,16 @@ async function testAlarm() {
     stopLabel: t('settings.stopAlarm'),
   });
 }
+
+async function clearTestAlarm() {
+  const cleared = await clearAndroidTestAlarm();
+  await refreshAndroidAlarmStatus();
+  $q.notify({
+    type: cleared ? 'positive' : 'negative',
+    message: t(cleared ? 'settings.androidAlarmCleared' : 'settings.androidAlarmClearFailed'),
+  });
+}
+
 async function chooseAlarmSound() {
   const selected = await chooseAndroidAlarmSound();
   await refreshAndroidAlarmStatus();
@@ -875,36 +891,50 @@ async function importData(event: Event) {
 
 @media (max-width: 599px) {
   .settings-page {
-    padding: 12px;
+    padding: 10px 12px;
   }
 
   .settings-page :deep(.page-title) {
-    font-size: clamp(1.35rem, 6.6vw, 1.75rem);
+    font-size: 1.55rem;
+    line-height: 1.12;
   }
 
   .settings-grid {
-    gap: 10px;
+    gap: 8px;
   }
 
   .settings-card__header {
-    padding: 12px 12px 6px;
+    padding: 10px 10px 6px;
   }
 
   .settings-card__body {
-    padding: 8px 12px 12px;
+    padding: 6px 10px 10px;
   }
 
   .settings-notifications__header {
     align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .settings-notifications__header :deep(.q-toggle) {
+    align-self: stretch;
+    justify-content: space-between;
+  }
+
+  .settings-notifications__header :deep(.q-toggle__label) {
+    flex: 1 1 auto;
   }
 
   .settings-notifications {
     grid-template-columns: 1fr;
+    gap: 8px;
   }
 
   .settings-notification,
   .settings-notification--wide {
     grid-column: auto;
+    padding: 6px;
   }
 
   .settings-tests {
@@ -926,8 +956,30 @@ async function importData(event: Event) {
     gap: 6px;
   }
 
+  .settings-notification :deep(.q-item) {
+    align-items: flex-start;
+    padding: 2px;
+  }
+
+  .settings-notification :deep(.q-item__section--side) {
+    padding-left: 6px;
+  }
+
+  .settings-notification__title {
+    gap: 6px;
+    line-height: 1.18;
+  }
+
   .settings-notification__title .q-icon {
     font-size: 1.2rem;
+  }
+
+  .settings-notification__input {
+    margin: 4px 0 0;
+  }
+
+  .settings-notification__split :deep(.q-btn-toggle) {
+    width: 100%;
   }
 }
 </style>

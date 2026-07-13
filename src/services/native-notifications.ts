@@ -14,6 +14,8 @@ interface SystemAlarmPlugin {
     id: string;
     message: string;
     timestamp: number;
+    skipUi?: boolean;
+    includeRingtone?: boolean;
   }): Promise<{ created: boolean }>;
   clearRememberedAlarm(): Promise<void>;
   getStatus(): Promise<{ canSetAlarm: boolean; hasCustomSound: boolean }>;
@@ -140,7 +142,19 @@ export async function scheduleAndroidTestAlarm(message: string): Promise<boolean
       id: `my-shift:test-system-alarm:${at.getTime()}`,
       message,
       timestamp: at.getTime(),
+      skipUi: false,
+      includeRingtone: false,
     });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function clearAndroidTestAlarm(): Promise<boolean> {
+  if (!isNativeAndroidApp()) return false;
+  try {
+    await SystemAlarm.clearRememberedAlarm();
     return true;
   } catch {
     return false;

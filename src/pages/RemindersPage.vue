@@ -216,5 +216,22 @@ async function requestNotificationPermission(enabled: boolean) {
   .reminder-row-controls {
     grid-template-columns: 1fr;
   }
+
+  :deep(.q-card .q-item) {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  :deep(.q-card .q-item__section--side) {
+    padding-left: 6px;
+  }
+
+  :deep(.q-card .q-input) {
+    margin-top: 8px;
+  }
+
+  :deep(.q-btn-toggle) {
+    width: 100%;
+  }
 }
 </style>

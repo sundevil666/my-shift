@@ -49,15 +49,17 @@ public class SystemAlarmPlugin extends Plugin {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timestamp.longValue());
 
-        Intent silentIntent = buildSetAlarmIntent(calendar, message, true, true);
+        boolean skipUi = Boolean.TRUE.equals(call.getBoolean("skipUi", true));
+        boolean includeRingtone = Boolean.TRUE.equals(call.getBoolean("includeRingtone", true));
+        Intent alarmIntent = buildSetAlarmIntent(calendar, message, skipUi, includeRingtone);
 
-        if (!canResolve(silentIntent)) {
+        if (!canResolve(alarmIntent)) {
             call.reject("No Android clock app is available");
             return;
         }
 
         try {
-            startAlarm(silentIntent, calendar, message);
+            startAlarm(alarmIntent, calendar, message, includeRingtone);
             preferences.edit()
                 .putString(LAST_ALARM_ID, id)
                 .putString(LAST_ALARM_MESSAGE, message)
@@ -185,12 +187,17 @@ public class SystemAlarmPlugin extends Plugin {
         return intent;
     }
 
-    private void startAlarm(Intent silentIntent, Calendar calendar, String message) {
+    private void startAlarm(
+        Intent alarmIntent,
+        Calendar calendar,
+        String message,
+        boolean includeRingtone
+    ) {
         try {
-            getContext().startActivity(silentIntent);
-        } catch (Exception silentError) {
+            getContext().startActivity(alarmIntent);
+        } catch (Exception firstError) {
             try {
-                Intent visibleIntent = buildSetAlarmIntent(calendar, message, false, true);
+                Intent visibleIntent = buildSetAlarmIntent(calendar, message, false, includeRingtone);
                 getContext().startActivity(visibleIntent);
             } catch (Exception visibleError) {
                 Intent basicIntent = buildSetAlarmIntent(calendar, message, false, false);
