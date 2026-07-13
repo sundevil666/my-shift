@@ -191,6 +191,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { Capacitor } from '@capacitor/core';
 import { copyToClipboard, useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { RouterView, useRouter } from 'vue-router';
@@ -244,10 +245,11 @@ const titleColonVisible = ref(true);
 const hiddenEvents = ref<Array<{ kind: Exclude<DayPlanEventKind, 'sleep'>; target: Date }>>([]);
 const installPrompt = pwaInstallPrompt;
 const isInstalledApp = isPwaInstalled;
+const isNativeApp = Capacitor.isNativePlatform();
 const userAgent = navigator.userAgent;
 const isAndroid = /Android/i.test(userAgent);
 const isIos = /iPad|iPhone|iPod/i.test(userAgent);
-const showAndroidInstall = computed(() => isAndroid && !isInstalledApp.value);
+const showAndroidInstall = computed(() => isAndroid && !isNativeApp && !isInstalledApp.value);
 const notificationPermission = ref<NotificationPermission | 'unsupported'>(
   'Notification' in window ? Notification.permission : 'unsupported',
 );

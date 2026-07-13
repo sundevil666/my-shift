@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import { Capacitor } from '@capacitor/core';
 
 export interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -11,7 +12,7 @@ export const isPwaInstalled = ref(isInstalledDisplayMode());
 let listenersRegistered = false;
 
 export function registerPwaInstallListeners() {
-  if (listenersRegistered || typeof window === 'undefined') return;
+  if (Capacitor.isNativePlatform() || listenersRegistered || typeof window === 'undefined') return;
   listenersRegistered = true;
 
   window.addEventListener('beforeinstallprompt', captureInstallPrompt);
@@ -27,6 +28,8 @@ export function unregisterPwaInstallListeners() {
 }
 
 export async function requestPwaInstall() {
+  if (Capacitor.isNativePlatform()) return 'unavailable' as const;
+
   const prompt = pwaInstallPrompt.value;
   if (!prompt) return 'unavailable' as const;
 
@@ -38,6 +41,8 @@ export async function requestPwaInstall() {
 }
 
 function captureInstallPrompt(event: Event) {
+  if (Capacitor.isNativePlatform()) return;
+
   event.preventDefault();
   pwaInstallPrompt.value = event as BeforeInstallPromptEvent;
 }
@@ -49,6 +54,7 @@ function markAppInstalled() {
 
 function isInstalledDisplayMode() {
   if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+  if (Capacitor.isNativePlatform()) return true;
 
   return (
     window.matchMedia('(display-mode: standalone)').matches ||
