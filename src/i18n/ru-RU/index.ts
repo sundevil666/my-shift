@@ -128,6 +128,17 @@ export default {
       shareText: 'Кнопка в меню отправит правильную ссылку для используемой платформы.',
     },
     releases: {
+      v019: {
+        title: 'Android-будильник доведён до рабочего вида',
+        alarmCenter:
+          'Страница «Будильники» стала основным местом управления рабочим и тестовым будильником.',
+        soundControls:
+          'Добавлены выбор и прослушивание мелодии, вибрация и плавное увеличение громкости.',
+        reliableAlarm:
+          'Будильник открывается через системный полноэкранный сигнал Android и защищён от сбоев звука или вибрации.',
+        cleanup:
+          'Убраны временные диагностические блоки из обычного интерфейса и причёсаны настройки.',
+      },
       v018: {
         title: 'Надёжнее напоминания и установка',
         arrivalReminders:
@@ -518,10 +529,10 @@ export default {
     arrivalModeAlarm: 'Будильник',
     notificationTest: 'Тест уведомлений',
     notificationTestHint: 'Ручной запуск звука и браузерного сообщения.',
-    androidAlarmTestHint: 'Проверьте системный будильник Android и выберите звук сигнала.',
+    androidAlarmCenterHint: 'Управляйте Android-будильником, мелодией и тестами на отдельной странице.',
+    openAlarmCenter: 'Открыть будильники',
+    openAlarmCenterHint: 'Android-будильник теперь настраивается на странице «Будильники».',
     testAlarm: 'Тест будильника',
-    testAndroidAlarm: 'Тест Android-будильника',
-    clearAndroidTestAlarm: 'Убрать тестовый Android-будильник',
     stopAlarm: 'Отключить будильник',
     chooseAlarmSound: 'Выбрать звук будильника',
     openAndroidSoundSettings: 'Настройки звука',
@@ -546,10 +557,6 @@ export default {
       'Android запрещает точные будильники для My Shift. Откройте настройку и разрешите будильники.',
     exactAlarmSettingsOpened: 'Открыты настройки точных будильников Android.',
     exactAlarmSettingsFailed: 'Не удалось открыть настройки точных будильников Android.',
-    alarmDebug: 'Диагностика Android-будильника',
-    refreshAlarmDebug: 'Обновить диагностику',
-    copyAlarmDebug: 'Скопировать диагностику',
-    alarmDebugCopied: 'Диагностика будильника скопирована.',
     testNotification: 'Тест уведомления',
     testAlarmMessage: 'Тест будильника: пора просыпаться',
     testNotificationMessage: 'Это тестовое уведомление',

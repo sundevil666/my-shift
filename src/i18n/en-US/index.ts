@@ -131,6 +131,16 @@ export default {
       shareText: 'The menu button sends the correct link for the platform you are using.',
     },
     releases: {
+      v019: {
+        title: 'Android alarm is polished and ready',
+        alarmCenter:
+          'The Alarms page is now the main place to manage the work alarm and test alarm.',
+        soundControls:
+          'Added alarm sound selection, preview, vibration and gradual volume ramp.',
+        reliableAlarm:
+          'The alarm opens through Android full-screen alarm delivery and is guarded against sound or vibration failures.',
+        cleanup: 'Removed temporary diagnostics from the normal interface and cleaned up settings.',
+      },
       v018: {
         title: 'More reliable reminders and installs',
         arrivalReminders: 'Added reminders for arrival time so getting ready and commuting are easier to plan.',
@@ -515,10 +525,10 @@ export default {
     arrivalModeAlarm: 'Alarm',
     notificationTest: 'Notification test',
     notificationTestHint: 'Manually test the sound and browser message.',
-    androidAlarmTestHint: 'Check the Android Clock alarm path and choose the alarm sound.',
+    androidAlarmCenterHint: 'Manage the Android alarm, sound and tests on the dedicated page.',
+    openAlarmCenter: 'Open alarms',
+    openAlarmCenterHint: 'Android alarm setup now lives on the Alarms page.',
     testAlarm: 'Alarm test',
-    testAndroidAlarm: 'Test Android alarm',
-    clearAndroidTestAlarm: 'Remove test Android alarm',
     stopAlarm: 'Stop alarm',
     chooseAlarmSound: 'Choose alarm sound',
     openAndroidSoundSettings: 'Sound settings',
@@ -543,10 +553,6 @@ export default {
       'Android blocks exact alarms for My Shift. Open settings and allow alarms.',
     exactAlarmSettingsOpened: 'Android exact alarm settings opened.',
     exactAlarmSettingsFailed: 'Could not open Android exact alarm settings.',
-    alarmDebug: 'Android alarm diagnostics',
-    refreshAlarmDebug: 'Refresh diagnostics',
-    copyAlarmDebug: 'Copy diagnostics',
-    alarmDebugCopied: 'Alarm diagnostics copied.',
     testNotification: 'Notification test',
     testAlarmMessage: 'Alarm test: time to wake up',
     testNotificationMessage: 'This is a test notification',

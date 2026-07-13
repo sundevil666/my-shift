@@ -384,6 +384,17 @@ const usefulTips = [
 ] as const;
 const releases = [
   {
+    version: '0.1.37',
+    date: '2026-07-13',
+    title: 'whatsNew.releases.v019.title',
+    features: [
+      'whatsNew.releases.v019.alarmCenter',
+      'whatsNew.releases.v019.soundControls',
+      'whatsNew.releases.v019.reliableAlarm',
+      'whatsNew.releases.v019.cleanup',
+    ],
+  },
+  {
     version: '0.1.8',
     date: '2026-07-13',
     title: 'whatsNew.releases.v018.title',

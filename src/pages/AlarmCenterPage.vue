@@ -3,7 +3,7 @@
     <page-header
       eyebrow="Android"
       title="Будильники"
-      subtitle="Центр проверки установленных будильников, диагностики и обновления APK."
+      subtitle="Управление Android-будильником My Shift, мелодией, вибрацией и обновлением APK."
     />
 
     <div class="settings-grid">
@@ -22,6 +22,7 @@
             </template>
             {{ alarmReady ? $t('settings.androidAlarmReady') : $t('settings.androidAlarmNeedsSetup') }}
           </q-banner>
+          <q-btn v-if="!alarmReady" class="app-action-button full-width" color="primary" icon="alarm_add" no-caps :label="$t('settings.openExactAlarmSettings')" @click="openExactAlarmSettings" />
 
           <div class="alarm-center-list">
             <q-card v-for="item in alarmItems" :key="item.scope" flat bordered class="alarm-center-item">
@@ -72,18 +73,6 @@
 
       <q-card flat bordered class="settings-card">
         <q-card-section class="settings-card__header">
-          <div class="section-title">Тестирование</div>
-          <div class="supporting-text">Поставить тестовый будильник на ближайшую минуту и удалить его.</div>
-        </q-card-section>
-        <q-card-section class="settings-card__body settings-tests">
-          <q-btn class="app-action-button full-width" color="negative" icon="alarm" no-caps :label="$t('settings.testAndroidAlarm')" @click="testAlarm" />
-          <q-btn outline class="app-action-button full-width" color="negative" icon="alarm_off" no-caps :label="$t('settings.clearAndroidTestAlarm')" @click="clearTestAlarm" />
-          <q-btn v-if="!alarmReady" class="app-action-button full-width" color="primary" icon="alarm_add" no-caps :label="$t('settings.openExactAlarmSettings')" @click="openExactAlarmSettings" />
-        </q-card-section>
-      </q-card>
-
-      <q-card flat bordered class="settings-card">
-        <q-card-section class="settings-card__header">
           <div class="section-title">Обновление приложения</div>
           <div class="supporting-text">Текущая версия: v{{ currentVersion }}</div>
         </q-card-section>
@@ -104,32 +93,17 @@
         </q-card-section>
       </q-card>
 
-      <q-card flat bordered class="settings-card">
-        <q-card-section class="settings-card__header">
-          <div class="section-title">{{ $t('settings.alarmDebug') }}</div>
-        </q-card-section>
-        <q-card-section class="settings-card__body">
-          <div class="settings-alarm-debug__actions">
-            <q-btn dense outline no-caps color="primary" icon="bug_report" :label="$t('settings.refreshAlarmDebug')" @click="refreshDiagnostics" />
-            <q-btn dense outline no-caps color="primary" icon="content_copy" :label="$t('settings.copyAlarmDebug')" @click="copyDiagnostics" />
-          </div>
-          <q-input :model-value="diagnosticsText" readonly outlined autogrow type="textarea" class="settings-alarm-debug__field" />
-        </q-card-section>
-      </q-card>
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue';
-import { copyToClipboard, useQuasar } from 'quasar';
+import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import PageHeader from 'components/PageHeader.vue';
 import { CURRENT_ANDROID_VERSION_CODE, CURRENT_APP_VERSION } from 'src/services/app-update';
-import {
-  canInstallNativeAndroidUpdate,
-  installNativeAndroidUpdate,
-} from 'src/services/native-updater';
+import { installNativeAndroidUpdate } from 'src/services/native-updater';
 import {
   latestAvailableRelease,
   loadReleaseManifest,
@@ -138,12 +112,10 @@ import {
 } from 'src/services/release-manifest';
 import {
   chooseAndroidAlarmSound,
-  clearAndroidTestAlarm,
   getAndroidAlarmDiagnostics,
   openAndroidAlarmSettings,
   openAndroidExactAlarmSettings,
   previewAndroidAlarmSound,
-  runAndroidTestAlarmDiagnostics,
   setAndroidAlarmOptions,
   stopAndroidAlarmPreview,
   type AndroidSystemAlarmStatus,
@@ -154,7 +126,6 @@ const $q = useQuasar();
 const { t } = useI18n();
 const app = useAppStore();
 const diagnostics = ref<AndroidSystemAlarmStatus>({ canSetAlarm: false, hasCustomSound: false });
-const diagnosticsText = ref('');
 const checkingUpdate = ref(false);
 const installing = ref(false);
 const previewPlaying = ref(false);
@@ -173,15 +144,6 @@ const alarmItems = computed(() => [
     message: diagnostics.value.lastAlarmMessage,
     emptyText: 'Рабочий будильник сейчас не запланирован.',
   },
-  {
-    scope: 'test',
-    icon: 'science',
-    title: 'Тестовый будильник',
-    id: diagnostics.value.lastTestAlarmId,
-    time: formatAlarmTime(diagnostics.value.lastTestAlarmTimestamp),
-    message: diagnostics.value.lastTestAlarmMessage,
-    emptyText: 'Тестовый будильник сейчас не запланирован.',
-  },
 ]);
 
 void refreshDiagnostics();
@@ -197,7 +159,6 @@ onBeforeUnmount(() => {
 
 async function refreshDiagnostics() {
   diagnostics.value = await getAndroidAlarmDiagnostics();
-  diagnosticsText.value = JSON.stringify(diagnostics.value, null, 2);
 }
 
 function refreshDiagnosticsSoon() {
@@ -206,40 +167,6 @@ function refreshDiagnosticsSoon() {
 
 function refreshDiagnosticsWhenVisible() {
   if (!document.hidden) void refreshDiagnostics();
-}
-
-async function testAlarm() {
-  await refreshDiagnostics();
-  if (!canInstallNativeAndroidUpdate()) {
-    $q.notify({ type: 'warning', message: t('settings.androidNativeRequired') });
-    return;
-  }
-  if (!alarmReady.value) {
-    $q.notify({
-      type: 'warning',
-      icon: 'alarm_add',
-      message: t('settings.exactAlarmPermissionRequired'),
-      timeout: 7000,
-      actions: [{ label: t('settings.openExactAlarmSettingsShort'), color: 'white', handler: () => void openExactAlarmSettings() }],
-    });
-    return;
-  }
-  const result = await runAndroidTestAlarmDiagnostics(t('settings.testAlarmMessage'));
-  diagnosticsText.value = JSON.stringify(result, null, 2);
-  diagnostics.value = result.status;
-  $q.notify({
-    type: result.ok ? 'positive' : 'negative',
-    message: t(result.ok ? 'settings.androidAlarmScheduled' : 'settings.androidAlarmFailed'),
-  });
-}
-
-async function clearTestAlarm() {
-  const cleared = await clearAndroidTestAlarm();
-  await refreshDiagnostics();
-  $q.notify({
-    type: cleared ? 'positive' : 'negative',
-    message: t(cleared ? 'settings.androidAlarmCleared' : 'settings.androidAlarmClearFailed'),
-  });
 }
 
 async function chooseAlarmSound() {
@@ -279,12 +206,6 @@ async function openAlarmSettings() {
 async function openExactAlarmSettings() {
   const opened = await openAndroidExactAlarmSettings();
   $q.notify({ type: opened ? 'positive' : 'warning', message: t(opened ? 'settings.exactAlarmSettingsOpened' : 'settings.exactAlarmSettingsFailed') });
-}
-
-async function copyDiagnostics() {
-  if (!diagnosticsText.value) await refreshDiagnostics();
-  await copyToClipboard(diagnosticsText.value);
-  $q.notify({ type: 'positive', message: t('settings.alarmDebugCopied') });
 }
 
 async function loadUpdates() {

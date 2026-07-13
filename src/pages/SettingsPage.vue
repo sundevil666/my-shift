@@ -252,7 +252,7 @@
           <div class="section-title">{{ $t('settings.notificationTest') }}</div>
           <div class="supporting-text">
             {{
-              isAndroidNative ? $t('settings.androidAlarmTestHint') : $t('settings.notificationTestHint')
+              isAndroidNative ? $t('settings.androidAlarmCenterHint') : $t('settings.notificationTestHint')
             }}
           </div>
         </q-card-section>
@@ -285,56 +285,24 @@
           <div class="settings-runtime">
             {{ $t('settings.runtimeInfo', { version: appVersion, platform: runtimePlatform }) }}
           </div>
-          <div>
+          <div v-if="isAndroidNative">
+            <q-btn
+              class="app-action-button full-width"
+              color="primary"
+              icon="alarm"
+              no-caps
+              :label="$t('settings.openAlarmCenter')"
+              to="/alarms"
+            />
+          </div>
+          <div v-else>
             <q-btn
               class="app-action-button full-width"
               color="negative"
               icon="alarm"
               no-caps
-              :label="isAndroidNative ? $t('settings.testAndroidAlarm') : $t('settings.testAlarm')"
+              :label="$t('settings.testAlarm')"
               @click="testAlarm"
-            />
-          </div>
-          <div v-if="isAndroidNative && !androidAlarmReady">
-            <q-btn
-              class="app-action-button full-width"
-              color="primary"
-              icon="alarm_add"
-              no-caps
-              :label="$t('settings.openExactAlarmSettings')"
-              @click="openExactAlarmSettings"
-            />
-          </div>
-          <div v-if="isAndroidNative">
-            <q-btn
-              outline
-              class="app-action-button full-width"
-              color="negative"
-              icon="alarm_off"
-              no-caps
-              :label="$t('settings.clearAndroidTestAlarm')"
-              @click="clearTestAlarm"
-            />
-          </div>
-          <div v-if="isAndroidNative">
-            <q-btn
-              class="app-action-button full-width"
-              color="secondary"
-              icon="music_note"
-              no-caps
-              :label="$t('settings.chooseAlarmSound')"
-              @click="chooseAlarmSound"
-            />
-          </div>
-          <div v-if="isAndroidNative">
-            <q-btn
-              outline
-              class="app-action-button full-width"
-              color="primary"
-              icon="settings"
-              no-caps
-              :label="$t('settings.openAndroidSoundSettings')"
-              @click="openAlarmSettings"
             />
           </div>
           <div>
@@ -345,37 +313,6 @@
               no-caps
               :label="$t('settings.testNotification')"
               @click="testNotification"
-            />
-          </div>
-          <div v-if="isAndroidNative" class="settings-alarm-debug">
-            <div class="settings-alarm-debug__actions">
-              <q-btn
-                dense
-                outline
-                no-caps
-                color="primary"
-                icon="bug_report"
-                :label="$t('settings.refreshAlarmDebug')"
-                @click="refreshAlarmDiagnostics"
-              />
-              <q-btn
-                dense
-                outline
-                no-caps
-                color="primary"
-                icon="content_copy"
-                :label="$t('settings.copyAlarmDebug')"
-                @click="copyAlarmDiagnostics"
-              />
-            </div>
-            <q-input
-              :model-value="androidAlarmDiagnosticsText"
-              readonly
-              outlined
-              autogrow
-              type="textarea"
-              class="settings-alarm-debug__field"
-              :label="$t('settings.alarmDebug')"
             />
           </div>
         </q-card-section>
@@ -504,14 +441,8 @@ import {
   showReminderFeedback,
 } from 'src/services/reminders/reminder-feedback';
 import {
-  chooseAndroidAlarmSound,
-  clearAndroidTestAlarm,
   getAndroidSystemAlarmStatus,
   isNativeAndroidApp,
-  openAndroidAlarmSettings,
-  openAndroidExactAlarmSettings,
-  runAndroidTestAlarmDiagnostics,
-  getAndroidAlarmDiagnostics,
 } from 'src/services/native-notifications';
 import { syncPushReminders } from 'src/services/push-notifications';
 import { removePushSubscription } from 'src/services/push-notifications';
@@ -532,8 +463,6 @@ const isAndroidDevice = /Android/i.test(navigator.userAgent);
 const appVersion = process.env.APP_VERSION;
 const runtimePlatform = isAndroidNative ? 'APK Android' : isAndroidDevice ? 'PWA/Web Android' : 'Web/PWA';
 const androidAlarmCanSet = ref(false);
-const androidAlarmHasCustomSound = ref(false);
-const androidAlarmDiagnosticsText = ref('');
 const androidAlarmReady = computed(() => androidAlarmCanSet.value);
 const scheduleDate = computed(() =>
   new Intl.DateTimeFormat(locale.value).format(new Date(`${DHL_SCHEDULE_VALID_FROM}T00:00:00`)),
@@ -604,7 +533,7 @@ const stopKey = computed(() => {
 });
 
 if (isAndroidNative) {
-  void refreshAndroidAlarmState();
+  void refreshAndroidAlarmStatus();
   window.addEventListener('focus', refreshAndroidAlarmStateSoon);
   document.addEventListener('visibilitychange', refreshAndroidAlarmStateWhenVisible);
 }
@@ -644,37 +573,10 @@ async function testAlarm() {
   }
 
   if (isAndroidNative) {
-    await refreshAndroidAlarmStatus();
-    if (!androidAlarmCanSet.value) {
-      $q.notify({
-        type: 'warning',
-        icon: 'alarm_add',
-        message: t('settings.exactAlarmPermissionRequired'),
-        timeout: 7000,
-        actions: [
-          {
-            label: t('settings.openExactAlarmSettingsShort'),
-            color: 'white',
-            handler: () => void openExactAlarmSettings(),
-          },
-        ],
-      });
-      await refreshAlarmDiagnostics();
-      return;
-    }
-
-    const result = await runAndroidTestAlarmDiagnostics(t('settings.testAlarmMessage'));
-    androidAlarmDiagnosticsText.value = JSON.stringify(result, null, 2);
-    await refreshAndroidAlarmStatus();
     $q.notify({
-      type: result.ok ? 'positive' : 'negative',
-      message: t(
-        result.ok
-          ? result.pluginResult?.created === false
-            ? 'settings.androidAlarmAlreadyExists'
-            : 'settings.androidAlarmScheduled'
-          : 'settings.androidAlarmFailed',
-      ),
+      type: 'info',
+      icon: 'alarm',
+      message: t('settings.openAlarmCenterHint'),
     });
     return;
   }
@@ -687,62 +589,16 @@ async function testAlarm() {
   });
 }
 
-async function clearTestAlarm() {
-  const cleared = await clearAndroidTestAlarm();
-  await refreshAndroidAlarmStatus();
-  $q.notify({
-    type: cleared ? 'positive' : 'negative',
-    message: t(cleared ? 'settings.androidAlarmCleared' : 'settings.androidAlarmClearFailed'),
-  });
-}
-
-async function chooseAlarmSound() {
-  const selected = await chooseAndroidAlarmSound();
-  await refreshAndroidAlarmStatus();
-  $q.notify({
-    type: selected ? 'positive' : 'warning',
-    message: t(selected ? 'settings.alarmSoundSelected' : 'settings.alarmSoundNotSelected'),
-  });
-}
-async function openAlarmSettings() {
-  const opened = await openAndroidAlarmSettings();
-  $q.notify({
-    type: opened ? 'positive' : 'warning',
-    message: t(opened ? 'settings.androidSoundSettingsOpened' : 'settings.androidSoundSettingsFailed'),
-  });
-}
-async function openExactAlarmSettings() {
-  const opened = await openAndroidExactAlarmSettings();
-  $q.notify({
-    type: opened ? 'positive' : 'warning',
-    message: t(opened ? 'settings.exactAlarmSettingsOpened' : 'settings.exactAlarmSettingsFailed'),
-  });
-}
 async function refreshAndroidAlarmStatus() {
   const status = await getAndroidSystemAlarmStatus();
   androidAlarmCanSet.value = status.canSetAlarm;
-  androidAlarmHasCustomSound.value = status.hasCustomSound;
-}
-async function refreshAndroidAlarmState() {
-  await refreshAndroidAlarmStatus();
-  await refreshAlarmDiagnostics();
 }
 function refreshAndroidAlarmStateSoon() {
-  void refreshAndroidAlarmState();
+  void refreshAndroidAlarmStatus();
 }
 function refreshAndroidAlarmStateWhenVisible() {
   if (document.hidden) return;
-  void refreshAndroidAlarmState();
-}
-async function refreshAlarmDiagnostics() {
-  androidAlarmDiagnosticsText.value = JSON.stringify(await getAndroidAlarmDiagnostics(), null, 2);
-}
-async function copyAlarmDiagnostics() {
-  if (!androidAlarmDiagnosticsText.value) {
-    await refreshAlarmDiagnostics();
-  }
-  await copyToClipboard(androidAlarmDiagnosticsText.value);
-  $q.notify({ type: 'positive', message: t('settings.alarmDebugCopied') });
+  void refreshAndroidAlarmStatus();
 }
 async function testNotification() {
   const permission = await requestReminderPermission();

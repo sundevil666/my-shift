@@ -126,6 +126,17 @@ export default {
       shareText: 'Tlačidlo v ponuke odošle správny odkaz pre používanú platformu.',
     },
     releases: {
+      v019: {
+        title: 'Android budík je uprataný a pripravený',
+        alarmCenter:
+          'Stránka Budíky je teraz hlavným miestom pre pracovný a testovací budík.',
+        soundControls:
+          'Pridaný je výber a náhľad melódie, vibrácie a postupné zvyšovanie hlasitosti.',
+        reliableAlarm:
+          'Budík sa otvára cez systémové celoobrazovkové doručenie Androidu a je chránený pred zlyhaním zvuku alebo vibrácií.',
+        cleanup:
+          'Dočasná diagnostika bola odstránená z bežného rozhrania a nastavenia sú upratané.',
+      },
       v018: {
         title: 'Spoľahlivejšie pripomienky a inštalácia',
         arrivalReminders:
@@ -513,11 +524,11 @@ export default {
     arrivalModeAlarm: 'Budík',
     notificationTest: 'Test upozornení',
     notificationTestHint: 'Ručne otestujte zvuk a správu prehliadača.',
-    androidAlarmTestHint: 'Skontrolujte systémový budík Android a vyberte zvuk budíka.',
+    androidAlarmCenterHint: 'Spravujte Android budík, zvuk a testy na samostatnej stránke.',
+    openAlarmCenter: 'Otvoriť budíky',
+    openAlarmCenterHint: 'Nastavenie Android budíka je teraz na stránke Budíky.',
     testAlarm: 'Test budíka',
     stopAlarm: 'Vypnúť budík',
-    testAndroidAlarm: 'Test Android budíka',
-    clearAndroidTestAlarm: 'Odstrániť testovací Android budík',
     chooseAlarmSound: 'Vybrať zvuk budíka',
     openAndroidSoundSettings: 'Nastavenia zvuku',
     openExactAlarmSettings: 'Povoliť presné budíky',
@@ -541,10 +552,6 @@ export default {
       'Android blokuje presné budíky pre My Shift. Otvorte nastavenia a povoľte budíky.',
     exactAlarmSettingsOpened: 'Nastavenia presných budíkov Android boli otvorené.',
     exactAlarmSettingsFailed: 'Nepodarilo sa otvoriť nastavenia presných budíkov Android.',
-    alarmDebug: 'Diagnostika Android budíka',
-    refreshAlarmDebug: 'Obnoviť diagnostiku',
-    copyAlarmDebug: 'Kopírovať diagnostiku',
-    alarmDebugCopied: 'Diagnostika budíka bola skopírovaná.',
     testNotification: 'Test upozornenia',
     testAlarmMessage: 'Test budíka: čas vstávať',
     testNotificationMessage: 'Toto je testovacie upozornenie',

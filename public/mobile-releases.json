@@ -2,11 +2,11 @@
   "android": {
     "stable": [
       {
-        "version": "0.1.36",
-        "versionCode": 37,
+        "version": "0.1.37",
+        "versionCode": 38,
         "date": "2026-07-13",
-        "url": "https://raw.githubusercontent.com/sundevil666/my-shift/main/public/downloads/my-shift-android-0.1.36.apk",
-        "sha256": "669535493f0cedace14f9573158a16539ab729c5c01d6ce263b1de2279aaa468",
+        "url": "https://raw.githubusercontent.com/sundevil666/my-shift/main/public/downloads/my-shift-android-0.1.37.apk",
+        "sha256": "bb55ca6febb202df1089a4e410a39b0c93a7355cbb692dc9ccf25a5772ddb64b",
         "status": "available"
       }
     ],
