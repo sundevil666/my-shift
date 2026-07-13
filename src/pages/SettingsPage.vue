@@ -493,7 +493,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { copyToClipboard, useQuasar } from 'quasar';
 import PageHeader from 'components/PageHeader.vue';
@@ -604,9 +604,16 @@ const stopKey = computed(() => {
 });
 
 if (isAndroidNative) {
-  void refreshAndroidAlarmStatus();
-  void refreshAlarmDiagnostics();
+  void refreshAndroidAlarmState();
+  window.addEventListener('focus', refreshAndroidAlarmStateSoon);
+  document.addEventListener('visibilitychange', refreshAndroidAlarmStateWhenVisible);
 }
+
+onBeforeUnmount(() => {
+  if (!isAndroidNative) return;
+  window.removeEventListener('focus', refreshAndroidAlarmStateSoon);
+  document.removeEventListener('visibilitychange', refreshAndroidAlarmStateWhenVisible);
+});
 
 function filterRoutes(value: string, update: (callback: () => void) => void) {
   update(() => (routeQuery.value = value));
@@ -637,6 +644,7 @@ async function testAlarm() {
   }
 
   if (isAndroidNative) {
+    await refreshAndroidAlarmStatus();
     if (!androidAlarmCanSet.value) {
       $q.notify({
         type: 'warning',
@@ -714,6 +722,17 @@ async function refreshAndroidAlarmStatus() {
   const status = await getAndroidSystemAlarmStatus();
   androidAlarmCanSet.value = status.canSetAlarm;
   androidAlarmHasCustomSound.value = status.hasCustomSound;
+}
+async function refreshAndroidAlarmState() {
+  await refreshAndroidAlarmStatus();
+  await refreshAlarmDiagnostics();
+}
+function refreshAndroidAlarmStateSoon() {
+  void refreshAndroidAlarmState();
+}
+function refreshAndroidAlarmStateWhenVisible() {
+  if (document.hidden) return;
+  void refreshAndroidAlarmState();
 }
 async function refreshAlarmDiagnostics() {
   androidAlarmDiagnosticsText.value = JSON.stringify(await getAndroidAlarmDiagnostics(), null, 2);
