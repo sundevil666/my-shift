@@ -530,8 +530,10 @@ export default {
       'Нативный Android-будильник работает только в установленном APK. Сейчас экран запущен как PWA/Web, поэтому веб-звук не является надёжным будильником.',
     runtimeInfo: 'Версия {version} · {platform}',
     androidAlarmScheduled: 'Тестовый будильник создан в Android Clock на ближайшую минуту.',
+    androidAlarmAlreadyExists: 'Тестовый Android-будильник уже есть, новый не создавался.',
     androidAlarmFailed: 'Не удалось создать будильник Android Clock на этом устройстве.',
-    androidAlarmCleared: 'Запрошено удаление тестового Android-будильника.',
+    androidAlarmCleared:
+      'Запрошено удаление тестового Android-будильника. Если Clock оставил его в списке, удалите его вручную в Часах.',
     androidAlarmClearFailed: 'Не удалось запросить удаление Android-будильника на этом устройстве.',
     alarmSoundSelected: 'Звук будильника сохранён.',
     alarmSoundNotSelected: 'Звук будильника не изменён.',

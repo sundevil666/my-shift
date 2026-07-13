@@ -525,8 +525,10 @@ export default {
       'Natívny Android budík funguje iba v nainštalovanom APK. Táto obrazovka beží ako PWA/Web, takže webový zvuk nie je spoľahlivý budík.',
     runtimeInfo: 'Verzia {version} · {platform}',
     androidAlarmScheduled: 'Testovací budík bol vytvorený v Android Clock na najbližšiu minútu.',
+    androidAlarmAlreadyExists: 'Testovací Android budík už existuje, nový sa nevytvoril.',
     androidAlarmFailed: 'Na tomto zariadení sa nepodarilo vytvoriť budík Android Clock.',
-    androidAlarmCleared: 'Odstránenie testovacieho Android budíka bolo vyžiadané.',
+    androidAlarmCleared:
+      'Odstránenie testovacieho Android budíka bolo vyžiadané. Ak ho Clock ponechá v zozname, odstráňte ho ručne v Hodinách.',
     androidAlarmClearFailed: 'Na tomto zariadení sa nepodarilo vyžiadať odstránenie Android budíka.',
     alarmSoundSelected: 'Zvuk budíka bol uložený.',
     alarmSoundNotSelected: 'Zvuk budíka sa nezmenil.',

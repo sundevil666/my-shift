@@ -640,7 +640,13 @@ async function testAlarm() {
     await refreshAndroidAlarmStatus();
     $q.notify({
       type: result.ok ? 'positive' : 'negative',
-      message: t(result.ok ? 'settings.androidAlarmScheduled' : 'settings.androidAlarmFailed'),
+      message: t(
+        result.ok
+          ? result.pluginResult?.created === false
+            ? 'settings.androidAlarmAlreadyExists'
+            : 'settings.androidAlarmScheduled'
+          : 'settings.androidAlarmFailed',
+      ),
     });
     return;
   }

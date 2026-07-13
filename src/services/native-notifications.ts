@@ -8,6 +8,7 @@ import { buildPushReminders, type PushReminder } from 'src/services/push-notific
 
 const MAX_PENDING_NOTIFICATIONS = 60;
 const SYSTEM_ALARM_WINDOW_MS = 24 * 60 * 60 * 1_000;
+const ANDROID_TEST_ALARM_ID = 'my-shift:test-system-alarm';
 
 interface SystemAlarmPlugin {
   setAlarm(options: {
@@ -40,6 +41,10 @@ export interface AndroidSystemAlarmStatus {
   lastAlarmMessage?: string;
   lastAlarmTimestamp?: number;
   lastAlarmIso?: string;
+  lastTestAlarmId?: string;
+  lastTestAlarmMessage?: string;
+  lastTestAlarmTimestamp?: number;
+  lastTestAlarmIso?: string;
   lastSetAlarmError?: string;
   lastSetAlarmAttemptIso?: string;
   lastSetAlarmResult?: string;
@@ -186,7 +191,7 @@ export async function scheduleAndroidTestAlarm(message: string): Promise<boolean
 
   try {
     await SystemAlarm.setAlarm({
-      id: `my-shift:test-system-alarm:${at.getTime()}`,
+      id: ANDROID_TEST_ALARM_ID,
       message,
       timestamp: String(at.getTime()),
       skipUi: false,
@@ -217,7 +222,7 @@ export async function runAndroidTestAlarmDiagnostics(
 
   try {
     const pluginResult = await SystemAlarm.setAlarm({
-      id: `my-shift:test-system-alarm:${at.getTime()}`,
+      id: ANDROID_TEST_ALARM_ID,
       message,
       timestamp: String(at.getTime()),
       skipUi: false,

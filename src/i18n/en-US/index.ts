@@ -527,8 +527,10 @@ export default {
       'Native Android alarm works only in the installed APK. This screen is running as PWA/Web, so the web sound test is not a reliable alarm.',
     runtimeInfo: 'Version {version} · {platform}',
     androidAlarmScheduled: 'Test alarm was created in Android Clock for the next minute.',
+    androidAlarmAlreadyExists: 'The test Android alarm already exists; no new alarm was created.',
     androidAlarmFailed: 'Could not create an Android Clock alarm on this device.',
-    androidAlarmCleared: 'Test Android alarm removal was requested.',
+    androidAlarmCleared:
+      'Test Android alarm removal was requested. If Clock keeps it in the list, remove it manually in Clock.',
     androidAlarmClearFailed: 'Could not request Android alarm removal on this device.',
     alarmSoundSelected: 'Alarm sound saved.',
     alarmSoundNotSelected: 'Alarm sound was not changed.',

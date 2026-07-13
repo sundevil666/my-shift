@@ -31,6 +31,7 @@ public class SystemAlarmPlugin extends Plugin {
     private static final String LAST_SET_ALARM_ATTEMPT = "last_set_alarm_attempt";
     private static final String LAST_SET_ALARM_RESULT = "last_set_alarm_result";
     private static final String ALARM_RINGTONE_URI = "alarm_ringtone_uri";
+    private static final String TEST_ALARM_PREFIX = "my-shift:test-system-alarm";
 
     @PluginMethod
     public void setAlarm(PluginCall call) {
@@ -43,13 +44,14 @@ public class SystemAlarmPlugin extends Plugin {
         }
 
         SharedPreferences preferences = preferences();
+        String scope = alarmScope(id);
         preferences.edit()
             .putLong(LAST_SET_ALARM_ATTEMPT, System.currentTimeMillis())
             .remove(LAST_SET_ALARM_ERROR)
             .remove(LAST_SET_ALARM_RESULT)
             .apply();
 
-        if (id.equals(preferences.getString(LAST_ALARM_ID, null))) {
+        if (id.equals(getRememberedString(scope, LAST_ALARM_ID)) && !isExpiredTestAlarm(scope)) {
             preferences.edit().putString(LAST_SET_ALARM_RESULT, "duplicate-id-skipped").apply();
             JSObject result = new JSObject();
             result.put("created", false);
@@ -57,7 +59,7 @@ public class SystemAlarmPlugin extends Plugin {
             return;
         }
 
-        dismissRememberedAlarm();
+        dismissRememberedAlarm(scope);
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timestamp);
@@ -77,13 +79,16 @@ public class SystemAlarmPlugin extends Plugin {
 
         try {
             startAlarm(alarmIntent, calendar, message, includeRingtone);
-            preferences.edit()
-                .putString(LAST_ALARM_ID, id)
-                .putString(LAST_ALARM_MESSAGE, message)
-                .putLong(LAST_ALARM_TIMESTAMP, timestamp)
+            SharedPreferences.Editor editor = preferences.edit()
+                .putString(scopedKey(scope, LAST_ALARM_ID), id)
+                .putString(scopedKey(scope, LAST_ALARM_MESSAGE), message)
+                .putLong(scopedKey(scope, LAST_ALARM_TIMESTAMP), timestamp)
                 .putString(LAST_SET_ALARM_RESULT, "created")
-                .remove(LAST_SET_ALARM_ERROR)
-                .apply();
+                .remove(LAST_SET_ALARM_ERROR);
+            if ("regular".equals(scope)) {
+                editor.remove(LAST_ALARM_ID).remove(LAST_ALARM_MESSAGE).remove(LAST_ALARM_TIMESTAMP);
+            }
+            editor.apply();
             JSObject result = new JSObject();
             result.put("created", true);
             call.resolve(result);
@@ -98,12 +103,21 @@ public class SystemAlarmPlugin extends Plugin {
 
     @PluginMethod
     public void clearRememberedAlarm(PluginCall call) {
-        dismissRememberedAlarm();
-        preferences().edit()
-            .remove(LAST_ALARM_ID)
-            .remove(LAST_ALARM_MESSAGE)
-            .remove(LAST_ALARM_TIMESTAMP)
-            .apply();
+        String scope = alarmScope(call.getString("id", TEST_ALARM_PREFIX));
+        dismissRememberedAlarm(scope);
+        if ("test".equals(scope)) {
+            preferences().edit().putString(LAST_SET_ALARM_RESULT, "test-clear-requested").apply();
+            call.resolve();
+            return;
+        }
+        SharedPreferences.Editor editor = preferences().edit()
+            .remove(scopedKey(scope, LAST_ALARM_ID))
+            .remove(scopedKey(scope, LAST_ALARM_MESSAGE))
+            .remove(scopedKey(scope, LAST_ALARM_TIMESTAMP));
+        if ("regular".equals(scope)) {
+            editor.remove(LAST_ALARM_ID).remove(LAST_ALARM_MESSAGE).remove(LAST_ALARM_TIMESTAMP);
+        }
+        editor.apply();
         call.resolve();
     }
 
@@ -115,15 +129,22 @@ public class SystemAlarmPlugin extends Plugin {
         putResolveInfo(result, "ringtonePicker", new Intent(RingtoneManager.ACTION_RINGTONE_PICKER));
         putResolveInfo(result, "soundSettings", new Intent(Settings.ACTION_SOUND_SETTINGS));
         SharedPreferences preferences = preferences();
-        long lastAlarmTimestamp = preferences.getLong(LAST_ALARM_TIMESTAMP, 0);
+        long lastAlarmTimestamp = getRememberedLong("regular", LAST_ALARM_TIMESTAMP);
+        long lastTestAlarmTimestamp = getRememberedLong("test", LAST_ALARM_TIMESTAMP);
         long lastAttempt = preferences.getLong(LAST_SET_ALARM_ATTEMPT, 0);
         result.put("canSetAlarm", canResolve(new Intent(AlarmClock.ACTION_SET_ALARM)));
         result.put("hasCustomSound", preferences().contains(ALARM_RINGTONE_URI));
-        result.put("lastAlarmId", preferences.getString(LAST_ALARM_ID, null));
-        result.put("lastAlarmMessage", preferences.getString(LAST_ALARM_MESSAGE, null));
+        result.put("lastAlarmId", getRememberedString("regular", LAST_ALARM_ID));
+        result.put("lastAlarmMessage", getRememberedString("regular", LAST_ALARM_MESSAGE));
         if (lastAlarmTimestamp > 0) {
             result.put("lastAlarmTimestamp", lastAlarmTimestamp);
             result.put("lastAlarmIso", new java.util.Date(lastAlarmTimestamp).toString());
+        }
+        result.put("lastTestAlarmId", getRememberedString("test", LAST_ALARM_ID));
+        result.put("lastTestAlarmMessage", getRememberedString("test", LAST_ALARM_MESSAGE));
+        if (lastTestAlarmTimestamp > 0) {
+            result.put("lastTestAlarmTimestamp", lastTestAlarmTimestamp);
+            result.put("lastTestAlarmIso", new java.util.Date(lastTestAlarmTimestamp).toString());
         }
         result.put("lastSetAlarmError", preferences.getString(LAST_SET_ALARM_ERROR, null));
         if (lastAttempt > 0) {
@@ -189,8 +210,8 @@ public class SystemAlarmPlugin extends Plugin {
         call.resolve(response);
     }
 
-    private void dismissRememberedAlarm() {
-        String message = preferences().getString(LAST_ALARM_MESSAGE, null);
+    private void dismissRememberedAlarm(String scope) {
+        String message = getRememberedString(scope, LAST_ALARM_MESSAGE);
         if (message == null) return;
 
         Intent intent = new Intent(AlarmClock.ACTION_DISMISS_ALARM);
@@ -213,6 +234,38 @@ public class SystemAlarmPlugin extends Plugin {
 
     private boolean canResolve(Intent intent) {
         return intent.resolveActivity(getContext().getPackageManager()) != null;
+    }
+
+    private String alarmScope(String id) {
+        return id != null && id.startsWith(TEST_ALARM_PREFIX) ? "test" : "regular";
+    }
+
+    private String scopedKey(String scope, String key) {
+        return scope + "_" + key;
+    }
+
+    private boolean isExpiredTestAlarm(String scope) {
+        if (!"test".equals(scope)) return false;
+        long timestamp = getRememberedLong(scope, LAST_ALARM_TIMESTAMP);
+        return timestamp > 0 && timestamp < System.currentTimeMillis() - 120_000;
+    }
+
+    private String getRememberedString(String scope, String key) {
+        SharedPreferences preferences = preferences();
+        String value = preferences.getString(scopedKey(scope, key), null);
+        if (value == null && "regular".equals(scope)) {
+            value = preferences.getString(key, null);
+        }
+        return value;
+    }
+
+    private long getRememberedLong(String scope, String key) {
+        SharedPreferences preferences = preferences();
+        long value = preferences.getLong(scopedKey(scope, key), 0);
+        if (value == 0 && "regular".equals(scope)) {
+            value = preferences.getLong(key, 0);
+        }
+        return value;
     }
 
     private Long getTimestamp(PluginCall call) {
