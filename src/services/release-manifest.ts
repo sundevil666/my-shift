@@ -19,9 +19,9 @@ const REMOTE_MANIFEST_URL =
   'https://github.com/sundevil666/my-shift/releases/latest/download/mobile-releases.json';
 
 export const RELEASE_MANIFEST_URLS = [
-  REMOTE_MANIFEST_URL,
-  'https://raw.githubusercontent.com/sundevil666/my-shift/main/public/mobile-releases.json',
   '/mobile-releases.json',
+  'https://raw.githubusercontent.com/sundevil666/my-shift/main/public/mobile-releases.json',
+  REMOTE_MANIFEST_URL,
 ] as const;
 
 export async function loadReleaseManifest(
