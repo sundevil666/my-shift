@@ -404,13 +404,40 @@
         </q-card-section>
       </q-card>
     </div>
+
+    <q-dialog v-model="exportDialogOpen">
+      <q-card class="settings-export-dialog">
+        <q-card-section>
+          <div class="section-title">{{ $t('privacy.exportReadyTitle') }}</div>
+          <p class="supporting-text">
+            {{ $t('privacy.exportReadyText', { filename: exportFilename }) }}
+          </p>
+        </q-card-section>
+        <q-card-section>
+          <q-input
+            :model-value="exportPayload"
+            readonly
+            outlined
+            autogrow
+            type="textarea"
+            class="settings-export-dialog__payload"
+          />
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat no-caps :label="$t('common.cancel')" v-close-popup />
+          <q-btn outline no-caps icon="content_copy" :label="$t('privacy.copyExport')" @click="copyExportData" />
+          <q-btn outline no-caps icon="ios_share" :label="$t('privacy.shareExport')" @click="shareExportData" />
+          <q-btn unelevated no-caps color="primary" icon="download" :label="$t('privacy.downloadExport')" @click="downloadExportData" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useQuasar } from 'quasar';
+import { copyToClipboard, useQuasar } from 'quasar';
 import PageHeader from 'components/PageHeader.vue';
 import { DHL_SCHEDULE_VALID_FROM, dhlBusRoutes } from 'src/core/dhl-bus-routes';
 import { matchesSearch } from 'src/core/search';
@@ -437,6 +464,9 @@ const { t, locale } = useI18n();
 const routeQuery = ref('');
 const stopQuery = ref('');
 const migrationInput = ref<HTMLInputElement | null>(null);
+const exportDialogOpen = ref(false);
+const exportFilename = ref('');
+const exportPayload = ref('');
 const isAndroidNative = isNativeAndroidApp();
 const isAndroidDevice = /Android/i.test(navigator.userAgent);
 const appVersion = process.env.APP_VERSION;
@@ -637,29 +667,40 @@ async function updateCloudPushConsent(value: boolean) {
   }
 }
 
-async function exportData() {
-  const serialized = serializeMigration(app.data);
-  const filename = `my-shift-data-${new Date().toISOString().slice(0, 10)}.json`;
-  const blob = new Blob([serialized], { type: 'application/json' });
-  const file = new File([blob], filename, { type: 'application/json' });
+function exportData() {
+  exportPayload.value = serializeMigration(app.data);
+  exportFilename.value = `my-shift-data-${new Date().toISOString().slice(0, 10)}.json`;
+  exportDialogOpen.value = true;
+}
 
-  if (navigator.canShare?.({ files: [file] })) {
-    try {
-      await navigator.share({
-        files: [file],
-        title: t('privacy.exportData'),
-      });
-      $q.notify({ type: 'positive', message: t('privacy.exportSuccess') });
-      return;
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError') return;
+async function copyExportData() {
+  await copyToClipboard(exportPayload.value);
+  $q.notify({ type: 'positive', message: t('privacy.exportCopied') });
+}
+
+async function shareExportData() {
+  const file = new File([exportBlob()], exportFilename.value, { type: 'application/json' });
+  if (!navigator.canShare?.({ files: [file] })) {
+    await copyExportData();
+    return;
+  }
+  try {
+    await navigator.share({
+      files: [file],
+      title: t('privacy.exportData'),
+    });
+  } catch (error) {
+    if (!(error instanceof DOMException && error.name === 'AbortError')) {
+      await copyExportData();
     }
   }
+}
 
-  const url = URL.createObjectURL(blob);
+function downloadExportData() {
+  const url = URL.createObjectURL(exportBlob());
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = filename;
+  anchor.download = exportFilename.value;
   anchor.rel = 'noopener';
   anchor.style.display = 'none';
   document.body.append(anchor);
@@ -668,7 +709,10 @@ async function exportData() {
     anchor.remove();
     URL.revokeObjectURL(url);
   }, 1000);
-  $q.notify({ type: 'positive', message: t('privacy.exportSuccess') });
+}
+
+function exportBlob() {
+  return new Blob([exportPayload.value], { type: 'application/json' });
 }
 
 async function importData(event: Event) {
