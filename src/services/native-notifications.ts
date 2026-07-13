@@ -22,7 +22,7 @@ interface SystemAlarmPlugin {
     skipUi?: boolean;
     includeRingtone?: boolean;
   }): Promise<{ created: boolean }>;
-  clearRememberedAlarm(): Promise<void>;
+  clearRememberedAlarm(options?: { id?: string }): Promise<void>;
   getStatus(): Promise<AndroidSystemAlarmStatus>;
   chooseAlarmSound(): Promise<{ selected: boolean }>;
   openAlarmSettings(): Promise<void>;
@@ -253,7 +253,7 @@ export async function runAndroidTestAlarmDiagnostics(
 export async function clearAndroidTestAlarm(): Promise<boolean> {
   if (!isNativeAndroidApp()) return false;
   try {
-    await SystemAlarm.clearRememberedAlarm();
+    await SystemAlarm.clearRememberedAlarm({ id: ANDROID_TEST_ALARM_ID });
     return true;
   } catch {
     return false;

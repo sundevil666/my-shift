@@ -1,6 +1,9 @@
 package com.myshift.app;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.content.SharedPreferences;
@@ -51,7 +54,12 @@ public class SystemAlarmPlugin extends Plugin {
             .remove(LAST_SET_ALARM_RESULT)
             .apply();
 
-        if (id.equals(getRememberedString(scope, LAST_ALARM_ID)) && !isExpiredTestAlarm(scope)) {
+        long rememberedTimestamp = getRememberedLong(scope, LAST_ALARM_TIMESTAMP);
+        if (
+            id.equals(getRememberedString(scope, LAST_ALARM_ID)) &&
+            rememberedTimestamp == timestamp &&
+            timestamp > System.currentTimeMillis()
+        ) {
             preferences.edit().putString(LAST_SET_ALARM_RESULT, "duplicate-id-skipped").apply();
             JSObject result = new JSObject();
             result.put("created", false);
@@ -59,31 +67,16 @@ public class SystemAlarmPlugin extends Plugin {
             return;
         }
 
-        dismissRememberedAlarm(scope);
-
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timestamp);
 
-        boolean skipUi = Boolean.TRUE.equals(call.getBoolean("skipUi", true));
-        boolean includeRingtone = Boolean.TRUE.equals(call.getBoolean("includeRingtone", true));
-        Intent alarmIntent = buildSetAlarmIntent(calendar, message, skipUi, includeRingtone);
-
-        if (!canResolve(alarmIntent)) {
-            preferences.edit()
-                .putString(LAST_SET_ALARM_ERROR, "No Android clock app is available")
-                .putString(LAST_SET_ALARM_RESULT, "failed")
-                .apply();
-            call.reject("No Android clock app is available");
-            return;
-        }
-
         try {
-            startAlarm(alarmIntent, calendar, message, includeRingtone);
+            setOwnedAlarm(scope, timestamp, message);
             SharedPreferences.Editor editor = preferences.edit()
                 .putString(scopedKey(scope, LAST_ALARM_ID), id)
                 .putString(scopedKey(scope, LAST_ALARM_MESSAGE), message)
                 .putLong(scopedKey(scope, LAST_ALARM_TIMESTAMP), timestamp)
-                .putString(LAST_SET_ALARM_RESULT, "created")
+                .putString(LAST_SET_ALARM_RESULT, rememberedTimestamp > 0 ? "rescheduled" : "created")
                 .remove(LAST_SET_ALARM_ERROR);
             if ("regular".equals(scope)) {
                 editor.remove(LAST_ALARM_ID).remove(LAST_ALARM_MESSAGE).remove(LAST_ALARM_TIMESTAMP);
@@ -103,17 +96,13 @@ public class SystemAlarmPlugin extends Plugin {
 
     @PluginMethod
     public void clearRememberedAlarm(PluginCall call) {
-        String scope = alarmScope(call.getString("id", TEST_ALARM_PREFIX));
-        dismissRememberedAlarm(scope);
-        if ("test".equals(scope)) {
-            preferences().edit().putString(LAST_SET_ALARM_RESULT, "test-clear-requested").apply();
-            call.resolve();
-            return;
-        }
+        String scope = alarmScope(call.getString("id", null));
+        cancelOwnedAlarm(scope);
         SharedPreferences.Editor editor = preferences().edit()
             .remove(scopedKey(scope, LAST_ALARM_ID))
             .remove(scopedKey(scope, LAST_ALARM_MESSAGE))
-            .remove(scopedKey(scope, LAST_ALARM_TIMESTAMP));
+            .remove(scopedKey(scope, LAST_ALARM_TIMESTAMP))
+            .putString(LAST_SET_ALARM_RESULT, scope + "-cancelled");
         if ("regular".equals(scope)) {
             editor.remove(LAST_ALARM_ID).remove(LAST_ALARM_MESSAGE).remove(LAST_ALARM_TIMESTAMP);
         }
@@ -132,7 +121,7 @@ public class SystemAlarmPlugin extends Plugin {
         long lastAlarmTimestamp = getRememberedLong("regular", LAST_ALARM_TIMESTAMP);
         long lastTestAlarmTimestamp = getRememberedLong("test", LAST_ALARM_TIMESTAMP);
         long lastAttempt = preferences.getLong(LAST_SET_ALARM_ATTEMPT, 0);
-        result.put("canSetAlarm", canResolve(new Intent(AlarmClock.ACTION_SET_ALARM)));
+        result.put("canSetAlarm", getAlarmManager() != null);
         result.put("hasCustomSound", preferences().contains(ALARM_RINGTONE_URI));
         result.put("lastAlarmId", getRememberedString("regular", LAST_ALARM_ID));
         result.put("lastAlarmMessage", getRememberedString("regular", LAST_ALARM_MESSAGE));
@@ -210,26 +199,62 @@ public class SystemAlarmPlugin extends Plugin {
         call.resolve(response);
     }
 
-    private void dismissRememberedAlarm(String scope) {
-        String message = getRememberedString(scope, LAST_ALARM_MESSAGE);
-        if (message == null) return;
+    private SharedPreferences preferences() {
+        return getContext().getSharedPreferences(PREFERENCES, 0);
+    }
 
-        Intent intent = new Intent(AlarmClock.ACTION_DISMISS_ALARM);
-        intent.putExtra(AlarmClock.EXTRA_ALARM_SEARCH_MODE, AlarmClock.ALARM_SEARCH_MODE_LABEL);
-        intent.putExtra(AlarmClock.EXTRA_MESSAGE, message);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    private AlarmManager getAlarmManager() {
+        return (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+    }
 
-        if (intent.resolveActivity(getContext().getPackageManager()) == null) return;
+    private void setOwnedAlarm(String scope, long timestamp, String message) {
+        AlarmManager alarmManager = getAlarmManager();
+        if (alarmManager == null) {
+            throw new IllegalStateException("AlarmManager is unavailable");
+        }
+        PendingIntent operation = alarmPendingIntent(scope, message, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent showIntent = showPendingIntent(scope);
+        alarmManager.cancel(operation);
+        alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(timestamp, showIntent), operation);
+    }
 
-        try {
-            getContext().startActivity(intent);
-        } catch (Exception ignored) {
-            // Some clock apps don't support dismissing alarms by label.
+    private void cancelOwnedAlarm(String scope) {
+        AlarmManager alarmManager = getAlarmManager();
+        PendingIntent operation = alarmPendingIntent(scope, null, PendingIntent.FLAG_NO_CREATE);
+        if (alarmManager != null && operation != null) {
+            alarmManager.cancel(operation);
+            operation.cancel();
         }
     }
 
-    private SharedPreferences preferences() {
-        return getContext().getSharedPreferences(PREFERENCES, 0);
+    private PendingIntent alarmPendingIntent(String scope, String message, int createFlag) {
+        Intent intent = new Intent(getContext(), SystemAlarmReceiver.class);
+        intent.setAction(SystemAlarmReceiver.ACTION_RING);
+        intent.putExtra(SystemAlarmReceiver.EXTRA_SCOPE, scope);
+        if (message != null) {
+            intent.putExtra(SystemAlarmReceiver.EXTRA_MESSAGE, message);
+        }
+        return PendingIntent.getBroadcast(
+            getContext(),
+            requestCode(scope),
+            intent,
+            createFlag | PendingIntent.FLAG_IMMUTABLE
+        );
+    }
+
+    private PendingIntent showPendingIntent(String scope) {
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return PendingIntent.getActivity(
+            getContext(),
+            requestCode(scope) + 100,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+    }
+
+    private int requestCode(String scope) {
+        return "test".equals(scope) ? 9302 : 9301;
     }
 
     private boolean canResolve(Intent intent) {
@@ -242,12 +267,6 @@ public class SystemAlarmPlugin extends Plugin {
 
     private String scopedKey(String scope, String key) {
         return scope + "_" + key;
-    }
-
-    private boolean isExpiredTestAlarm(String scope) {
-        if (!"test".equals(scope)) return false;
-        long timestamp = getRememberedLong(scope, LAST_ALARM_TIMESTAMP);
-        return timestamp > 0 && timestamp < System.currentTimeMillis() - 120_000;
     }
 
     private String getRememberedString(String scope, String key) {
@@ -322,22 +341,4 @@ public class SystemAlarmPlugin extends Plugin {
         return intent;
     }
 
-    private void startAlarm(
-        Intent alarmIntent,
-        Calendar calendar,
-        String message,
-        boolean includeRingtone
-    ) {
-        try {
-            getContext().startActivity(alarmIntent);
-        } catch (Exception firstError) {
-            try {
-                Intent visibleIntent = buildSetAlarmIntent(calendar, message, false, includeRingtone);
-                getContext().startActivity(visibleIntent);
-            } catch (Exception visibleError) {
-                Intent basicIntent = buildSetAlarmIntent(calendar, message, false, false);
-                getContext().startActivity(basicIntent);
-            }
-        }
-    }
 }
