@@ -121,7 +121,8 @@ public class SystemAlarmPlugin extends Plugin {
         long lastAlarmTimestamp = getRememberedLong("regular", LAST_ALARM_TIMESTAMP);
         long lastTestAlarmTimestamp = getRememberedLong("test", LAST_ALARM_TIMESTAMP);
         long lastAttempt = preferences.getLong(LAST_SET_ALARM_ATTEMPT, 0);
-        result.put("canSetAlarm", getAlarmManager() != null);
+        result.put("canSetAlarm", canScheduleOwnedAlarms());
+        result.put("canScheduleExactAlarms", canScheduleOwnedAlarms());
         result.put("hasCustomSound", preferences().contains(ALARM_RINGTONE_URI));
         result.put("lastAlarmId", getRememberedString("regular", LAST_ALARM_ID));
         result.put("lastAlarmMessage", getRememberedString("regular", LAST_ALARM_MESSAGE));
@@ -212,6 +213,9 @@ public class SystemAlarmPlugin extends Plugin {
         if (alarmManager == null) {
             throw new IllegalStateException("AlarmManager is unavailable");
         }
+        if (!canScheduleOwnedAlarms()) {
+            throw new SecurityException("Exact alarm permission is not granted");
+        }
         PendingIntent operation = alarmPendingIntent(scope, message, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent showIntent = showPendingIntent(scope);
         alarmManager.cancel(operation);
@@ -255,6 +259,12 @@ public class SystemAlarmPlugin extends Plugin {
 
     private int requestCode(String scope) {
         return "test".equals(scope) ? 9302 : 9301;
+    }
+
+    private boolean canScheduleOwnedAlarms() {
+        AlarmManager alarmManager = getAlarmManager();
+        if (alarmManager == null) return false;
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms();
     }
 
     private boolean canResolve(Intent intent) {

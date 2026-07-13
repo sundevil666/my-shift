@@ -32,6 +32,7 @@ const SystemAlarm = registerPlugin<SystemAlarmPlugin>('SystemAlarm');
 
 export interface AndroidSystemAlarmStatus {
   canSetAlarm: boolean;
+  canScheduleExactAlarms?: boolean;
   hasCustomSound: boolean;
   clockPackage?: string;
   clockActivity?: string;
