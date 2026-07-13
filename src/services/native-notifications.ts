@@ -13,7 +13,7 @@ interface SystemAlarmPlugin {
   setAlarm(options: {
     id: string;
     message: string;
-    timestamp: number;
+    timestamp: number | string;
     skipUi?: boolean;
     includeRingtone?: boolean;
   }): Promise<{ created: boolean }>;
@@ -188,7 +188,7 @@ export async function scheduleAndroidTestAlarm(message: string): Promise<boolean
     await SystemAlarm.setAlarm({
       id: `my-shift:test-system-alarm:${at.getTime()}`,
       message,
-      timestamp: at.getTime(),
+      timestamp: String(at.getTime()),
       skipUi: false,
       includeRingtone: false,
     });
@@ -219,7 +219,7 @@ export async function runAndroidTestAlarmDiagnostics(
     const pluginResult = await SystemAlarm.setAlarm({
       id: `my-shift:test-system-alarm:${at.getTime()}`,
       message,
-      timestamp: at.getTime(),
+      timestamp: String(at.getTime()),
       skipUi: false,
       includeRingtone: false,
     });
@@ -270,7 +270,7 @@ async function syncAndroidSystemAlarm(reminders: PushReminder[]): Promise<string
     await SystemAlarm.setAlarm({
       id: nextAlarm.id,
       message: systemAlarmMessage(nextAlarm),
-      timestamp: nextAlarm.at,
+      timestamp: String(nextAlarm.at),
     });
     return nextAlarm.id;
   } catch {

@@ -36,9 +36,9 @@ public class SystemAlarmPlugin extends Plugin {
     public void setAlarm(PluginCall call) {
         String id = call.getString("id");
         String message = call.getString("message", "My Shift");
-        Double timestamp = call.getDouble("timestamp");
+        Long timestamp = getTimestamp(call);
         if (id == null || timestamp == null) {
-            call.reject("Missing alarm id or timestamp");
+            call.reject("Missing alarm id or timestamp: " + describeAlarmCall(call));
             return;
         }
 
@@ -60,7 +60,7 @@ public class SystemAlarmPlugin extends Plugin {
         dismissRememberedAlarm();
 
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timestamp.longValue());
+        calendar.setTimeInMillis(timestamp);
 
         boolean skipUi = Boolean.TRUE.equals(call.getBoolean("skipUi", true));
         boolean includeRingtone = Boolean.TRUE.equals(call.getBoolean("includeRingtone", true));
@@ -80,7 +80,7 @@ public class SystemAlarmPlugin extends Plugin {
             preferences.edit()
                 .putString(LAST_ALARM_ID, id)
                 .putString(LAST_ALARM_MESSAGE, message)
-                .putLong(LAST_ALARM_TIMESTAMP, timestamp.longValue())
+                .putLong(LAST_ALARM_TIMESTAMP, timestamp)
                 .putString(LAST_SET_ALARM_RESULT, "created")
                 .remove(LAST_SET_ALARM_ERROR)
                 .apply();
@@ -213,6 +213,32 @@ public class SystemAlarmPlugin extends Plugin {
 
     private boolean canResolve(Intent intent) {
         return intent.resolveActivity(getContext().getPackageManager()) != null;
+    }
+
+    private Long getTimestamp(PluginCall call) {
+        Object value = call.getData().opt("timestamp");
+        if (value instanceof Number) {
+            return ((Number) value).longValue();
+        }
+        if (value instanceof String) {
+            try {
+                return Long.parseLong((String) value);
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private String describeAlarmCall(PluginCall call) {
+        Object id = call.getData().opt("id");
+        Object timestamp = call.getData().opt("timestamp");
+        return "idType=" + typeName(id) + ", timestampType=" + typeName(timestamp);
+    }
+
+    private String typeName(Object value) {
+        if (value == null) return "null";
+        return value.getClass().getName();
     }
 
     private void putResolveInfo(JSObject result, String prefix, Intent intent) {
