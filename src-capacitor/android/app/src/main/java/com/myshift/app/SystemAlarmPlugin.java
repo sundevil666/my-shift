@@ -2,8 +2,10 @@ package com.myshift.app;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.content.SharedPreferences;
 import android.media.RingtoneManager;
+import android.os.Build;
 import android.provider.AlarmClock;
 import android.provider.Settings;
 import android.net.Uri;
@@ -24,6 +26,10 @@ public class SystemAlarmPlugin extends Plugin {
     private static final String PREFERENCES = "my_shift_system_alarm";
     private static final String LAST_ALARM_ID = "last_alarm_id";
     private static final String LAST_ALARM_MESSAGE = "last_alarm_message";
+    private static final String LAST_ALARM_TIMESTAMP = "last_alarm_timestamp";
+    private static final String LAST_SET_ALARM_ERROR = "last_set_alarm_error";
+    private static final String LAST_SET_ALARM_ATTEMPT = "last_set_alarm_attempt";
+    private static final String LAST_SET_ALARM_RESULT = "last_set_alarm_result";
     private static final String ALARM_RINGTONE_URI = "alarm_ringtone_uri";
 
     @PluginMethod
@@ -37,7 +43,14 @@ public class SystemAlarmPlugin extends Plugin {
         }
 
         SharedPreferences preferences = preferences();
+        preferences.edit()
+            .putLong(LAST_SET_ALARM_ATTEMPT, System.currentTimeMillis())
+            .remove(LAST_SET_ALARM_ERROR)
+            .remove(LAST_SET_ALARM_RESULT)
+            .apply();
+
         if (id.equals(preferences.getString(LAST_ALARM_ID, null))) {
+            preferences.edit().putString(LAST_SET_ALARM_RESULT, "duplicate-id-skipped").apply();
             JSObject result = new JSObject();
             result.put("created", false);
             call.resolve(result);
@@ -54,6 +67,10 @@ public class SystemAlarmPlugin extends Plugin {
         Intent alarmIntent = buildSetAlarmIntent(calendar, message, skipUi, includeRingtone);
 
         if (!canResolve(alarmIntent)) {
+            preferences.edit()
+                .putString(LAST_SET_ALARM_ERROR, "No Android clock app is available")
+                .putString(LAST_SET_ALARM_RESULT, "failed")
+                .apply();
             call.reject("No Android clock app is available");
             return;
         }
@@ -63,11 +80,18 @@ public class SystemAlarmPlugin extends Plugin {
             preferences.edit()
                 .putString(LAST_ALARM_ID, id)
                 .putString(LAST_ALARM_MESSAGE, message)
+                .putLong(LAST_ALARM_TIMESTAMP, timestamp.longValue())
+                .putString(LAST_SET_ALARM_RESULT, "created")
+                .remove(LAST_SET_ALARM_ERROR)
                 .apply();
             JSObject result = new JSObject();
             result.put("created", true);
             call.resolve(result);
         } catch (Exception error) {
+            preferences.edit()
+                .putString(LAST_SET_ALARM_ERROR, error.getClass().getSimpleName() + ": " + error.getMessage())
+                .putString(LAST_SET_ALARM_RESULT, "failed")
+                .apply();
             call.reject("Could not create system alarm", error);
         }
     }
@@ -75,15 +99,40 @@ public class SystemAlarmPlugin extends Plugin {
     @PluginMethod
     public void clearRememberedAlarm(PluginCall call) {
         dismissRememberedAlarm();
-        preferences().edit().remove(LAST_ALARM_ID).remove(LAST_ALARM_MESSAGE).apply();
+        preferences().edit()
+            .remove(LAST_ALARM_ID)
+            .remove(LAST_ALARM_MESSAGE)
+            .remove(LAST_ALARM_TIMESTAMP)
+            .apply();
         call.resolve();
     }
 
     @PluginMethod
     public void getStatus(PluginCall call) {
         JSObject result = new JSObject();
+        putResolveInfo(result, "clock", new Intent(AlarmClock.ACTION_SET_ALARM));
+        putResolveInfo(result, "dismiss", new Intent(AlarmClock.ACTION_DISMISS_ALARM));
+        putResolveInfo(result, "ringtonePicker", new Intent(RingtoneManager.ACTION_RINGTONE_PICKER));
+        putResolveInfo(result, "soundSettings", new Intent(Settings.ACTION_SOUND_SETTINGS));
+        SharedPreferences preferences = preferences();
+        long lastAlarmTimestamp = preferences.getLong(LAST_ALARM_TIMESTAMP, 0);
+        long lastAttempt = preferences.getLong(LAST_SET_ALARM_ATTEMPT, 0);
         result.put("canSetAlarm", canResolve(new Intent(AlarmClock.ACTION_SET_ALARM)));
         result.put("hasCustomSound", preferences().contains(ALARM_RINGTONE_URI));
+        result.put("lastAlarmId", preferences.getString(LAST_ALARM_ID, null));
+        result.put("lastAlarmMessage", preferences.getString(LAST_ALARM_MESSAGE, null));
+        if (lastAlarmTimestamp > 0) {
+            result.put("lastAlarmTimestamp", lastAlarmTimestamp);
+            result.put("lastAlarmIso", new java.util.Date(lastAlarmTimestamp).toString());
+        }
+        result.put("lastSetAlarmError", preferences.getString(LAST_SET_ALARM_ERROR, null));
+        if (lastAttempt > 0) {
+            result.put("lastSetAlarmAttemptIso", new java.util.Date(lastAttempt).toString());
+        }
+        result.put("lastSetAlarmResult", preferences.getString(LAST_SET_ALARM_RESULT, null));
+        result.put("manufacturer", Build.MANUFACTURER);
+        result.put("model", Build.MODEL);
+        result.put("sdkInt", Build.VERSION.SDK_INT);
         call.resolve(result);
     }
 
@@ -164,6 +213,13 @@ public class SystemAlarmPlugin extends Plugin {
 
     private boolean canResolve(Intent intent) {
         return intent.resolveActivity(getContext().getPackageManager()) != null;
+    }
+
+    private void putResolveInfo(JSObject result, String prefix, Intent intent) {
+        ResolveInfo resolveInfo = getContext().getPackageManager().resolveActivity(intent, 0);
+        if (resolveInfo == null || resolveInfo.activityInfo == null) return;
+        result.put(prefix + "Package", resolveInfo.activityInfo.packageName);
+        result.put(prefix + "Activity", resolveInfo.activityInfo.name);
     }
 
     private Intent buildSetAlarmIntent(

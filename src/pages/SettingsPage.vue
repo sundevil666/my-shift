@@ -346,6 +346,37 @@
               @click="testNotification"
             />
           </div>
+          <div v-if="isAndroidNative" class="settings-alarm-debug">
+            <div class="settings-alarm-debug__actions">
+              <q-btn
+                dense
+                outline
+                no-caps
+                color="primary"
+                icon="bug_report"
+                :label="$t('settings.refreshAlarmDebug')"
+                @click="refreshAlarmDiagnostics"
+              />
+              <q-btn
+                dense
+                outline
+                no-caps
+                color="primary"
+                icon="content_copy"
+                :label="$t('settings.copyAlarmDebug')"
+                @click="copyAlarmDiagnostics"
+              />
+            </div>
+            <q-input
+              :model-value="androidAlarmDiagnosticsText"
+              readonly
+              outlined
+              autogrow
+              type="textarea"
+              class="settings-alarm-debug__field"
+              :label="$t('settings.alarmDebug')"
+            />
+          </div>
         </q-card-section>
       </q-card>
 
@@ -477,7 +508,8 @@ import {
   getAndroidSystemAlarmStatus,
   isNativeAndroidApp,
   openAndroidAlarmSettings,
-  scheduleAndroidTestAlarm,
+  runAndroidTestAlarmDiagnostics,
+  getAndroidAlarmDiagnostics,
 } from 'src/services/native-notifications';
 import { syncPushReminders } from 'src/services/push-notifications';
 import { removePushSubscription } from 'src/services/push-notifications';
@@ -499,6 +531,7 @@ const appVersion = process.env.APP_VERSION;
 const runtimePlatform = isAndroidNative ? 'APK Android' : isAndroidDevice ? 'PWA/Web Android' : 'Web/PWA';
 const androidAlarmCanSet = ref(false);
 const androidAlarmHasCustomSound = ref(false);
+const androidAlarmDiagnosticsText = ref('');
 const androidAlarmReady = computed(() => androidAlarmCanSet.value);
 const scheduleDate = computed(() =>
   new Intl.DateTimeFormat(locale.value).format(new Date(`${DHL_SCHEDULE_VALID_FROM}T00:00:00`)),
@@ -570,6 +603,7 @@ const stopKey = computed(() => {
 
 if (isAndroidNative) {
   void refreshAndroidAlarmStatus();
+  void refreshAlarmDiagnostics();
 }
 
 function filterRoutes(value: string, update: (callback: () => void) => void) {
@@ -601,11 +635,12 @@ async function testAlarm() {
   }
 
   if (isAndroidNative) {
-    const scheduled = await scheduleAndroidTestAlarm(t('settings.testAlarmMessage'));
+    const result = await runAndroidTestAlarmDiagnostics(t('settings.testAlarmMessage'));
+    androidAlarmDiagnosticsText.value = JSON.stringify(result, null, 2);
     await refreshAndroidAlarmStatus();
     $q.notify({
-      type: scheduled ? 'positive' : 'negative',
-      message: t(scheduled ? 'settings.androidAlarmScheduled' : 'settings.androidAlarmFailed'),
+      type: result.ok ? 'positive' : 'negative',
+      message: t(result.ok ? 'settings.androidAlarmScheduled' : 'settings.androidAlarmFailed'),
     });
     return;
   }
@@ -646,6 +681,16 @@ async function refreshAndroidAlarmStatus() {
   const status = await getAndroidSystemAlarmStatus();
   androidAlarmCanSet.value = status.canSetAlarm;
   androidAlarmHasCustomSound.value = status.hasCustomSound;
+}
+async function refreshAlarmDiagnostics() {
+  androidAlarmDiagnosticsText.value = JSON.stringify(await getAndroidAlarmDiagnostics(), null, 2);
+}
+async function copyAlarmDiagnostics() {
+  if (!androidAlarmDiagnosticsText.value) {
+    await refreshAlarmDiagnostics();
+  }
+  await copyToClipboard(androidAlarmDiagnosticsText.value);
+  $q.notify({ type: 'positive', message: t('settings.alarmDebugCopied') });
 }
 async function testNotification() {
   const permission = await requestReminderPermission();
@@ -923,6 +968,29 @@ async function importData(event: Event) {
   line-height: 1.3;
 }
 
+.settings-alarm-debug {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.settings-alarm-debug__actions {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.settings-alarm-debug__field {
+  min-width: 0;
+}
+
+.settings-alarm-debug__field :deep(textarea) {
+  max-height: 220px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
 .settings-android-alarm-status {
   color: #92400e;
   background: #fffbeb;
@@ -958,6 +1026,10 @@ async function importData(event: Event) {
 
   .settings-tests {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .settings-alarm-debug {
+    grid-column: 1 / -1;
   }
 }
 
@@ -1042,6 +1114,10 @@ async function importData(event: Event) {
   }
 
   .settings-tests {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-alarm-debug__actions {
     grid-template-columns: 1fr;
   }
 

@@ -18,12 +18,44 @@ interface SystemAlarmPlugin {
     includeRingtone?: boolean;
   }): Promise<{ created: boolean }>;
   clearRememberedAlarm(): Promise<void>;
-  getStatus(): Promise<{ canSetAlarm: boolean; hasCustomSound: boolean }>;
+  getStatus(): Promise<AndroidSystemAlarmStatus>;
   chooseAlarmSound(): Promise<{ selected: boolean }>;
   openAlarmSettings(): Promise<void>;
 }
 
 const SystemAlarm = registerPlugin<SystemAlarmPlugin>('SystemAlarm');
+
+export interface AndroidSystemAlarmStatus {
+  canSetAlarm: boolean;
+  hasCustomSound: boolean;
+  clockPackage?: string;
+  clockActivity?: string;
+  dismissPackage?: string;
+  dismissActivity?: string;
+  ringtonePickerPackage?: string;
+  ringtonePickerActivity?: string;
+  soundSettingsPackage?: string;
+  soundSettingsActivity?: string;
+  lastAlarmId?: string;
+  lastAlarmMessage?: string;
+  lastAlarmTimestamp?: number;
+  lastAlarmIso?: string;
+  lastSetAlarmError?: string;
+  lastSetAlarmAttemptIso?: string;
+  lastSetAlarmResult?: string;
+  manufacturer?: string;
+  model?: string;
+  sdkInt?: number;
+}
+
+export interface AndroidTestAlarmResult {
+  ok: boolean;
+  requestedAt: number;
+  requestedAtIso: string;
+  pluginResult?: { created: boolean };
+  error?: string;
+  status: AndroidSystemAlarmStatus;
+}
 
 export function isNativeApp(): boolean {
   return Capacitor.isNativePlatform();
@@ -110,6 +142,21 @@ export async function getAndroidSystemAlarmStatus(): Promise<{
   }
 }
 
+export async function getAndroidAlarmDiagnostics(): Promise<AndroidSystemAlarmStatus> {
+  if (!isNativeAndroidApp()) {
+    return { canSetAlarm: false, hasCustomSound: false };
+  }
+  try {
+    return await SystemAlarm.getStatus();
+  } catch (error) {
+    return {
+      canSetAlarm: false,
+      hasCustomSound: false,
+      lastSetAlarmError: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
 export async function chooseAndroidAlarmSound(): Promise<boolean> {
   if (!isNativeAndroidApp()) return false;
   try {
@@ -148,6 +195,49 @@ export async function scheduleAndroidTestAlarm(message: string): Promise<boolean
     return true;
   } catch {
     return false;
+  }
+}
+
+export async function runAndroidTestAlarmDiagnostics(
+  message: string,
+): Promise<AndroidTestAlarmResult> {
+  const at = new Date();
+  at.setSeconds(0, 0);
+  at.setMinutes(at.getMinutes() + 1);
+
+  if (!isNativeAndroidApp()) {
+    return {
+      ok: false,
+      requestedAt: at.getTime(),
+      requestedAtIso: at.toISOString(),
+      error: 'Native Android runtime is not available',
+      status: await getAndroidAlarmDiagnostics(),
+    };
+  }
+
+  try {
+    const pluginResult = await SystemAlarm.setAlarm({
+      id: `my-shift:test-system-alarm:${at.getTime()}`,
+      message,
+      timestamp: at.getTime(),
+      skipUi: false,
+      includeRingtone: false,
+    });
+    return {
+      ok: true,
+      requestedAt: at.getTime(),
+      requestedAtIso: at.toISOString(),
+      pluginResult,
+      status: await getAndroidAlarmDiagnostics(),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      requestedAt: at.getTime(),
+      requestedAtIso: at.toISOString(),
+      error: error instanceof Error ? error.message : String(error),
+      status: await getAndroidAlarmDiagnostics(),
+    };
   }
 }
 
