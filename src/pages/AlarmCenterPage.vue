@@ -43,6 +43,35 @@
 
       <q-card flat bordered class="settings-card">
         <q-card-section class="settings-card__header">
+          <div class="section-title">Звук и поведение</div>
+          <div class="supporting-text">Выберите мелодию, проверьте её и настройте вибрацию.</div>
+        </q-card-section>
+        <q-card-section class="settings-card__body settings-tests">
+          <q-btn class="app-action-button full-width" color="secondary" icon="music_note" no-caps :label="$t('settings.chooseAlarmSound')" @click="chooseAlarmSound" />
+          <div class="alarm-center-preview">
+            <q-btn class="app-action-button" color="primary" icon="play_arrow" no-caps label="Прослушать" :disable="previewPlaying" @click="previewAlarmSound" />
+            <q-btn outline class="app-action-button" color="primary" icon="stop" no-caps label="Стоп" :disable="!previewPlaying" @click="stopAlarmPreview" />
+          </div>
+          <q-toggle
+            :model-value="vibrationEnabled"
+            color="primary"
+            icon="vibration"
+            label="Вибрация"
+            @update:model-value="setVibration"
+          />
+          <q-toggle
+            :model-value="volumeRampEnabled"
+            color="primary"
+            icon="trending_up"
+            label="Плавное увеличение громкости"
+            @update:model-value="setVolumeRamp"
+          />
+          <q-btn outline class="app-action-button full-width" color="primary" icon="settings" no-caps :label="$t('settings.openAndroidSoundSettings')" @click="openAlarmSettings" />
+        </q-card-section>
+      </q-card>
+
+      <q-card flat bordered class="settings-card">
+        <q-card-section class="settings-card__header">
           <div class="section-title">Тестирование</div>
           <div class="supporting-text">Поставить тестовый будильник на ближайшую минуту и удалить его.</div>
         </q-card-section>
@@ -50,8 +79,6 @@
           <q-btn class="app-action-button full-width" color="negative" icon="alarm" no-caps :label="$t('settings.testAndroidAlarm')" @click="testAlarm" />
           <q-btn outline class="app-action-button full-width" color="negative" icon="alarm_off" no-caps :label="$t('settings.clearAndroidTestAlarm')" @click="clearTestAlarm" />
           <q-btn v-if="!alarmReady" class="app-action-button full-width" color="primary" icon="alarm_add" no-caps :label="$t('settings.openExactAlarmSettings')" @click="openExactAlarmSettings" />
-          <q-btn class="app-action-button full-width" color="secondary" icon="music_note" no-caps :label="$t('settings.chooseAlarmSound')" @click="chooseAlarmSound" />
-          <q-btn outline class="app-action-button full-width" color="primary" icon="settings" no-caps :label="$t('settings.openAndroidSoundSettings')" @click="openAlarmSettings" />
         </q-card-section>
       </q-card>
 
@@ -115,7 +142,10 @@ import {
   getAndroidAlarmDiagnostics,
   openAndroidAlarmSettings,
   openAndroidExactAlarmSettings,
+  previewAndroidAlarmSound,
   runAndroidTestAlarmDiagnostics,
+  setAndroidAlarmOptions,
+  stopAndroidAlarmPreview,
   type AndroidSystemAlarmStatus,
 } from 'src/services/native-notifications';
 import { useAppStore } from 'stores/app-store';
@@ -127,9 +157,12 @@ const diagnostics = ref<AndroidSystemAlarmStatus>({ canSetAlarm: false, hasCusto
 const diagnosticsText = ref('');
 const checkingUpdate = ref(false);
 const installing = ref(false);
+const previewPlaying = ref(false);
 const availableUpdate = ref<MobileRelease | null>(null);
 const currentVersion = CURRENT_APP_VERSION;
 const alarmReady = computed(() => Boolean(diagnostics.value.canScheduleExactAlarms ?? diagnostics.value.canSetAlarm));
+const vibrationEnabled = computed(() => diagnostics.value.vibrationEnabled ?? true);
+const volumeRampEnabled = computed(() => diagnostics.value.volumeRampEnabled ?? true);
 const alarmItems = computed(() => [
   {
     scope: 'regular',
@@ -157,6 +190,7 @@ window.addEventListener('focus', refreshDiagnosticsSoon);
 document.addEventListener('visibilitychange', refreshDiagnosticsWhenVisible);
 
 onBeforeUnmount(() => {
+  void stopAndroidAlarmPreview();
   window.removeEventListener('focus', refreshDiagnosticsSoon);
   document.removeEventListener('visibilitychange', refreshDiagnosticsWhenVisible);
 });
@@ -212,6 +246,29 @@ async function chooseAlarmSound() {
   const selected = await chooseAndroidAlarmSound();
   await refreshDiagnostics();
   $q.notify({ type: selected ? 'positive' : 'warning', message: t(selected ? 'settings.alarmSoundSelected' : 'settings.alarmSoundNotSelected') });
+}
+
+async function previewAlarmSound() {
+  const started = await previewAndroidAlarmSound();
+  previewPlaying.value = started;
+  $q.notify({ type: started ? 'positive' : 'warning', message: started ? 'Мелодия запущена.' : 'Не удалось запустить мелодию.' });
+}
+
+async function stopAlarmPreview() {
+  await stopAndroidAlarmPreview();
+  previewPlaying.value = false;
+}
+
+async function setVibration(value: boolean) {
+  const saved = await setAndroidAlarmOptions({ vibrationEnabled: value });
+  await refreshDiagnostics();
+  $q.notify({ type: saved ? 'positive' : 'warning', message: saved ? 'Настройка вибрации сохранена.' : 'Не удалось сохранить вибрацию.' });
+}
+
+async function setVolumeRamp(value: boolean) {
+  const saved = await setAndroidAlarmOptions({ volumeRampEnabled: value });
+  await refreshDiagnostics();
+  $q.notify({ type: saved ? 'positive' : 'warning', message: saved ? 'Настройка громкости сохранена.' : 'Не удалось сохранить громкость.' });
 }
 
 async function openAlarmSettings() {
@@ -295,5 +352,11 @@ function formatAlarmTime(timestamp?: number) {
   margin-top: 16px;
   font-size: 28px;
   font-weight: 800;
+}
+
+.alarm-center-preview {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 </style>

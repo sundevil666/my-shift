@@ -25,6 +25,12 @@ interface SystemAlarmPlugin {
   clearRememberedAlarm(options?: { id?: string }): Promise<void>;
   getStatus(): Promise<AndroidSystemAlarmStatus>;
   chooseAlarmSound(): Promise<{ selected: boolean }>;
+  setAlarmOptions(options: {
+    vibrationEnabled?: boolean;
+    volumeRampEnabled?: boolean;
+  }): Promise<Pick<AndroidSystemAlarmStatus, 'vibrationEnabled' | 'volumeRampEnabled'>>;
+  previewAlarmSound(): Promise<void>;
+  stopAlarmPreview(): Promise<void>;
   openAlarmSettings(): Promise<void>;
   openExactAlarmSettings(): Promise<void>;
 }
@@ -35,6 +41,8 @@ export interface AndroidSystemAlarmStatus {
   canSetAlarm: boolean;
   canScheduleExactAlarms?: boolean;
   hasCustomSound: boolean;
+  vibrationEnabled?: boolean;
+  volumeRampEnabled?: boolean;
   clockPackage?: string;
   clockActivity?: string;
   dismissPackage?: string;
@@ -173,6 +181,39 @@ export async function chooseAndroidAlarmSound(): Promise<boolean> {
   try {
     const result = await SystemAlarm.chooseAlarmSound();
     return result.selected;
+  } catch {
+    return false;
+  }
+}
+
+export async function setAndroidAlarmOptions(options: {
+  vibrationEnabled?: boolean;
+  volumeRampEnabled?: boolean;
+}): Promise<boolean> {
+  if (!isNativeAndroidApp()) return false;
+  try {
+    await SystemAlarm.setAlarmOptions(options);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function previewAndroidAlarmSound(): Promise<boolean> {
+  if (!isNativeAndroidApp()) return false;
+  try {
+    await SystemAlarm.previewAlarmSound();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function stopAndroidAlarmPreview(): Promise<boolean> {
+  if (!isNativeAndroidApp()) return false;
+  try {
+    await SystemAlarm.stopAlarmPreview();
+    return true;
   } catch {
     return false;
   }

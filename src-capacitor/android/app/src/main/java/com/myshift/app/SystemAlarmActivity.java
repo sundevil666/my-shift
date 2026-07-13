@@ -10,6 +10,10 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -21,7 +25,25 @@ public class SystemAlarmActivity extends Activity {
     public static final String EXTRA_SCOPE = "scope";
     private static final String PREFERENCES = "my_shift_system_alarm";
     private static final String ALARM_RINGTONE_URI = "alarm_ringtone_uri";
+    private static final String ALARM_VIBRATION_ENABLED = "alarm_vibration_enabled";
+    private static final String ALARM_VOLUME_RAMP_ENABLED = "alarm_volume_ramp_enabled";
+    private static final long[] VIBRATION_PATTERN = new long[] { 0, 600, 300, 600, 300, 900 };
     private Ringtone ringtone;
+    private Vibrator vibrator;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Runnable volumeRamp = new Runnable() {
+        private int step = 0;
+
+        @Override
+        public void run() {
+            if (ringtone == null || !ringtone.isPlaying()) return;
+            setRingtoneVolume(Math.min(1f, 0.08f + (step * 0.08f)));
+            step += 1;
+            if (step <= 12) {
+                handler.postDelayed(this, 2500);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,11 +84,13 @@ public class SystemAlarmActivity extends Activity {
         setContentView(layout);
 
         playAlarmSound();
+        startVibration();
     }
 
     @Override
     protected void onDestroy() {
         stopRingtone();
+        stopVibration();
         super.onDestroy();
     }
 
@@ -101,7 +125,13 @@ public class SystemAlarmActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             ringtone.setLooping(true);
         }
+        if (isVolumeRampEnabled()) {
+            setRingtoneVolume(0.08f);
+        }
         ringtone.play();
+        if (isVolumeRampEnabled()) {
+            handler.postDelayed(volumeRamp, 1000);
+        }
     }
 
     private Uri selectedAlarmSound() {
@@ -114,6 +144,7 @@ public class SystemAlarmActivity extends Activity {
 
     private void stopAndClose() {
         stopRingtone();
+        stopVibration();
         cancelAlarmNotification();
         finishAndRemoveTask();
     }
@@ -126,8 +157,42 @@ public class SystemAlarmActivity extends Activity {
     }
 
     private void stopRingtone() {
+        handler.removeCallbacks(volumeRamp);
         if (ringtone != null && ringtone.isPlaying()) {
             ringtone.stop();
         }
+    }
+
+    private void setRingtoneVolume(float volume) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && ringtone != null) {
+            ringtone.setVolume(volume);
+        }
+    }
+
+    private void startVibration() {
+        if (!isVibrationEnabled()) return;
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator == null || !vibrator.hasVibrator()) return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createWaveform(VIBRATION_PATTERN, 0));
+        } else {
+            vibrator.vibrate(VIBRATION_PATTERN, 0);
+        }
+    }
+
+    private void stopVibration() {
+        if (vibrator != null) {
+            vibrator.cancel();
+        }
+    }
+
+    private boolean isVibrationEnabled() {
+        return getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
+            .getBoolean(ALARM_VIBRATION_ENABLED, true);
+    }
+
+    private boolean isVolumeRampEnabled() {
+        return getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
+            .getBoolean(ALARM_VOLUME_RAMP_ENABLED, true);
     }
 }

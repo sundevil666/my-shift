@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.content.SharedPreferences;
+import android.media.AudioAttributes;
+import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.os.Build;
 import android.provider.AlarmClock;
@@ -36,7 +38,10 @@ public class SystemAlarmPlugin extends Plugin {
     private static final String LAST_ALARM_FIRED = "last_alarm_fired";
     private static final String LAST_ALARM_DELIVERY = "last_alarm_delivery";
     private static final String ALARM_RINGTONE_URI = "alarm_ringtone_uri";
+    private static final String ALARM_VIBRATION_ENABLED = "alarm_vibration_enabled";
+    private static final String ALARM_VOLUME_RAMP_ENABLED = "alarm_volume_ramp_enabled";
     private static final String TEST_ALARM_PREFIX = "my-shift:test-system-alarm";
+    private Ringtone previewRingtone;
 
     @PluginMethod
     public void setAlarm(PluginCall call) {
@@ -123,6 +128,8 @@ public class SystemAlarmPlugin extends Plugin {
         result.put("canSetAlarm", canScheduleOwnedAlarms());
         result.put("canScheduleExactAlarms", canScheduleOwnedAlarms());
         result.put("hasCustomSound", preferences().contains(ALARM_RINGTONE_URI));
+        result.put("vibrationEnabled", preferences.getBoolean(ALARM_VIBRATION_ENABLED, true));
+        result.put("volumeRampEnabled", preferences.getBoolean(ALARM_VOLUME_RAMP_ENABLED, true));
         result.put("lastAlarmId", getRememberedString("regular", LAST_ALARM_ID));
         result.put("lastAlarmMessage", getRememberedString("regular", LAST_ALARM_MESSAGE));
         if (lastAlarmTimestamp > 0) {
@@ -170,6 +177,52 @@ public class SystemAlarmPlugin extends Plugin {
         }
 
         startActivityForResult(call, intent, "alarmSoundCallback");
+    }
+
+    @PluginMethod
+    public void setAlarmOptions(PluginCall call) {
+        SharedPreferences.Editor editor = preferences().edit();
+        if (call.getData().has("vibrationEnabled")) {
+            editor.putBoolean(ALARM_VIBRATION_ENABLED, call.getBoolean("vibrationEnabled", true));
+        }
+        if (call.getData().has("volumeRampEnabled")) {
+            editor.putBoolean(ALARM_VOLUME_RAMP_ENABLED, call.getBoolean("volumeRampEnabled", true));
+        }
+        editor.apply();
+        JSObject response = new JSObject();
+        response.put("vibrationEnabled", preferences().getBoolean(ALARM_VIBRATION_ENABLED, true));
+        response.put("volumeRampEnabled", preferences().getBoolean(ALARM_VOLUME_RAMP_ENABLED, true));
+        call.resolve(response);
+    }
+
+    @PluginMethod
+    public void previewAlarmSound(PluginCall call) {
+        stopPreviewRingtone();
+        Uri uri = selectedAlarmSound();
+        previewRingtone = RingtoneManager.getRingtone(getContext(), uri);
+        if (previewRingtone == null) {
+            call.reject("Alarm sound is unavailable");
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            previewRingtone.setAudioAttributes(
+                new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+            );
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            previewRingtone.setVolume(preferences().getBoolean(ALARM_VOLUME_RAMP_ENABLED, true) ? 0.18f : 0.65f);
+        }
+        previewRingtone.play();
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void stopAlarmPreview(PluginCall call) {
+        stopPreviewRingtone();
+        call.resolve();
     }
 
     @PluginMethod
@@ -233,6 +286,12 @@ public class SystemAlarmPlugin extends Plugin {
 
     private SharedPreferences preferences() {
         return getContext().getSharedPreferences(PREFERENCES, 0);
+    }
+
+    @Override
+    protected void handleOnDestroy() {
+        stopPreviewRingtone();
+        super.handleOnDestroy();
     }
 
     private AlarmManager getAlarmManager() {
@@ -398,6 +457,20 @@ public class SystemAlarmPlugin extends Plugin {
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return intent;
+    }
+
+    private Uri selectedAlarmSound() {
+        String stored = preferences().getString(ALARM_RINGTONE_URI, null);
+        if (stored != null) return Uri.parse(stored);
+        Uri alarm = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        return alarm != null ? alarm : RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+    }
+
+    private void stopPreviewRingtone() {
+        if (previewRingtone != null && previewRingtone.isPlaying()) {
+            previewRingtone.stop();
+        }
+        previewRingtone = null;
     }
 
 }
