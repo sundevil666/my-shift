@@ -116,6 +116,18 @@ export default {
       shareText: 'Tlačidlo v ponuke odošle správny odkaz pre používanú platformu.',
     },
     releases: {
+      v018: {
+        title: 'Spoľahlivejšie pripomienky a inštalácia',
+        arrivalReminders:
+          'Pridané pripomienky času príchodu, aby sa ľahšie plánovala príprava aj cesta.',
+        androidAlarms:
+          'Android teraz používa systémové budíky pre spoľahlivejšie upozornenia na zmeny.',
+        alarmTest:
+          'Pridaná kontrola Android budíka, aby ste overili, že pripomienky sú povolené a fungujú.',
+        desktopInstall: 'Pridaný návod na inštaláciu My Shift ako PWA na notebooku.',
+        polish:
+          'Vylepšená karta nastavení súkromia a tlačidlo inštalácie PWA na notebooku zostalo použiteľné.',
+      },
       v015: {
         title: 'Kontrola aktualizácií pri spustení',
         startupCheck: 'APK aj PWA kontrolujú novú verziu pri každom spustení.',
@@ -179,9 +191,9 @@ export default {
       'Kliknite na ikonu inštalácie v adresnom riadku alebo otvorte menu prehliadača a vyberte Inštalovať aplikáciu.',
     desktopStepConfirm: 'Potvrďte inštaláciu v okne prehliadača.',
     desktopStepLaunch:
-      'Spúšťajte My Shift ako bežnú aplikáciu z pracovnej plochy, panela úloh alebo menu aplikácií.',
+      'Po inštalácii pripnite My Shift na panel úloh, do Docku alebo vytvorte odkaz cez menu nainštalovanej aplikácie.',
     desktopSync:
-      'Je to rovnaká PWA verzia: údaje zostávajú v prehliadači a aktualizácie sa načítajú automaticky pri spustení.',
+      'Web nevie sám vytvoriť odkaz na pracovnej ploche: po inštalácii PWA to môže urobiť iba prehliadač alebo systém.',
     pwaInstalled: 'My Shift je už nainštalovaný ako aplikácia.',
     pwaInstallUnavailable:
       'Prehliadač neotvoril inštaláciu automaticky. Kliknite na ikonu inštalácie v adresnom riadku alebo vyberte Inštalovať aplikáciu v menu prehliadača.',

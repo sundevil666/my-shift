@@ -121,6 +121,14 @@ export default {
       shareText: 'The menu button sends the correct link for the platform you are using.',
     },
     releases: {
+      v018: {
+        title: 'More reliable reminders and installs',
+        arrivalReminders: 'Added reminders for arrival time so getting ready and commuting are easier to plan.',
+        androidAlarms: 'Android now uses system alarms for more reliable shift notifications.',
+        alarmTest: 'Added an Android alarm test setup to check that reminders are allowed and working.',
+        desktopInstall: 'Added guidance for installing My Shift as a desktop PWA.',
+        polish: 'Improved the privacy settings layout and kept the desktop install button usable.',
+      },
       v015: {
         title: 'Update check at startup',
         startupCheck: 'The APK and PWA check for a new version whenever they start.',
@@ -185,9 +193,9 @@ export default {
       'Click the install icon in the address bar, or open the browser menu and choose Install app.',
     desktopStepConfirm: 'Confirm the installation in the browser dialog.',
     desktopStepLaunch:
-      'Launch My Shift like a regular app from the desktop, taskbar, dock, or app launcher.',
+      'After installation, pin My Shift to the taskbar, Dock, or create a shortcut from the installed app menu.',
     desktopSync:
-      'This is the same PWA version: data stays in the browser and updates are pulled automatically on launch.',
+      'The website cannot create a desktop shortcut by itself: only the browser or system can do that after PWA installation.',
     pwaInstalled: 'My Shift is already installed as an app.',
     pwaInstallUnavailable:
       'The browser did not open installation automatically. Click the install icon in the address bar or choose Install app from the browser menu.',
