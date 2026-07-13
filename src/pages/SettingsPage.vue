@@ -281,6 +281,19 @@
                 : $t('settings.androidAlarmNeedsSetup')
             }}
           </q-banner>
+          <q-banner
+            v-else-if="isAndroidDevice"
+            rounded
+            class="settings-android-alarm-status"
+          >
+            <template #avatar>
+              <q-icon name="install_mobile" />
+            </template>
+            {{ $t('settings.androidNativeRequired') }}
+          </q-banner>
+          <div class="settings-runtime">
+            {{ $t('settings.runtimeInfo', { version: appVersion, platform: runtimePlatform }) }}
+          </div>
           <div>
             <q-btn
               class="app-action-button full-width"
@@ -413,6 +426,9 @@ const routeQuery = ref('');
 const stopQuery = ref('');
 const migrationInput = ref<HTMLInputElement | null>(null);
 const isAndroidNative = isNativeAndroidApp();
+const isAndroidDevice = /Android/i.test(navigator.userAgent);
+const appVersion = process.env.APP_VERSION;
+const runtimePlatform = isAndroidNative ? 'APK Android' : isAndroidDevice ? 'PWA/Web Android' : 'Web/PWA';
 const androidAlarmCanSet = ref(false);
 const androidAlarmHasCustomSound = ref(false);
 const androidAlarmReady = computed(() => androidAlarmCanSet.value && androidAlarmHasCustomSound.value);
@@ -506,6 +522,16 @@ function selectStop(value: string | null) {
   app.activeProfile.transport.busStopId = stopId ?? null;
 }
 async function testAlarm() {
+  if (isAndroidDevice && !isAndroidNative) {
+    $q.notify({
+      type: 'warning',
+      icon: 'install_mobile',
+      message: t('settings.androidNativeRequired'),
+      timeout: 7000,
+    });
+    return;
+  }
+
   if (isAndroidNative) {
     const permission = await requestReminderPermission();
     if (permission !== 'granted') {
@@ -769,6 +795,12 @@ async function importData(event: Event) {
 
 .settings-tests {
   grid-template-columns: 1fr;
+}
+
+.settings-runtime {
+  color: var(--app-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.3;
 }
 
 .settings-android-alarm-status {

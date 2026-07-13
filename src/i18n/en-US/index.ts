@@ -506,6 +506,9 @@ export default {
     openAndroidSoundSettings: 'Sound settings',
     androidAlarmReady: 'Android alarm is ready: Clock app and custom sound are available.',
     androidAlarmNeedsSetup: 'Choose a sound and run a test alarm before relying on it.',
+    androidNativeRequired:
+      'Native Android alarm works only in the installed APK. This screen is running as PWA/Web, so the web sound test is not a reliable alarm.',
+    runtimeInfo: 'Version {version} · {platform}',
     androidAlarmScheduled: 'Test alarm was created in Android Clock for the next minute.',
     androidAlarmFailed: 'Could not create an Android Clock alarm on this device.',
     alarmSoundSelected: 'Alarm sound saved.',

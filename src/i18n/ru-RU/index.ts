@@ -509,6 +509,9 @@ export default {
     openAndroidSoundSettings: 'Настройки звука',
     androidAlarmReady: 'Android-будильник готов: Clock доступен и звук выбран.',
     androidAlarmNeedsSetup: 'Выберите звук и запустите тест перед тем, как полагаться на будильник.',
+    androidNativeRequired:
+      'Нативный Android-будильник работает только в установленном APK. Сейчас экран запущен как PWA/Web, поэтому веб-звук не является надёжным будильником.',
+    runtimeInfo: 'Версия {version} · {platform}',
     androidAlarmScheduled: 'Тестовый будильник создан в Android Clock на ближайшую минуту.',
     androidAlarmFailed: 'Не удалось создать будильник Android Clock на этом устройстве.',
     alarmSoundSelected: 'Звук будильника сохранён.',
