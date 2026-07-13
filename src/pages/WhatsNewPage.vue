@@ -52,6 +52,59 @@
       <q-tab-panels v-model="platform" animated class="mobile-install-panels">
         <q-tab-panel v-for="target in platforms" :key="target" :name="target">
           <template v-if="target === 'android'">
+            <q-banner v-if="nativeAndroid" rounded class="mobile-install-card__update">
+              <template #avatar>
+                <q-icon
+                  :name="availableAndroidUpdate ? 'system_update' : 'verified'"
+                  :color="availableAndroidUpdate ? 'primary' : 'positive'"
+                />
+              </template>
+              <div class="mobile-install-card__update-body">
+                <div>
+                  <strong>
+                    {{
+                      availableAndroidUpdate
+                        ? $t('mobileInstall.updateAvailableTitle', {
+                            version: availableAndroidUpdate.version,
+                          })
+                        : $t('mobileInstall.upToDateTitle')
+                    }}
+                  </strong>
+                  <p>
+                    {{
+                      availableAndroidUpdate
+                        ? $t('mobileInstall.updateAvailableText', {
+                            current: CURRENT_APP_VERSION,
+                            version: availableAndroidUpdate.version,
+                          })
+                        : $t('mobileInstall.upToDateText', { version: CURRENT_APP_VERSION })
+                    }}
+                  </p>
+                </div>
+                <q-btn
+                  v-if="availableAndroidUpdate"
+                  unelevated
+                  no-caps
+                  color="primary"
+                  icon="system_update"
+                  :label="$t('mobileInstall.updateApk')"
+                  :loading="installingVersion === availableAndroidUpdate.version"
+                  @click="installAndroidRelease(availableAndroidUpdate)"
+                />
+                <q-btn
+                  v-else
+                  flat
+                  round
+                  color="primary"
+                  icon="refresh"
+                  :aria-label="$t('mobileInstall.checkUpdates')"
+                  :loading="checkingAndroidUpdate"
+                  @click="loadMobileReleases"
+                >
+                  <q-tooltip>{{ $t('mobileInstall.checkUpdates') }}</q-tooltip>
+                </q-btn>
+              </div>
+            </q-banner>
             <p class="mobile-install-card__note">{{ $t('mobileInstall.androidNote') }}</p>
             <q-banner rounded class="mobile-install-card__warning">
               <template #avatar><q-icon name="warning_amber" color="warning" /></template>
@@ -266,7 +319,7 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import PageHeader from 'components/PageHeader.vue';
-import { CURRENT_APP_VERSION } from 'src/services/app-update';
+import { CURRENT_ANDROID_VERSION_CODE, CURRENT_APP_VERSION } from 'src/services/app-update';
 import { loadFeedbackChallenge, sendFeedback, type FeedbackChallenge } from 'src/services/feedback';
 import {
   canInstallNativeAndroidUpdate,
@@ -274,6 +327,7 @@ import {
 } from 'src/services/native-updater';
 import {
   loadReleaseManifest,
+  latestAvailableRelease,
   trackedDownloadUrl,
   type MobileRelease,
   type MobileReleaseManifest,
@@ -295,6 +349,7 @@ const challenge = ref<FeedbackChallenge | null>(null);
 const sending = ref(false);
 const nativeAndroid = canInstallNativeAndroidUpdate();
 const installingVersion = ref<string | null>(null);
+const checkingAndroidUpdate = ref(false);
 const installPrompt = pwaInstallPrompt;
 const isInstalledApp = isPwaInstalled;
 const platforms = ['android', 'ios', 'desktop'] as const;
@@ -408,6 +463,9 @@ const releaseGroups = computed(() => {
 
   return [...groups].map(([date, groupedReleases]) => ({ date, releases: groupedReleases }));
 });
+const availableAndroidUpdate = computed(() =>
+  latestAvailableRelease(mobileReleases.value.android.stable, CURRENT_ANDROID_VERSION_CODE),
+);
 
 const requiredRule = (value: string) => Boolean(value?.trim()) || t('feedback.validation.required');
 const nameRule = (value: string) => value.trim().length >= 2 || t('feedback.validation.name');
@@ -436,8 +494,13 @@ function hasAdvancedRelease(target: Platform) {
 }
 
 async function loadMobileReleases() {
-  const manifest = await loadReleaseManifest();
-  if (manifest) mobileReleases.value = manifest;
+  checkingAndroidUpdate.value = true;
+  try {
+    const manifest = await loadReleaseManifest();
+    if (manifest) mobileReleases.value = manifest;
+  } finally {
+    checkingAndroidUpdate.value = false;
+  }
 }
 
 async function installAndroidRelease(release: MobileRelease) {

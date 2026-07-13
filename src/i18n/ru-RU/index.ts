@@ -204,6 +204,12 @@ export default {
     stable: 'Стабильная',
     advanced: 'Продвинутая',
     downloadApk: 'Скачать APK',
+    updateApk: 'Обновить приложение',
+    checkUpdates: 'Проверить обновления',
+    updateAvailableTitle: 'Доступно обновление v{version}',
+    updateAvailableText: 'Установлено: v{current}. Новый APK: v{version}.',
+    upToDateTitle: 'Установленный APK актуален',
+    upToDateText: 'Установленная версия: v{version}.',
     allowInstall:
       'Разрешите установку приложений из My Shift в открывшихся настройках, затем нажмите кнопку ещё раз.',
     installError: 'Не удалось скачать обновление. Проверьте интернет и попробуйте ещё раз.',
@@ -275,6 +281,7 @@ export default {
     route: 'Автобусная линия',
     stop: 'Остановка',
     currentShift: 'Смена на текущей неделе',
+    restoreData: 'Восстановить данные',
     continue: 'Начать',
   },
   dashboard: {

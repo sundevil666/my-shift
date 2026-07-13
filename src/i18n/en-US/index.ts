@@ -202,6 +202,12 @@ export default {
     stable: 'Stable',
     advanced: 'Advanced',
     downloadApk: 'Download APK',
+    updateApk: 'Update app',
+    checkUpdates: 'Check updates',
+    updateAvailableTitle: 'Update v{version} is available',
+    updateAvailableText: 'Installed: v{current}. The newest APK is v{version}.',
+    upToDateTitle: 'The installed APK is up to date',
+    upToDateText: 'Installed version: v{version}.',
     allowInstall:
       'Allow app installation from My Shift in the opened settings, then tap the button again.',
     installError: 'Could not download the update. Check your connection and try again.',
@@ -273,6 +279,7 @@ export default {
     route: 'Bus route',
     stop: 'Stop',
     currentShift: 'Shift for the current week',
+    restoreData: 'Restore data',
     continue: 'Start',
   },
   dashboard: {

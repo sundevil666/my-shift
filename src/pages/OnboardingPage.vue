@@ -84,7 +84,15 @@
             :label="$t('onboarding.currentShift')"
           />
         </q-card-section>
-        <q-card-actions align="right" class="q-pa-md">
+        <q-card-actions align="between" class="q-pa-md onboarding-actions">
+          <q-btn
+            outline
+            no-caps
+            color="primary"
+            icon="upload"
+            :label="$t('onboarding.restoreData')"
+            @click="migrationInput?.click()"
+          />
           <q-btn
             unelevated
             color="primary"
@@ -93,6 +101,13 @@
             :disable="!canComplete"
             :label="$t('onboarding.continue')"
             @click="complete"
+          />
+          <input
+            ref="migrationInput"
+            type="file"
+            accept="application/json,.json"
+            hidden
+            @change="importData"
           />
         </q-card-actions>
       </q-card>
@@ -109,6 +124,7 @@ import LanguageToggle from 'components/LanguageToggle.vue';
 import PageHeader from 'components/PageHeader.vue';
 import { dhlBusRoutes } from 'src/core/dhl-bus-routes';
 import { matchesSearch } from 'src/core/search';
+import { parseMigration } from 'src/services/data-migration';
 import { useAppStore } from 'stores/app-store';
 import type { TransportMode } from 'src/models/app';
 
@@ -123,6 +139,7 @@ const stopKey = ref<string | null>(null);
 const currentShiftId = ref<string | null>(null);
 const routeQuery = ref('');
 const stopQuery = ref('');
+const migrationInput = ref<HTMLInputElement | null>(null);
 
 function toggleTheme() {
   app.setTheme($q.dark.isActive ? 'light' : 'dark');
@@ -188,5 +205,22 @@ function complete() {
     busStopId: transportMode.value === 'bus' ? (stopKey.value?.split('|')[1] ?? null) : null,
   });
   void router.replace('/');
+}
+
+async function importData(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = '';
+  if (!file) return;
+
+  try {
+    const imported = parseMigration(await file.text());
+    if (!imported) throw new Error('Invalid migration file');
+    app.importUserData(imported);
+    $q.notify({ type: 'positive', message: t('privacy.importSuccess') });
+    void router.replace('/');
+  } catch {
+    $q.notify({ type: 'negative', message: t('privacy.importError') });
+  }
 }
 </script>

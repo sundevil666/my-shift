@@ -200,6 +200,12 @@ export default {
     stable: 'Stabilná',
     advanced: 'Pokročilá',
     downloadApk: 'Stiahnuť APK',
+    updateApk: 'Aktualizovať aplikáciu',
+    checkUpdates: 'Skontrolovať aktualizácie',
+    updateAvailableTitle: 'Je dostupná aktualizácia v{version}',
+    updateAvailableText: 'Nainštalované: v{current}. Najnovší APK je v{version}.',
+    upToDateTitle: 'Nainštalovaný APK je aktuálny',
+    upToDateText: 'Nainštalovaná verzia: v{version}.',
     allowInstall:
       'V otvorených nastaveniach povoľte inštaláciu aplikácií z My Shift a potom znova klepnite na tlačidlo.',
     installError: 'Aktualizáciu sa nepodarilo stiahnuť. Skontrolujte pripojenie a skúste to znova.',
@@ -271,6 +277,7 @@ export default {
     route: 'Autobusová linka',
     stop: 'Zastávka',
     currentShift: 'Zmena v aktuálnom týždni',
+    restoreData: 'Obnoviť údaje',
     continue: 'Začať',
   },
   dashboard: {

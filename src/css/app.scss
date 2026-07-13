@@ -2694,6 +2694,22 @@ body {
 .mobile-install-card p {
   color: var(--app-muted);
 }
+.mobile-install-card__update {
+  margin-bottom: 16px;
+  background: color-mix(in srgb, var(--q-primary) 9%, var(--app-surface));
+}
+.mobile-install-card__update-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.mobile-install-card__update-body p {
+  margin: 4px 0 0;
+}
+.mobile-install-card__update-body .q-btn {
+  flex: 0 0 auto;
+}
 .mobile-install-card__warning {
   margin-top: 16px;
   background: color-mix(in srgb, var(--q-warning) 13%, var(--app-surface));
@@ -2750,6 +2766,15 @@ body {
   }
 
   .pwa-install-guide__intro .q-btn {
+    width: 100%;
+  }
+
+  .mobile-install-card__update-body {
+    align-items: stretch;
+    display: grid;
+  }
+
+  .mobile-install-card__update-body .q-btn:not(.q-btn--round) {
     width: 100%;
   }
 }
