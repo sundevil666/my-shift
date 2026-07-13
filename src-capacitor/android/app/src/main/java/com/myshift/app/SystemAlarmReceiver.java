@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -19,6 +20,9 @@ public class SystemAlarmReceiver extends BroadcastReceiver {
     public static final String EXTRA_MESSAGE = "message";
     public static final String EXTRA_SCOPE = "scope";
     private static final String CHANNEL_ID = "my_shift_alarm";
+    private static final String PREFERENCES = "my_shift_system_alarm";
+    private static final String LAST_ALARM_FIRED = "last_alarm_fired";
+    private static final String LAST_ALARM_DELIVERY = "last_alarm_delivery";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -28,6 +32,25 @@ public class SystemAlarmReceiver extends BroadcastReceiver {
         if (message == null || message.isEmpty()) message = "My Shift";
         String scope = intent.getStringExtra(EXTRA_SCOPE);
         int notificationId = "test".equals(scope) ? 9302 : 9301;
+        SharedPreferences preferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
+        preferences.edit()
+            .putLong(LAST_ALARM_FIRED, System.currentTimeMillis())
+            .putString(LAST_ALARM_DELIVERY, "receiver-fired")
+            .apply();
+
+        Intent alarmIntent = new Intent(context, SystemAlarmActivity.class);
+        alarmIntent.putExtra(SystemAlarmActivity.EXTRA_SCOPE, scope);
+        alarmIntent.putExtra(SystemAlarmActivity.EXTRA_MESSAGE, message);
+        alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        try {
+            context.startActivity(alarmIntent);
+            preferences.edit().putString(LAST_ALARM_DELIVERY, "activity-started").apply();
+            return;
+        } catch (Exception error) {
+            preferences.edit()
+                .putString(LAST_ALARM_DELIVERY, "activity-failed:" + error.getClass().getSimpleName())
+                .apply();
+        }
 
         ensureChannel(context);
 

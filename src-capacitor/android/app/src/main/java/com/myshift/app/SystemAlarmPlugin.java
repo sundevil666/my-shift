@@ -33,6 +33,8 @@ public class SystemAlarmPlugin extends Plugin {
     private static final String LAST_SET_ALARM_ERROR = "last_set_alarm_error";
     private static final String LAST_SET_ALARM_ATTEMPT = "last_set_alarm_attempt";
     private static final String LAST_SET_ALARM_RESULT = "last_set_alarm_result";
+    private static final String LAST_ALARM_FIRED = "last_alarm_fired";
+    private static final String LAST_ALARM_DELIVERY = "last_alarm_delivery";
     private static final String ALARM_RINGTONE_URI = "alarm_ringtone_uri";
     private static final String TEST_ALARM_PREFIX = "my-shift:test-system-alarm";
 
@@ -138,6 +140,11 @@ public class SystemAlarmPlugin extends Plugin {
             result.put("lastSetAlarmAttemptIso", new java.util.Date(lastAttempt).toString());
         }
         result.put("lastSetAlarmResult", preferences.getString(LAST_SET_ALARM_RESULT, null));
+        long lastAlarmFired = preferences.getLong(LAST_ALARM_FIRED, 0);
+        if (lastAlarmFired > 0) {
+            result.put("lastAlarmFiredIso", new java.util.Date(lastAlarmFired).toString());
+        }
+        result.put("lastAlarmDelivery", preferences.getString(LAST_ALARM_DELIVERY, null));
         result.put("manufacturer", Build.MANUFACTURER);
         result.put("model", Build.MODEL);
         result.put("sdkInt", Build.VERSION.SDK_INT);
@@ -240,7 +247,7 @@ public class SystemAlarmPlugin extends Plugin {
         if (!canScheduleOwnedAlarms()) {
             throw new SecurityException("Exact alarm permission is not granted");
         }
-        PendingIntent operation = alarmActivityPendingIntent(scope, message, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent operation = alarmPendingIntent(scope, message, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent showIntent = showPendingIntent(scope);
         alarmManager.cancel(operation);
         alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(timestamp, showIntent), operation);
