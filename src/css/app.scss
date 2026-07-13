@@ -1630,14 +1630,20 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: end;
+  gap: 16px;
   margin-bottom: 24px;
+}
+
+.page-heading > div:first-child {
+  min-width: 0;
 }
 
 .page-title {
   margin: 0;
-  font-size: clamp(2rem, 4vw, 2.75rem);
+  overflow-wrap: anywhere;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
   line-height: 1.1;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .page-subtitle {
@@ -2020,6 +2026,23 @@ body {
     padding: 16px 12px 24px;
   }
 
+  .page-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .page-title {
+    font-size: clamp(1.45rem, 7vw, 1.9rem);
+    line-height: 1.15;
+  }
+
+  .page-subtitle {
+    font-size: 0.94rem;
+    line-height: 1.45;
+  }
+
   .app-action-button .q-icon {
     font-size: 1.25rem;
   }
@@ -2358,7 +2381,8 @@ body {
 }
 .tomorrow-header h1 {
   margin: 4px 0;
-  font-size: clamp(2rem, 6vw, 3.6rem);
+  overflow-wrap: anywhere;
+  font-size: clamp(1.75rem, 6vw, 3.2rem);
   line-height: 1;
 }
 .tomorrow-header p {
@@ -2491,6 +2515,15 @@ body {
     align-items: center;
     margin-bottom: 18px;
   }
+  .tomorrow-header h1 {
+    font-size: clamp(1.35rem, 7vw, 1.8rem);
+    line-height: 1.12;
+  }
+  .tomorrow-hero__body h2,
+  .tomorrow-off h2 {
+    font-size: 1.35rem;
+    line-height: 1.16;
+  }
   .tomorrow-header p,
   .tomorrow-dashboard-link .q-btn__content > span {
     display: none;
@@ -2549,6 +2582,11 @@ body {
 .useful-card p {
   margin-top: 0;
 }
+.useful-card h2 {
+  overflow-wrap: anywhere;
+  font-size: clamp(1.2rem, 3.8vw, 1.55rem);
+  line-height: 1.16;
+}
 .useful-card__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2576,8 +2614,10 @@ body {
   overflow: hidden;
 }
 .mobile-install-card h2 {
+  overflow-wrap: anywhere;
   margin: 6px 0 8px;
-  font-size: 1.45rem;
+  font-size: clamp(1.2rem, 3.8vw, 1.45rem);
+  line-height: 1.16;
 }
 .mobile-install-card p {
   color: var(--app-muted);
@@ -2672,8 +2712,10 @@ body {
 }
 .release-card h2,
 .feedback-card h2 {
+  overflow-wrap: anywhere;
   margin: 10px 0 8px;
-  font-size: 1.35rem;
+  font-size: clamp(1.15rem, 3.6vw, 1.35rem);
+  line-height: 1.2;
 }
 .release-card ul {
   display: grid;

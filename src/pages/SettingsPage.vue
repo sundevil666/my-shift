@@ -656,7 +656,7 @@ async function importData(event: Event) {
 }
 
 .settings-page :deep(.page-title) {
-  font-size: clamp(1.75rem, 3vw, 2.2rem);
+  font-size: clamp(1.45rem, 3vw, 2.2rem);
 }
 
 .settings-page :deep(.page-subtitle) {
@@ -876,6 +876,10 @@ async function importData(event: Event) {
 @media (max-width: 599px) {
   .settings-page {
     padding: 12px;
+  }
+
+  .settings-page :deep(.page-title) {
+    font-size: clamp(1.35rem, 6.6vw, 1.75rem);
   }
 
   .settings-grid {
