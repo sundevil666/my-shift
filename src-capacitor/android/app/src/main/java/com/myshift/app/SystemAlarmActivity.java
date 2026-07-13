@@ -1,6 +1,7 @@
 package com.myshift.app;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
@@ -26,6 +27,7 @@ public class SystemAlarmActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         showOverLockScreen();
+        cancelAlarmNotification();
 
         String message = getIntent().getStringExtra(EXTRA_MESSAGE);
         if (message == null || message.isEmpty()) message = "My Shift";
@@ -112,7 +114,15 @@ public class SystemAlarmActivity extends Activity {
 
     private void stopAndClose() {
         stopRingtone();
+        cancelAlarmNotification();
         finishAndRemoveTask();
+    }
+
+    private void cancelAlarmNotification() {
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (manager == null) return;
+        String scope = getIntent().getStringExtra(EXTRA_SCOPE);
+        manager.cancel("test".equals(scope) ? 9302 : 9301);
     }
 
     private void stopRingtone() {

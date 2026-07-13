@@ -42,24 +42,13 @@ public class SystemAlarmReceiver extends BroadcastReceiver {
         alarmIntent.putExtra(SystemAlarmActivity.EXTRA_SCOPE, scope);
         alarmIntent.putExtra(SystemAlarmActivity.EXTRA_MESSAGE, message);
         alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        try {
-            context.startActivity(alarmIntent);
-            preferences.edit().putString(LAST_ALARM_DELIVERY, "activity-started").apply();
-            return;
-        } catch (Exception error) {
-            preferences.edit()
-                .putString(LAST_ALARM_DELIVERY, "activity-failed:" + error.getClass().getSimpleName())
-                .apply();
-        }
 
         ensureChannel(context);
 
-        Intent openIntent = new Intent(context, MainActivity.class);
-        openIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent contentIntent = PendingIntent.getActivity(
+        PendingIntent alarmScreenIntent = PendingIntent.getActivity(
             context,
             notificationId,
-            openIntent,
+            alarmIntent,
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
@@ -70,10 +59,10 @@ public class SystemAlarmReceiver extends BroadcastReceiver {
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setAutoCancel(true)
-            .setOngoing(false)
-            .setContentIntent(contentIntent)
-            .setFullScreenIntent(contentIntent, true);
+            .setAutoCancel(false)
+            .setOngoing(true)
+            .setContentIntent(alarmScreenIntent)
+            .setFullScreenIntent(alarmScreenIntent, true);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             notification.setSound(alarmSound()).setVibrate(new long[] { 0, 600, 300, 600, 300, 900 });
@@ -81,8 +70,19 @@ public class SystemAlarmReceiver extends BroadcastReceiver {
 
         try {
             NotificationManagerCompat.from(context).notify(notificationId, notification.build());
-        } catch (SecurityException ignored) {
-            context.startActivity(openIntent);
+            preferences.edit().putString(LAST_ALARM_DELIVERY, "fullscreen-notification-posted").apply();
+        } catch (SecurityException error) {
+            preferences.edit()
+                .putString(LAST_ALARM_DELIVERY, "notification-denied:" + error.getClass().getSimpleName())
+                .apply();
+            try {
+                context.startActivity(alarmIntent);
+                preferences.edit().putString(LAST_ALARM_DELIVERY, "activity-fallback-started").apply();
+            } catch (Exception fallbackError) {
+                preferences.edit()
+                    .putString(LAST_ALARM_DELIVERY, "activity-fallback-failed:" + fallbackError.getClass().getSimpleName())
+                    .apply();
+            }
         }
     }
 
