@@ -313,7 +313,7 @@
             :label="$t('privacy.cloudPushConsent')"
             @update:model-value="updateCloudPushConsent"
           />
-          <div class="row q-gutter-sm">
+          <div class="settings-privacy-actions">
             <q-btn
               outline
               no-caps
@@ -578,7 +578,11 @@ async function importData(event: Event) {
 }
 
 .settings-card--reset {
-  grid-column: 1 / -1;
+  grid-column: span 4;
+}
+
+.settings-card--privacy {
+  grid-column: span 8;
 }
 
 .settings-card__header {
@@ -676,6 +680,12 @@ async function importData(event: Event) {
   grid-template-columns: 1fr;
 }
 
+.settings-privacy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 @media (max-width: 1199px) {
   .settings-card--workplace,
   .settings-card--general {
@@ -687,7 +697,9 @@ async function importData(event: Event) {
   }
 
   .settings-card--notifications,
-  .settings-card--tests {
+  .settings-card--tests,
+  .settings-card--reset,
+  .settings-card--privacy {
     grid-column: 1 / -1;
   }
 
@@ -707,7 +719,9 @@ async function importData(event: Event) {
   .settings-card--general,
   .settings-card--transport,
   .settings-card--notifications,
-  .settings-card--tests {
+  .settings-card--tests,
+  .settings-card--reset,
+  .settings-card--privacy {
     grid-column: 1 / -1;
   }
 
