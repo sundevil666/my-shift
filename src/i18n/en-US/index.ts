@@ -7,6 +7,7 @@ export default {
     statistics: 'Statistics',
     patterns: 'Work patterns',
     reminders: 'Reminders',
+    alarms: 'Alarms',
     whatsNew: 'What’s new',
     settings: 'Settings',
     privacy: 'Privacy',

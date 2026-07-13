@@ -8,6 +8,7 @@ export type AppRoutePath =
   | '/statistics'
   | '/patterns'
   | '/reminders'
+  | '/alarms'
   | '/whats-new'
   | '/support'
   | '/settings'
@@ -22,6 +23,7 @@ const routeLoaders: Record<AppRoutePath, RouteLoader> = {
   '/statistics': () => import('pages/StatisticsPage.vue'),
   '/patterns': () => import('pages/PatternsPage.vue'),
   '/reminders': () => import('pages/RemindersPage.vue'),
+  '/alarms': () => import('pages/AlarmCenterPage.vue'),
   '/whats-new': () => import('pages/WhatsNewPage.vue'),
   '/support': () => import('pages/SupportPage.vue'),
   '/settings': () => import('pages/SettingsPage.vue'),
@@ -76,4 +78,3 @@ export const appReadiness = {
     return preloadPromise;
   },
 };
-

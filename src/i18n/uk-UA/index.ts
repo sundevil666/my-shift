@@ -7,6 +7,7 @@ export default {
     statistics: 'Статистика',
     patterns: 'Схеми роботи',
     reminders: 'Нагадування',
+    alarms: 'Будильники',
     whatsNew: 'Що нового',
     settings: 'Налаштування',
     privacy: 'Приватність',

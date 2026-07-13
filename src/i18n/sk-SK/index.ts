@@ -7,6 +7,7 @@ export default {
     statistics: 'Štatistiky',
     patterns: 'Pracovné cykly',
     reminders: 'Pripomienky',
+    alarms: 'Budíky',
     whatsNew: 'Čo je nové',
     settings: 'Nastavenia',
     privacy: 'Súkromie',
