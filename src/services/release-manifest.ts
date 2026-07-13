@@ -24,6 +24,11 @@ export const RELEASE_MANIFEST_URLS = [
   REMOTE_MANIFEST_URL,
 ] as const;
 
+const NATIVE_RELEASE_MANIFEST_URLS = [
+  'https://raw.githubusercontent.com/sundevil666/my-shift/main/public/mobile-releases.json',
+  REMOTE_MANIFEST_URL,
+] as const;
+
 export async function loadReleaseManifest(
   fetcher: typeof fetch = fetch,
 ): Promise<MobileReleaseManifest | null> {
@@ -44,6 +49,10 @@ export async function loadReleaseManifest(
 }
 
 function releaseManifestUrls(): readonly string[] {
+  if (typeof window !== 'undefined' && window.location.protocol === 'capacitor:') {
+    return NATIVE_RELEASE_MANIFEST_URLS;
+  }
+
   if (
     typeof window !== 'undefined' &&
     ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname)
