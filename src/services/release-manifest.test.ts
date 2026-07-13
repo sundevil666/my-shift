@@ -5,6 +5,7 @@ import {
   type MobileRelease,
   type MobileReleaseManifest,
 } from './release-manifest';
+import { Capacitor } from '@capacitor/core';
 
 const releases: MobileRelease[] = [
   {
@@ -59,7 +60,8 @@ describe('release manifest', () => {
   });
 
   it('skips the bundled manifest in native Android builds', async () => {
-    vi.stubGlobal('window', { location: { hostname: 'localhost', protocol: 'capacitor:' } });
+    vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
+    vi.stubGlobal('window', { location: { hostname: 'localhost', protocol: 'http:' } });
     const manifest: MobileReleaseManifest = {
       android: { stable: releases, advanced: [] },
       ios: { stable: [], advanced: [] },
@@ -71,6 +73,7 @@ describe('release manifest', () => {
     expect(fetcher.mock.calls[0]?.[0]).toMatch(
       /^https:\/\/raw\.githubusercontent\.com\/sundevil666\/my-shift\/main\/public\/mobile-releases\.json\?time=/,
     );
+    vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
 });

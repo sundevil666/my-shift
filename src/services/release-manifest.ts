@@ -1,3 +1,5 @@
+import { Capacitor } from '@capacitor/core';
+
 export type ReleaseChannel = 'stable' | 'advanced';
 export type ReleasePlatform = 'android' | 'ios';
 
@@ -49,7 +51,7 @@ export async function loadReleaseManifest(
 }
 
 function releaseManifestUrls(): readonly string[] {
-  if (typeof window !== 'undefined' && window.location.protocol === 'capacitor:') {
+  if (Capacitor.isNativePlatform()) {
     return NATIVE_RELEASE_MANIFEST_URLS;
   }
 
