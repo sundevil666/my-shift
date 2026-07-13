@@ -388,6 +388,13 @@
             <q-btn
               outline
               no-caps
+              icon="cloud_upload"
+              :label="$t('privacy.exportToCloud')"
+              @click="exportToCloud"
+            />
+            <q-btn
+              outline
+              no-caps
               icon="upload"
               :label="$t('privacy.importData')"
               @click="migrationInput?.click()"
@@ -425,9 +432,28 @@
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat no-caps :label="$t('common.cancel')" v-close-popup />
-          <q-btn outline no-caps icon="content_copy" :label="$t('privacy.copyExport')" @click="copyExportData" />
-          <q-btn outline no-caps icon="ios_share" :label="$t('privacy.shareExport')" @click="shareExportData" />
-          <q-btn unelevated no-caps color="primary" icon="download" :label="$t('privacy.downloadExport')" @click="downloadExportData" />
+          <q-btn
+            outline
+            no-caps
+            icon="content_copy"
+            :label="$t('privacy.copyExport')"
+            @click="copyExportData"
+          />
+          <q-btn
+            outline
+            no-caps
+            icon="cloud_upload"
+            :label="$t('privacy.exportToCloud')"
+            @click="shareExportData"
+          />
+          <q-btn
+            unelevated
+            no-caps
+            color="primary"
+            icon="download"
+            :label="$t('privacy.downloadExport')"
+            @click="downloadExportData"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -668,9 +694,18 @@ async function updateCloudPushConsent(value: boolean) {
 }
 
 function exportData() {
+  prepareExportData();
+  exportDialogOpen.value = true;
+}
+
+async function exportToCloud() {
+  prepareExportData();
+  await shareExportData();
+}
+
+function prepareExportData() {
   exportPayload.value = serializeMigration(app.data);
   exportFilename.value = `my-shift-data-${new Date().toISOString().slice(0, 10)}.json`;
-  exportDialogOpen.value = true;
 }
 
 async function copyExportData() {
@@ -681,6 +716,7 @@ async function copyExportData() {
 async function shareExportData() {
   const file = new File([exportBlob()], exportFilename.value, { type: 'application/json' });
   if (!navigator.canShare?.({ files: [file] })) {
+    $q.notify({ type: 'warning', message: t('privacy.cloudExportUnavailable') });
     await copyExportData();
     return;
   }

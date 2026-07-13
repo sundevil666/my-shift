@@ -39,6 +39,7 @@ export default {
     consentHint:
       'Local and Android notifications work without sending your schedule to the push service.',
     exportData: 'Export data',
+    exportToCloud: 'Export to cloud',
     importData: 'Import data',
     exportSuccess: 'Data export is ready.',
     exportReadyTitle: 'Data export is ready',
@@ -47,6 +48,7 @@ export default {
     shareExport: 'Share or save',
     downloadExport: 'Download file',
     exportCopied: 'Export JSON copied.',
+    cloudExportUnavailable: 'Cloud saving is unavailable here. The export was copied instead.',
     importSuccess: 'Data imported successfully.',
     importError: 'This is not a valid My Shift data export.',
   },
