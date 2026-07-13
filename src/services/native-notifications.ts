@@ -60,6 +60,7 @@ export interface AndroidSystemAlarmStatus {
   lastTestAlarmTimestamp?: number;
   lastTestAlarmIso?: string;
   lastSetAlarmError?: string;
+  lastAlarmActivityError?: string;
   lastSetAlarmAttemptIso?: string;
   lastSetAlarmResult?: string;
   manufacturer?: string;

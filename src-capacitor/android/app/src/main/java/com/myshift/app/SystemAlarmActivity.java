@@ -27,6 +27,7 @@ public class SystemAlarmActivity extends Activity {
     private static final String ALARM_RINGTONE_URI = "alarm_ringtone_uri";
     private static final String ALARM_VIBRATION_ENABLED = "alarm_vibration_enabled";
     private static final String ALARM_VOLUME_RAMP_ENABLED = "alarm_volume_ramp_enabled";
+    private static final String LAST_ALARM_ACTIVITY_ERROR = "last_alarm_activity_error";
     private static final long[] VIBRATION_PATTERN = new long[] { 0, 600, 300, 600, 300, 900 };
     private Ringtone ringtone;
     private Vibrator vibrator;
@@ -50,6 +51,7 @@ public class SystemAlarmActivity extends Activity {
         super.onCreate(savedInstanceState);
         showOverLockScreen();
         cancelAlarmNotification();
+        getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit().remove(LAST_ALARM_ACTIVITY_ERROR).apply();
 
         String message = getIntent().getStringExtra(EXTRA_MESSAGE);
         if (message == null || message.isEmpty()) message = "My Shift";
@@ -83,8 +85,16 @@ public class SystemAlarmActivity extends Activity {
         layout.addView(stop);
         setContentView(layout);
 
-        playAlarmSound();
-        startVibration();
+        try {
+            playAlarmSound();
+        } catch (Exception error) {
+            rememberActivityError("sound:" + error.getClass().getSimpleName() + ": " + error.getMessage());
+        }
+        try {
+            startVibration();
+        } catch (Exception error) {
+            rememberActivityError("vibration:" + error.getClass().getSimpleName() + ": " + error.getMessage());
+        }
     }
 
     @Override
@@ -158,14 +168,22 @@ public class SystemAlarmActivity extends Activity {
 
     private void stopRingtone() {
         handler.removeCallbacks(volumeRamp);
-        if (ringtone != null && ringtone.isPlaying()) {
-            ringtone.stop();
+        try {
+            if (ringtone != null && ringtone.isPlaying()) {
+                ringtone.stop();
+            }
+        } catch (Exception error) {
+            rememberActivityError("stop-sound:" + error.getClass().getSimpleName() + ": " + error.getMessage());
         }
     }
 
     private void setRingtoneVolume(float volume) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && ringtone != null) {
-            ringtone.setVolume(volume);
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && ringtone != null) {
+                ringtone.setVolume(volume);
+            }
+        } catch (Exception error) {
+            rememberActivityError("volume:" + error.getClass().getSimpleName() + ": " + error.getMessage());
         }
     }
 
@@ -181,8 +199,12 @@ public class SystemAlarmActivity extends Activity {
     }
 
     private void stopVibration() {
-        if (vibrator != null) {
-            vibrator.cancel();
+        try {
+            if (vibrator != null) {
+                vibrator.cancel();
+            }
+        } catch (Exception error) {
+            rememberActivityError("stop-vibration:" + error.getClass().getSimpleName() + ": " + error.getMessage());
         }
     }
 
@@ -194,5 +216,12 @@ public class SystemAlarmActivity extends Activity {
     private boolean isVolumeRampEnabled() {
         return getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
             .getBoolean(ALARM_VOLUME_RAMP_ENABLED, true);
+    }
+
+    private void rememberActivityError(String error) {
+        getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
+            .edit()
+            .putString(LAST_ALARM_ACTIVITY_ERROR, error)
+            .apply();
     }
 }

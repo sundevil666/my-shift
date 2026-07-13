@@ -37,6 +37,7 @@ public class SystemAlarmPlugin extends Plugin {
     private static final String LAST_SET_ALARM_RESULT = "last_set_alarm_result";
     private static final String LAST_ALARM_FIRED = "last_alarm_fired";
     private static final String LAST_ALARM_DELIVERY = "last_alarm_delivery";
+    private static final String LAST_ALARM_ACTIVITY_ERROR = "last_alarm_activity_error";
     private static final String ALARM_RINGTONE_URI = "alarm_ringtone_uri";
     private static final String ALARM_VIBRATION_ENABLED = "alarm_vibration_enabled";
     private static final String ALARM_VOLUME_RAMP_ENABLED = "alarm_volume_ramp_enabled";
@@ -147,6 +148,7 @@ public class SystemAlarmPlugin extends Plugin {
             result.put("lastSetAlarmAttemptIso", new java.util.Date(lastAttempt).toString());
         }
         result.put("lastSetAlarmResult", preferences.getString(LAST_SET_ALARM_RESULT, null));
+        result.put("lastAlarmActivityError", preferences.getString(LAST_ALARM_ACTIVITY_ERROR, null));
         long lastAlarmFired = preferences.getLong(LAST_ALARM_FIRED, 0);
         if (lastAlarmFired > 0) {
             result.put("lastAlarmFiredIso", new java.util.Date(lastAlarmFired).toString());
