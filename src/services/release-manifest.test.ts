@@ -41,8 +41,30 @@ describe('release manifest', () => {
       .fn<typeof fetch>()
       .mockRejectedValueOnce(new Error('offline'))
       .mockResolvedValueOnce(new Response(JSON.stringify(manifest)));
-    expect(await loadReleaseManifest(fetcher)).toEqual(manifest);
-    expect(fetcher).toHaveBeenCalledTimes(2);
+    const result = await loadReleaseManifest(fetcher);
+    expect(result?.android.stable.map((release) => release.versionCode)).toEqual([13, 11]);
+    expect(fetcher).toHaveBeenCalledTimes(4);
+  });
+
+  it('keeps the newest release when an earlier source is stale', async () => {
+    const staleManifest: MobileReleaseManifest = {
+      android: { stable: [releases[0] as MobileRelease], advanced: [] },
+      ios: { stable: [], advanced: [] },
+    };
+    const freshManifest: MobileReleaseManifest = {
+      android: { stable: [releases[1] as MobileRelease], advanced: [] },
+      ios: { stable: [], advanced: [] },
+    };
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify(staleManifest)))
+      .mockResolvedValueOnce(new Response(JSON.stringify(freshManifest)))
+      .mockRejectedValue(new Error('offline'));
+
+    const manifest = await loadReleaseManifest(fetcher);
+
+    expect(manifest?.android.stable[0]?.versionCode).toBe(13);
+    expect(manifest?.android.stable[1]?.versionCode).toBe(11);
   });
 
   it('uses the local manifest during local development', async () => {
@@ -53,7 +75,8 @@ describe('release manifest', () => {
     };
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify(manifest)));
 
-    expect(await loadReleaseManifest(fetcher)).toEqual(manifest);
+    const result = await loadReleaseManifest(fetcher);
+    expect(result?.android.stable.map((release) => release.versionCode)).toEqual([13, 11]);
     expect(fetcher).toHaveBeenCalledOnce();
     expect(fetcher.mock.calls[0]?.[0]).toMatch(/^\/mobile-releases\.json\?time=/);
     vi.unstubAllGlobals();
@@ -68,10 +91,11 @@ describe('release manifest', () => {
     };
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify(manifest)));
 
-    expect(await loadReleaseManifest(fetcher)).toEqual(manifest);
-    expect(fetcher).toHaveBeenCalledOnce();
+    const result = await loadReleaseManifest(fetcher);
+    expect(result?.android.stable.map((release) => release.versionCode)).toEqual([13, 11]);
+    expect(fetcher).toHaveBeenCalledTimes(3);
     expect(fetcher.mock.calls[0]?.[0]).toMatch(
-      /^https:\/\/raw\.githubusercontent\.com\/sundevil666\/my-shift\/main\/public\/mobile-releases\.json\?time=/,
+      /^https:\/\/my-shift-iota\.vercel\.app\/mobile-releases\.json\?time=/,
     );
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
