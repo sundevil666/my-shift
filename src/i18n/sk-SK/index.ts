@@ -39,6 +39,7 @@ export default {
     consentHint: 'Lokálne a Android upozornenia fungujú bez odoslania rozvrhu push službe.',
     exportData: 'Exportovať údaje',
     importData: 'Importovať údaje',
+    exportSuccess: 'Export údajov je pripravený.',
     importSuccess: 'Údaje boli úspešne importované.',
     importError: 'Súbor nie je platný export údajov My Shift.',
   },

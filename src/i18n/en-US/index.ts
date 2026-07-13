@@ -40,6 +40,7 @@ export default {
       'Local and Android notifications work without sending your schedule to the push service.',
     exportData: 'Export data',
     importData: 'Import data',
+    exportSuccess: 'Data export is ready.',
     importSuccess: 'Data imported successfully.',
     importError: 'This is not a valid My Shift data export.',
   },

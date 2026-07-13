@@ -637,14 +637,38 @@ async function updateCloudPushConsent(value: boolean) {
   }
 }
 
-function exportData() {
-  const blob = new Blob([serializeMigration(app.data)], { type: 'application/json' });
+async function exportData() {
+  const serialized = serializeMigration(app.data);
+  const filename = `my-shift-data-${new Date().toISOString().slice(0, 10)}.json`;
+  const blob = new Blob([serialized], { type: 'application/json' });
+  const file = new File([blob], filename, { type: 'application/json' });
+
+  if (navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: t('privacy.exportData'),
+      });
+      $q.notify({ type: 'positive', message: t('privacy.exportSuccess') });
+      return;
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+    }
+  }
+
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = `my-shift-data-${new Date().toISOString().slice(0, 10)}.json`;
+  anchor.download = filename;
+  anchor.rel = 'noopener';
+  anchor.style.display = 'none';
+  document.body.append(anchor);
   anchor.click();
-  URL.revokeObjectURL(url);
+  window.setTimeout(() => {
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }, 1000);
+  $q.notify({ type: 'positive', message: t('privacy.exportSuccess') });
 }
 
 async function importData(event: Event) {

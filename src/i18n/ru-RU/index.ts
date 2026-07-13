@@ -39,6 +39,7 @@ export default {
     consentHint: 'Локальные и Android-уведомления работают без отправки расписания в push-сервис.',
     exportData: 'Экспорт данных',
     importData: 'Импорт данных',
+    exportSuccess: 'Экспорт данных готов.',
     importSuccess: 'Данные успешно импортированы.',
     importError: 'Файл не является экспортом данных My Shift.',
   },

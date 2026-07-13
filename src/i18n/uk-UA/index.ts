@@ -39,6 +39,7 @@ export default {
     consentHint: 'Локальні та Android-сповіщення працюють без надсилання розкладу до push-сервісу.',
     exportData: 'Експорт даних',
     importData: 'Імпорт даних',
+    exportSuccess: 'Експорт даних готовий.',
     importSuccess: 'Дані успішно імпортовано.',
     importError: 'Файл не є експортом даних My Shift.',
   },
