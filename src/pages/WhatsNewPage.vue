@@ -52,7 +52,7 @@
       <q-tab-panels v-model="platform" animated class="mobile-install-panels">
         <q-tab-panel v-for="target in platforms" :key="target" :name="target">
           <template v-if="target === 'android'">
-            <q-banner v-if="nativeAndroid" rounded class="mobile-install-card__update">
+            <q-banner rounded class="mobile-install-card__update">
               <template #avatar>
                 <q-icon
                   :name="availableAndroidUpdate ? 'system_update' : 'verified'"
@@ -82,7 +82,7 @@
                   </p>
                 </div>
                 <q-btn
-                  v-if="availableAndroidUpdate"
+                  v-if="availableAndroidUpdate && nativeAndroid"
                   unelevated
                   no-caps
                   color="primary"
@@ -90,6 +90,17 @@
                   :label="$t('mobileInstall.updateApk')"
                   :loading="installingVersion === availableAndroidUpdate.version"
                   @click="installAndroidRelease(availableAndroidUpdate)"
+                />
+                <q-btn
+                  v-else-if="availableAndroidUpdate"
+                  unelevated
+                  no-caps
+                  color="primary"
+                  icon="download"
+                  :href="trackedDownloadUrl(availableAndroidUpdate) ?? undefined"
+                  target="_blank"
+                  rel="noopener"
+                  :label="$t('mobileInstall.downloadApk')"
                 />
                 <q-btn
                   v-else
