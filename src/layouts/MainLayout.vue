@@ -191,7 +191,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, registerPlugin, type PluginListenerHandle } from '@capacitor/core';
 import { copyToClipboard, useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { RouterView, useRouter } from 'vue-router';
@@ -267,12 +267,19 @@ const iosNotificationMessage = computed(() =>
     : t('notifications.iosMessage'),
 );
 const productName = 'My Shift';
+const CapacitorApp = registerPlugin<{
+  addListener(
+    eventName: 'appStateChange',
+    listener: (state: { isActive: boolean }) => void,
+  ): Promise<PluginListenerHandle>;
+}>('App');
 const androidDownloadUrl = ref<string | null>(null);
 const automaticAndroidUpdateCheckInterval = 5 * 60_000;
 let lastAutomaticAndroidUpdateCheck = 0;
 let promptedAndroidUpdateVersionCode = 0;
 let automaticAndroidUpdateCheck: Promise<void> | null = null;
 let automaticPwaUpdateChecked = false;
+let nativeAppStateListener: Promise<PluginListenerHandle> | null = null;
 const dateTimer = window.setInterval(() => {
   now.value = new Date();
   if (now.value.getSeconds() === 0) app.applyShiftAtmosphere(now.value);
@@ -280,6 +287,9 @@ const dateTimer = window.setInterval(() => {
 const titleBlinkTimer = window.setInterval(() => {
   titleColonVisible.value = !titleColonVisible.value;
 }, 500);
+const automaticUpdateTimer = window.setInterval(() => {
+  void checkForAutomaticUpdate();
+}, 60_000);
 const todayLabel = computed(() =>
   new Intl.DateTimeFormat(locale.value, {
     weekday: 'long',
@@ -473,6 +483,9 @@ onMounted(() => {
   registerPwaInstallListeners();
   refreshNotificationPermission();
   window.addEventListener('focus', handleWindowFocus);
+  if (isNativeApp) {
+    nativeAppStateListener = CapacitorApp.addListener('appStateChange', handleNativeAppStateChange);
+  }
   void checkForAutomaticUpdate({ force: true });
   void startAppDownload();
   window.addEventListener('online', handleOnline);
@@ -518,9 +531,11 @@ watch(
 onBeforeUnmount(() => {
   window.clearInterval(dateTimer);
   window.clearInterval(titleBlinkTimer);
+  window.clearInterval(automaticUpdateTimer);
   document.removeEventListener('visibilitychange', syncAfterVisibilityChange);
   window.removeEventListener(APP_UPDATE_AVAILABLE_EVENT, showAppUpdateDialog);
   unregisterPwaInstallListeners();
+  void nativeAppStateListener?.then((listener) => listener.remove());
   window.removeEventListener('focus', handleWindowFocus);
   window.removeEventListener('online', handleOnline);
   window.removeEventListener('app-route-unavailable', showUnavailableNotification);
@@ -573,6 +588,11 @@ function handleWindowFocus() {
 }
 function handleOnline() {
   retryAppDownload();
+  void checkForAutomaticUpdate({ force: true });
+}
+function handleNativeAppStateChange(state: { isActive: boolean }) {
+  if (!state.isActive) return;
+  refreshNotificationPermission();
   void checkForAutomaticUpdate({ force: true });
 }
 function toggleTheme() {
