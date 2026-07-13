@@ -49,25 +49,15 @@ public class SystemAlarmPlugin extends Plugin {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timestamp.longValue());
 
-        Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
-        intent.putExtra(AlarmClock.EXTRA_HOUR, calendar.get(Calendar.HOUR_OF_DAY));
-        intent.putExtra(AlarmClock.EXTRA_MINUTES, calendar.get(Calendar.MINUTE));
-        intent.putExtra(AlarmClock.EXTRA_MESSAGE, message);
-        intent.putExtra(AlarmClock.EXTRA_VIBRATE, true);
-        intent.putExtra(AlarmClock.EXTRA_SKIP_UI, true);
-        String ringtoneUri = preferences.getString(ALARM_RINGTONE_URI, null);
-        if (ringtoneUri != null) {
-            intent.putExtra(AlarmClock.EXTRA_RINGTONE, ringtoneUri);
-        }
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent silentIntent = buildSetAlarmIntent(calendar, message, true);
 
-        if (intent.resolveActivity(getContext().getPackageManager()) == null) {
+        if (!canResolve(silentIntent)) {
             call.reject("No Android clock app is available");
             return;
         }
 
         try {
-            getContext().startActivity(intent);
+            startAlarm(silentIntent, calendar, message);
             preferences.edit()
                 .putString(LAST_ALARM_ID, id)
                 .putString(LAST_ALARM_MESSAGE, message)
@@ -172,5 +162,30 @@ public class SystemAlarmPlugin extends Plugin {
 
     private boolean canResolve(Intent intent) {
         return intent.resolveActivity(getContext().getPackageManager()) != null;
+    }
+
+    private Intent buildSetAlarmIntent(Calendar calendar, String message, boolean skipUi) {
+        Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
+        intent.putExtra(AlarmClock.EXTRA_HOUR, calendar.get(Calendar.HOUR_OF_DAY));
+        intent.putExtra(AlarmClock.EXTRA_MINUTES, calendar.get(Calendar.MINUTE));
+        intent.putExtra(AlarmClock.EXTRA_MESSAGE, message);
+        intent.putExtra(AlarmClock.EXTRA_VIBRATE, true);
+        intent.putExtra(AlarmClock.EXTRA_SKIP_UI, skipUi);
+
+        String ringtoneUri = preferences().getString(ALARM_RINGTONE_URI, null);
+        if (ringtoneUri != null) {
+            intent.putExtra(AlarmClock.EXTRA_RINGTONE, ringtoneUri);
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        return intent;
+    }
+
+    private void startAlarm(Intent silentIntent, Calendar calendar, String message) {
+        try {
+            getContext().startActivity(silentIntent);
+        } catch (Exception silentError) {
+            Intent visibleIntent = buildSetAlarmIntent(calendar, message, false);
+            getContext().startActivity(visibleIntent);
+        }
     }
 }
