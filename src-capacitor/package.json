@@ -1,6 +1,6 @@
 {
   "name": "my-shift",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Local-first shift planning assistant",
   "author": "sundevil <sundevildi@gmail.com>",
   "private": true,

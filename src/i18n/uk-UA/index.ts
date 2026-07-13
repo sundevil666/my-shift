@@ -508,7 +508,7 @@ export default {
     stopAlarm: 'Вимкнути будильник',
     chooseAlarmSound: 'Вибрати звук будильника',
     openAndroidSoundSettings: 'Налаштування звуку',
-    androidAlarmReady: 'Android-будильник готовий: Clock доступний і звук вибрано.',
+    androidAlarmReady: 'Android-будильник готовий: Clock доступний.',
     androidAlarmNeedsSetup: 'Виберіть звук і запустіть тест перед тим, як покладатися на будильник.',
     androidNativeRequired:
       'Нативний Android-будильник працює тільки у встановленому APK. Зараз екран запущено як PWA/Web, тому веб-звук не є надійним будильником.',

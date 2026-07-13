@@ -431,7 +431,7 @@ const appVersion = process.env.APP_VERSION;
 const runtimePlatform = isAndroidNative ? 'APK Android' : isAndroidDevice ? 'PWA/Web Android' : 'Web/PWA';
 const androidAlarmCanSet = ref(false);
 const androidAlarmHasCustomSound = ref(false);
-const androidAlarmReady = computed(() => androidAlarmCanSet.value && androidAlarmHasCustomSound.value);
+const androidAlarmReady = computed(() => androidAlarmCanSet.value);
 const scheduleDate = computed(() =>
   new Intl.DateTimeFormat(locale.value).format(new Date(`${DHL_SCHEDULE_VALID_FROM}T00:00:00`)),
 );

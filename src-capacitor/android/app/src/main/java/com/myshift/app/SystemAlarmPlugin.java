@@ -49,7 +49,7 @@ public class SystemAlarmPlugin extends Plugin {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timestamp.longValue());
 
-        Intent silentIntent = buildSetAlarmIntent(calendar, message, true);
+        Intent silentIntent = buildSetAlarmIntent(calendar, message, true, true);
 
         if (!canResolve(silentIntent)) {
             call.reject("No Android clock app is available");
@@ -164,7 +164,12 @@ public class SystemAlarmPlugin extends Plugin {
         return intent.resolveActivity(getContext().getPackageManager()) != null;
     }
 
-    private Intent buildSetAlarmIntent(Calendar calendar, String message, boolean skipUi) {
+    private Intent buildSetAlarmIntent(
+        Calendar calendar,
+        String message,
+        boolean skipUi,
+        boolean includeRingtone
+    ) {
         Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
         intent.putExtra(AlarmClock.EXTRA_HOUR, calendar.get(Calendar.HOUR_OF_DAY));
         intent.putExtra(AlarmClock.EXTRA_MINUTES, calendar.get(Calendar.MINUTE));
@@ -173,7 +178,7 @@ public class SystemAlarmPlugin extends Plugin {
         intent.putExtra(AlarmClock.EXTRA_SKIP_UI, skipUi);
 
         String ringtoneUri = preferences().getString(ALARM_RINGTONE_URI, null);
-        if (ringtoneUri != null) {
+        if (includeRingtone && ringtoneUri != null) {
             intent.putExtra(AlarmClock.EXTRA_RINGTONE, ringtoneUri);
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -184,8 +189,13 @@ public class SystemAlarmPlugin extends Plugin {
         try {
             getContext().startActivity(silentIntent);
         } catch (Exception silentError) {
-            Intent visibleIntent = buildSetAlarmIntent(calendar, message, false);
-            getContext().startActivity(visibleIntent);
+            try {
+                Intent visibleIntent = buildSetAlarmIntent(calendar, message, false, true);
+                getContext().startActivity(visibleIntent);
+            } catch (Exception visibleError) {
+                Intent basicIntent = buildSetAlarmIntent(calendar, message, false, false);
+                getContext().startActivity(basicIntent);
+            }
         }
     }
 }

@@ -502,7 +502,7 @@ export default {
     testAndroidAlarm: 'Test Android budíka',
     chooseAlarmSound: 'Vybrať zvuk budíka',
     openAndroidSoundSettings: 'Nastavenia zvuku',
-    androidAlarmReady: 'Android budík je pripravený: Clock je dostupný a zvuk je vybraný.',
+    androidAlarmReady: 'Android budík je pripravený: Clock je dostupný.',
     androidAlarmNeedsSetup: 'Vyberte zvuk a spustite test skôr, než sa na budík spoľahnete.',
     androidNativeRequired:
       'Natívny Android budík funguje iba v nainštalovanom APK. Táto obrazovka beží ako PWA/Web, takže webový zvuk nie je spoľahlivý budík.',
