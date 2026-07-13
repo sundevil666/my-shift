@@ -44,13 +44,6 @@ export async function requestNativeNotificationPermission(): Promise<
 
   if (permission.display !== 'granted') return 'denied';
 
-  if (Capacitor.getPlatform() === 'android') {
-    const exact = await LocalNotifications.checkExactNotificationSetting();
-    if (exact.exact_alarm !== 'granted') {
-      await LocalNotifications.changeExactNotificationSetting();
-    }
-  }
-
   return 'granted';
 }
 
@@ -94,7 +87,11 @@ export async function syncNativeReminders(
     }));
 
   if (notifications.length > 0) {
-    await LocalNotifications.schedule({ notifications });
+    try {
+      await LocalNotifications.schedule({ notifications });
+    } catch {
+      return systemAlarmId !== null;
+    }
   }
   return true;
 }
