@@ -67,9 +67,6 @@ public class SystemAlarmPlugin extends Plugin {
             return;
         }
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timestamp);
-
         try {
             setOwnedAlarm(scope, timestamp, message);
             SharedPreferences.Editor editor = preferences.edit()
@@ -178,6 +175,33 @@ public class SystemAlarmPlugin extends Plugin {
         }
         getContext().startActivity(intent);
         call.resolve();
+    }
+
+    @PluginMethod
+    public void openExactAlarmSettings(PluginCall call) {
+        Intent intent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+            intent.setData(Uri.parse("package:" + getContext().getPackageName()));
+        } else {
+            intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(Uri.parse("package:" + getContext().getPackageName()));
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            getContext().startActivity(intent);
+            call.resolve();
+        } catch (Exception error) {
+            Intent fallback = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            fallback.setData(Uri.parse("package:" + getContext().getPackageName()));
+            fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                getContext().startActivity(fallback);
+                call.resolve();
+            } catch (Exception fallbackError) {
+                call.reject("No exact alarm settings screen is available", fallbackError);
+            }
+        }
     }
 
     @ActivityCallback

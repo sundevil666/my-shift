@@ -521,8 +521,10 @@ export default {
     stopAlarm: 'Stop alarm',
     chooseAlarmSound: 'Choose alarm sound',
     openAndroidSoundSettings: 'Sound settings',
-    androidAlarmReady: 'Android alarm is ready: Clock app is available.',
-    androidAlarmNeedsSetup: 'Choose a sound and run a test alarm before relying on it.',
+    openExactAlarmSettings: 'Allow exact alarms',
+    openExactAlarmSettingsShort: 'Allow',
+    androidAlarmReady: 'Android alarm is ready: exact alarms are allowed.',
+    androidAlarmNeedsSetup: 'Allow Android exact alarms, then run the test.',
     androidNativeRequired:
       'Native Android alarm works only in the installed APK. This screen is running as PWA/Web, so the web sound test is not a reliable alarm.',
     runtimeInfo: 'Version {version} · {platform}',
@@ -536,6 +538,10 @@ export default {
     alarmSoundNotSelected: 'Alarm sound was not changed.',
     androidSoundSettingsOpened: 'Android sound settings opened.',
     androidSoundSettingsFailed: 'Could not open Android sound settings.',
+    exactAlarmPermissionRequired:
+      'Android blocks exact alarms for My Shift. Open settings and allow alarms.',
+    exactAlarmSettingsOpened: 'Android exact alarm settings opened.',
+    exactAlarmSettingsFailed: 'Could not open Android exact alarm settings.',
     alarmDebug: 'Android alarm diagnostics',
     refreshAlarmDebug: 'Refresh diagnostics',
     copyAlarmDebug: 'Copy diagnostics',

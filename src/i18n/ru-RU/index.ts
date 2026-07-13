@@ -524,8 +524,10 @@ export default {
     stopAlarm: 'Отключить будильник',
     chooseAlarmSound: 'Выбрать звук будильника',
     openAndroidSoundSettings: 'Настройки звука',
-    androidAlarmReady: 'Android-будильник готов: Clock доступен.',
-    androidAlarmNeedsSetup: 'Выберите звук и запустите тест перед тем, как полагаться на будильник.',
+    openExactAlarmSettings: 'Разрешить точные будильники',
+    openExactAlarmSettingsShort: 'Разрешить',
+    androidAlarmReady: 'Android-будильник готов: точные будильники разрешены.',
+    androidAlarmNeedsSetup: 'Разрешите точные будильники Android, затем запустите тест.',
     androidNativeRequired:
       'Нативный Android-будильник работает только в установленном APK. Сейчас экран запущен как PWA/Web, поэтому веб-звук не является надёжным будильником.',
     runtimeInfo: 'Версия {version} · {platform}',
@@ -539,6 +541,10 @@ export default {
     alarmSoundNotSelected: 'Звук будильника не изменён.',
     androidSoundSettingsOpened: 'Настройки звука Android открыты.',
     androidSoundSettingsFailed: 'Не удалось открыть настройки звука Android.',
+    exactAlarmPermissionRequired:
+      'Android запрещает точные будильники для My Shift. Откройте настройку и разрешите будильники.',
+    exactAlarmSettingsOpened: 'Открыты настройки точных будильников Android.',
+    exactAlarmSettingsFailed: 'Не удалось открыть настройки точных будильников Android.',
     alarmDebug: 'Диагностика Android-будильника',
     refreshAlarmDebug: 'Обновить диагностику',
     copyAlarmDebug: 'Скопировать диагностику',

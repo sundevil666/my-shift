@@ -295,6 +295,16 @@
               @click="testAlarm"
             />
           </div>
+          <div v-if="isAndroidNative && !androidAlarmReady">
+            <q-btn
+              class="app-action-button full-width"
+              color="primary"
+              icon="alarm_add"
+              no-caps
+              :label="$t('settings.openExactAlarmSettings')"
+              @click="openExactAlarmSettings"
+            />
+          </div>
           <div v-if="isAndroidNative">
             <q-btn
               outline
@@ -499,6 +509,7 @@ import {
   getAndroidSystemAlarmStatus,
   isNativeAndroidApp,
   openAndroidAlarmSettings,
+  openAndroidExactAlarmSettings,
   runAndroidTestAlarmDiagnostics,
   getAndroidAlarmDiagnostics,
 } from 'src/services/native-notifications';
@@ -626,6 +637,24 @@ async function testAlarm() {
   }
 
   if (isAndroidNative) {
+    if (!androidAlarmCanSet.value) {
+      $q.notify({
+        type: 'warning',
+        icon: 'alarm_add',
+        message: t('settings.exactAlarmPermissionRequired'),
+        timeout: 7000,
+        actions: [
+          {
+            label: t('settings.openExactAlarmSettingsShort'),
+            color: 'white',
+            handler: () => void openExactAlarmSettings(),
+          },
+        ],
+      });
+      await refreshAlarmDiagnostics();
+      return;
+    }
+
     const result = await runAndroidTestAlarmDiagnostics(t('settings.testAlarmMessage'));
     androidAlarmDiagnosticsText.value = JSON.stringify(result, null, 2);
     await refreshAndroidAlarmStatus();
@@ -672,6 +701,13 @@ async function openAlarmSettings() {
   $q.notify({
     type: opened ? 'positive' : 'warning',
     message: t(opened ? 'settings.androidSoundSettingsOpened' : 'settings.androidSoundSettingsFailed'),
+  });
+}
+async function openExactAlarmSettings() {
+  const opened = await openAndroidExactAlarmSettings();
+  $q.notify({
+    type: opened ? 'positive' : 'warning',
+    message: t(opened ? 'settings.exactAlarmSettingsOpened' : 'settings.exactAlarmSettingsFailed'),
   });
 }
 async function refreshAndroidAlarmStatus() {

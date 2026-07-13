@@ -519,8 +519,10 @@ export default {
     clearAndroidTestAlarm: 'Odstrániť testovací Android budík',
     chooseAlarmSound: 'Vybrať zvuk budíka',
     openAndroidSoundSettings: 'Nastavenia zvuku',
-    androidAlarmReady: 'Android budík je pripravený: Clock je dostupný.',
-    androidAlarmNeedsSetup: 'Vyberte zvuk a spustite test skôr, než sa na budík spoľahnete.',
+    openExactAlarmSettings: 'Povoliť presné budíky',
+    openExactAlarmSettingsShort: 'Povoliť',
+    androidAlarmReady: 'Android budík je pripravený: presné budíky sú povolené.',
+    androidAlarmNeedsSetup: 'Povoľte presné budíky Android a potom spustite test.',
     androidNativeRequired:
       'Natívny Android budík funguje iba v nainštalovanom APK. Táto obrazovka beží ako PWA/Web, takže webový zvuk nie je spoľahlivý budík.',
     runtimeInfo: 'Verzia {version} · {platform}',
@@ -534,6 +536,10 @@ export default {
     alarmSoundNotSelected: 'Zvuk budíka sa nezmenil.',
     androidSoundSettingsOpened: 'Nastavenia zvuku Android boli otvorené.',
     androidSoundSettingsFailed: 'Nepodarilo sa otvoriť nastavenia zvuku Android.',
+    exactAlarmPermissionRequired:
+      'Android blokuje presné budíky pre My Shift. Otvorte nastavenia a povoľte budíky.',
+    exactAlarmSettingsOpened: 'Nastavenia presných budíkov Android boli otvorené.',
+    exactAlarmSettingsFailed: 'Nepodarilo sa otvoriť nastavenia presných budíkov Android.',
     alarmDebug: 'Diagnostika Android budíka',
     refreshAlarmDebug: 'Obnoviť diagnostiku',
     copyAlarmDebug: 'Kopírovať diagnostiku',

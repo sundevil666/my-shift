@@ -26,6 +26,7 @@ interface SystemAlarmPlugin {
   getStatus(): Promise<AndroidSystemAlarmStatus>;
   chooseAlarmSound(): Promise<{ selected: boolean }>;
   openAlarmSettings(): Promise<void>;
+  openExactAlarmSettings(): Promise<void>;
 }
 
 const SystemAlarm = registerPlugin<SystemAlarmPlugin>('SystemAlarm');
@@ -181,6 +182,16 @@ export async function openAndroidAlarmSettings(): Promise<boolean> {
   if (!isNativeAndroidApp()) return false;
   try {
     await SystemAlarm.openAlarmSettings();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function openAndroidExactAlarmSettings(): Promise<boolean> {
+  if (!isNativeAndroidApp()) return false;
+  try {
+    await SystemAlarm.openExactAlarmSettings();
     return true;
   } catch {
     return false;
