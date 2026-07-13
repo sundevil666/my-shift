@@ -240,7 +240,7 @@ public class SystemAlarmPlugin extends Plugin {
         if (!canScheduleOwnedAlarms()) {
             throw new SecurityException("Exact alarm permission is not granted");
         }
-        PendingIntent operation = alarmPendingIntent(scope, message, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent operation = alarmActivityPendingIntent(scope, message, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent showIntent = showPendingIntent(scope);
         alarmManager.cancel(operation);
         alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(timestamp, showIntent), operation);
@@ -248,11 +248,29 @@ public class SystemAlarmPlugin extends Plugin {
 
     private void cancelOwnedAlarm(String scope) {
         AlarmManager alarmManager = getAlarmManager();
-        PendingIntent operation = alarmPendingIntent(scope, null, PendingIntent.FLAG_NO_CREATE);
-        if (alarmManager != null && operation != null) {
-            alarmManager.cancel(operation);
-            operation.cancel();
+        PendingIntent activityOperation = alarmActivityPendingIntent(scope, null, PendingIntent.FLAG_NO_CREATE);
+        PendingIntent receiverOperation = alarmPendingIntent(scope, null, PendingIntent.FLAG_NO_CREATE);
+        if (alarmManager != null) {
+            if (activityOperation != null) alarmManager.cancel(activityOperation);
+            if (receiverOperation != null) alarmManager.cancel(receiverOperation);
         }
+        if (activityOperation != null) activityOperation.cancel();
+        if (receiverOperation != null) receiverOperation.cancel();
+    }
+
+    private PendingIntent alarmActivityPendingIntent(String scope, String message, int createFlag) {
+        Intent intent = new Intent(getContext(), SystemAlarmActivity.class);
+        intent.putExtra(SystemAlarmActivity.EXTRA_SCOPE, scope);
+        if (message != null) {
+            intent.putExtra(SystemAlarmActivity.EXTRA_MESSAGE, message);
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return PendingIntent.getActivity(
+            getContext(),
+            requestCode(scope),
+            intent,
+            createFlag | PendingIntent.FLAG_IMMUTABLE
+        );
     }
 
     private PendingIntent alarmPendingIntent(String scope, String message, int createFlag) {
