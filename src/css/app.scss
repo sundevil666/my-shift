@@ -2586,26 +2586,26 @@ body {
   margin-top: 16px;
   background: color-mix(in srgb, var(--q-warning) 13%, var(--app-surface));
 }
-.ios-install-guide {
+.pwa-install-guide {
   color: var(--app-muted);
 }
-.ios-install-guide__title {
+.pwa-install-guide__title {
   display: flex;
   align-items: center;
   gap: 10px;
   color: var(--app-text);
   font-size: 1.05rem;
 }
-.ios-install-guide__title .q-icon {
+.pwa-install-guide__title .q-icon {
   font-size: 1.5rem;
 }
-.ios-install-guide ol {
+.pwa-install-guide ol {
   display: grid;
   gap: 9px;
   margin: 14px 0;
   padding-left: 22px;
 }
-.ios-install-guide__note {
+.pwa-install-guide__note {
   background: var(--app-primary-soft);
   color: var(--app-text);
 }

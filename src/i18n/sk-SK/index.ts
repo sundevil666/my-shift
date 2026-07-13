@@ -169,6 +169,18 @@ export default {
     iosStepConfirm: 'Klepnite na Pridať a spúšťajte My Shift z plochy.',
     iosNotifications:
       'Po inštalácii otvorte My Shift z plochy a povoľte upozornenia v nastaveniach aplikácie.',
+    desktopTab: 'Notebook',
+    desktopNote:
+      'Na notebooku si môžete My Shift nainštalovať ako PWA aplikáciu v Chrome, Edge alebo inom kompatibilnom prehliadači.',
+    desktopPwaTitle: 'Nainštalovať My Shift na notebook',
+    desktopStepOpen: 'Otvorte web My Shift v Chrome alebo Edge.',
+    desktopStepInstall:
+      'Kliknite na ikonu inštalácie v adresnom riadku alebo otvorte menu prehliadača a vyberte Inštalovať aplikáciu.',
+    desktopStepConfirm: 'Potvrďte inštaláciu v okne prehliadača.',
+    desktopStepLaunch:
+      'Spúšťajte My Shift ako bežnú aplikáciu z pracovnej plochy, panela úloh alebo menu aplikácií.',
+    desktopSync:
+      'Je to rovnaká PWA verzia: údaje zostávajú v prehliadači a aktualizácie sa načítajú automaticky pri spustení.',
     stable: 'Stabilná',
     advanced: 'Pokročilá',
     downloadApk: 'Stiahnuť APK',

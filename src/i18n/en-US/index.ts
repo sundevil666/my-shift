@@ -175,6 +175,18 @@ export default {
     iosStepConfirm: 'Tap Add and launch My Shift from the Home Screen.',
     iosNotifications:
       'After installation, open My Shift from the Home Screen and allow notifications in the app settings.',
+    desktopTab: 'Laptop',
+    desktopNote:
+      'On a laptop, My Shift can be installed as a PWA app in Chrome, Edge, or another compatible browser.',
+    desktopPwaTitle: 'Install My Shift on your laptop',
+    desktopStepOpen: 'Open the My Shift website in Chrome or Edge.',
+    desktopStepInstall:
+      'Click the install icon in the address bar, or open the browser menu and choose Install app.',
+    desktopStepConfirm: 'Confirm the installation in the browser dialog.',
+    desktopStepLaunch:
+      'Launch My Shift like a regular app from the desktop, taskbar, dock, or app launcher.',
+    desktopSync:
+      'This is the same PWA version: data stays in the browser and updates are pulled automatically on launch.',
     stable: 'Stable',
     advanced: 'Advanced',
     downloadApk: 'Download APK',

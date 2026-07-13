@@ -45,6 +45,7 @@
       >
         <q-tab name="android" icon="android" label="Android" />
         <q-tab name="ios" icon="phone_iphone" label="iPhone / iOS" />
+        <q-tab name="desktop" icon="laptop_mac" :label="$t('mobileInstall.desktopTab')" />
       </q-tabs>
 
       <q-separator />
@@ -58,8 +59,8 @@
             </q-banner>
           </template>
 
-          <div v-else class="ios-install-guide">
-            <div class="ios-install-guide__title">
+          <div v-else-if="target === 'ios'" class="pwa-install-guide">
+            <div class="pwa-install-guide__title">
               <q-icon name="ios_share" color="primary" />
               <strong>{{ $t('mobileInstall.iosPwaTitle') }}</strong>
             </div>
@@ -70,9 +71,27 @@
               <li>{{ $t('mobileInstall.iosStepHome') }}</li>
               <li>{{ $t('mobileInstall.iosStepConfirm') }}</li>
             </ol>
-            <q-banner rounded class="ios-install-guide__note">
+            <q-banner rounded class="pwa-install-guide__note">
               <template #avatar><q-icon name="notifications_active" color="primary" /></template>
               {{ $t('mobileInstall.iosNotifications') }}
+            </q-banner>
+          </div>
+
+          <div v-else class="pwa-install-guide">
+            <div class="pwa-install-guide__title">
+              <q-icon name="install_desktop" color="primary" />
+              <strong>{{ $t('mobileInstall.desktopPwaTitle') }}</strong>
+            </div>
+            <p>{{ $t('mobileInstall.desktopNote') }}</p>
+            <ol>
+              <li>{{ $t('mobileInstall.desktopStepOpen') }}</li>
+              <li>{{ $t('mobileInstall.desktopStepInstall') }}</li>
+              <li>{{ $t('mobileInstall.desktopStepConfirm') }}</li>
+              <li>{{ $t('mobileInstall.desktopStepLaunch') }}</li>
+            </ol>
+            <q-banner rounded class="pwa-install-guide__note">
+              <template #avatar><q-icon name="sync" color="primary" /></template>
+              {{ $t('mobileInstall.desktopSync') }}
             </q-banner>
           </div>
 
@@ -250,9 +269,10 @@ const challenge = ref<FeedbackChallenge | null>(null);
 const sending = ref(false);
 const nativeAndroid = canInstallNativeAndroidUpdate();
 const installingVersion = ref<string | null>(null);
-const platforms = ['android', 'ios'] as const;
+const platforms = ['android', 'ios', 'desktop'] as const;
+type InstallPlatform = (typeof platforms)[number];
 
-const platform = ref<Platform>(detectPlatform());
+const platform = ref<InstallPlatform>(detectPlatform());
 const channel = ref<Channel>('stable');
 const mobileReleases = ref<MobileReleaseManifest>({
   android: { stable: [], advanced: [] },
@@ -361,7 +381,7 @@ onMounted(() => {
   void loadMobileReleases();
 });
 
-function detectPlatform(): Platform {
+function detectPlatform(): InstallPlatform {
   if (typeof navigator === 'undefined') return 'android';
   return /iPad|iPhone|iPod/.test(navigator.userAgent) ? 'ios' : 'android';
 }
