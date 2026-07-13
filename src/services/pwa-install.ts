@@ -56,3 +56,5 @@ function isInstalledDisplayMode() {
       (navigator as Navigator & { standalone?: boolean }).standalone === true)
   );
 }
+
+registerPwaInstallListeners();

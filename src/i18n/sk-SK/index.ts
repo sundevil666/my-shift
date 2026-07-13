@@ -169,9 +169,6 @@ export default {
     iosStepConfirm: 'Klepnite na Pridať a spúšťajte My Shift z plochy.',
     iosNotifications:
       'Po inštalácii otvorte My Shift z plochy a povoľte upozornenia v nastaveniach aplikácie.',
-    iosInstallButton: 'Ukázať, kde klepnúť',
-    iosInstallHint:
-      'Na iPhone klepnite v Safari na Zdieľať a vyberte Pridať na plochu. Web túto systémovú ponuku nevie otvoriť automaticky.',
     desktopTab: 'Notebook',
     desktopNote:
       'Na notebooku si môžete My Shift nainštalovať ako PWA aplikáciu v Chrome, Edge alebo inom kompatibilnom prehliadači.',
@@ -187,7 +184,7 @@ export default {
       'Je to rovnaká PWA verzia: údaje zostávajú v prehliadači a aktualizácie sa načítajú automaticky pri spustení.',
     pwaInstalled: 'My Shift je už nainštalovaný ako aplikácia.',
     pwaInstallUnavailable:
-      'Tlačidlo sa aktivuje, keď prehliadač pripraví inštaláciu. Ak sa nezobrazí, použite menu prehliadača.',
+      'Prehliadač neotvoril inštaláciu automaticky. Kliknite na ikonu inštalácie v adresnom riadku alebo vyberte Inštalovať aplikáciu v menu prehliadača.',
     stable: 'Stabilná',
     advanced: 'Pokročilá',
     downloadApk: 'Stiahnuť APK',

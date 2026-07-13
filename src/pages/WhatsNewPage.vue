@@ -66,14 +66,6 @@
             </div>
             <div class="pwa-install-guide__intro">
               <p>{{ $t('mobileInstall.iosNote') }}</p>
-              <q-btn
-                unelevated
-                no-caps
-                color="primary"
-                icon="ios_share"
-                :label="$t('mobileInstall.iosInstallButton')"
-                @click="showIosInstallHint"
-              />
             </div>
             <ol>
               <li>{{ $t('mobileInstall.iosStepOpen') }}</li>
@@ -100,7 +92,7 @@
                 color="primary"
                 icon="install_desktop"
                 :label="$t('mobileInstall.desktopInstallButton')"
-                :disable="isInstalledApp || !installPrompt"
+                :disable="isInstalledApp"
                 @click="installDesktopPwa"
               >
                 <q-tooltip v-if="isInstalledApp">
@@ -468,15 +460,6 @@ async function installDesktopPwa() {
       message: t('mobileInstall.pwaInstallUnavailable'),
     });
   }
-}
-
-function showIosInstallHint() {
-  $q.notify({
-    type: 'info',
-    icon: 'ios_share',
-    message: t('mobileInstall.iosInstallHint'),
-    timeout: 6500,
-  });
 }
 
 function formatDate(date: string) {
