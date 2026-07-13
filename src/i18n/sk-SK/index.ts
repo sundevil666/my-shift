@@ -169,10 +169,14 @@ export default {
     iosStepConfirm: 'Klepnite na Pridať a spúšťajte My Shift z plochy.',
     iosNotifications:
       'Po inštalácii otvorte My Shift z plochy a povoľte upozornenia v nastaveniach aplikácie.',
+    iosInstallButton: 'Ukázať, kde klepnúť',
+    iosInstallHint:
+      'Na iPhone klepnite v Safari na Zdieľať a vyberte Pridať na plochu. Web túto systémovú ponuku nevie otvoriť automaticky.',
     desktopTab: 'Notebook',
     desktopNote:
       'Na notebooku si môžete My Shift nainštalovať ako PWA aplikáciu v Chrome, Edge alebo inom kompatibilnom prehliadači.',
     desktopPwaTitle: 'Nainštalovať My Shift na notebook',
+    desktopInstallButton: 'Inštalovať ako PWA',
     desktopStepOpen: 'Otvorte web My Shift v Chrome alebo Edge.',
     desktopStepInstall:
       'Kliknite na ikonu inštalácie v adresnom riadku alebo otvorte menu prehliadača a vyberte Inštalovať aplikáciu.',
@@ -181,6 +185,9 @@ export default {
       'Spúšťajte My Shift ako bežnú aplikáciu z pracovnej plochy, panela úloh alebo menu aplikácií.',
     desktopSync:
       'Je to rovnaká PWA verzia: údaje zostávajú v prehliadači a aktualizácie sa načítajú automaticky pri spustení.',
+    pwaInstalled: 'My Shift je už nainštalovaný ako aplikácia.',
+    pwaInstallUnavailable:
+      'Tlačidlo sa aktivuje, keď prehliadač pripraví inštaláciu. Ak sa nezobrazí, použite menu prehliadača.',
     stable: 'Stabilná',
     advanced: 'Pokročilá',
     downloadApk: 'Stiahnuť APK',
@@ -480,8 +487,20 @@ export default {
     arrivalModeAlarm: 'Budík',
     notificationTest: 'Test upozornení',
     notificationTestHint: 'Ručne otestujte zvuk a správu prehliadača.',
+    androidAlarmTestHint: 'Skontrolujte systémový budík Android a vyberte zvuk budíka.',
     testAlarm: 'Test budíka',
     stopAlarm: 'Vypnúť budík',
+    testAndroidAlarm: 'Test Android budíka',
+    chooseAlarmSound: 'Vybrať zvuk budíka',
+    openAndroidSoundSettings: 'Nastavenia zvuku',
+    androidAlarmReady: 'Android budík je pripravený: Clock je dostupný a zvuk je vybraný.',
+    androidAlarmNeedsSetup: 'Vyberte zvuk a spustite test skôr, než sa na budík spoľahnete.',
+    androidAlarmScheduled: 'Testovací budík bol vytvorený v Android Clock na najbližšiu minútu.',
+    androidAlarmFailed: 'Na tomto zariadení sa nepodarilo vytvoriť budík Android Clock.',
+    alarmSoundSelected: 'Zvuk budíka bol uložený.',
+    alarmSoundNotSelected: 'Zvuk budíka sa nezmenil.',
+    androidSoundSettingsOpened: 'Nastavenia zvuku Android boli otvorené.',
+    androidSoundSettingsFailed: 'Nepodarilo sa otvoriť nastavenia zvuku Android.',
     testNotification: 'Test upozornenia',
     testAlarmMessage: 'Test budíka: čas vstávať',
     testNotificationMessage: 'Toto je testovacie upozornenie',

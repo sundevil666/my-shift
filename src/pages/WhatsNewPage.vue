@@ -64,7 +64,17 @@
               <q-icon name="ios_share" color="primary" />
               <strong>{{ $t('mobileInstall.iosPwaTitle') }}</strong>
             </div>
-            <p>{{ $t('mobileInstall.iosNote') }}</p>
+            <div class="pwa-install-guide__intro">
+              <p>{{ $t('mobileInstall.iosNote') }}</p>
+              <q-btn
+                unelevated
+                no-caps
+                color="primary"
+                icon="ios_share"
+                :label="$t('mobileInstall.iosInstallButton')"
+                @click="showIosInstallHint"
+              />
+            </div>
             <ol>
               <li>{{ $t('mobileInstall.iosStepOpen') }}</li>
               <li>{{ $t('mobileInstall.iosStepShare') }}</li>
@@ -82,7 +92,25 @@
               <q-icon name="install_desktop" color="primary" />
               <strong>{{ $t('mobileInstall.desktopPwaTitle') }}</strong>
             </div>
-            <p>{{ $t('mobileInstall.desktopNote') }}</p>
+            <div class="pwa-install-guide__intro">
+              <p>{{ $t('mobileInstall.desktopNote') }}</p>
+              <q-btn
+                unelevated
+                no-caps
+                color="primary"
+                icon="install_desktop"
+                :label="$t('mobileInstall.desktopInstallButton')"
+                :disable="isInstalledApp || !installPrompt"
+                @click="installDesktopPwa"
+              >
+                <q-tooltip v-if="isInstalledApp">
+                  {{ $t('mobileInstall.pwaInstalled') }}
+                </q-tooltip>
+                <q-tooltip v-else-if="!installPrompt">
+                  {{ $t('mobileInstall.pwaInstallUnavailable') }}
+                </q-tooltip>
+              </q-btn>
+            </div>
             <ol>
               <li>{{ $t('mobileInstall.desktopStepOpen') }}</li>
               <li>{{ $t('mobileInstall.desktopStepInstall') }}</li>
@@ -260,6 +288,12 @@ import {
   type ReleaseChannel as Channel,
   type ReleasePlatform as Platform,
 } from 'src/services/release-manifest';
+import {
+  isPwaInstalled,
+  pwaInstallPrompt,
+  registerPwaInstallListeners,
+  requestPwaInstall,
+} from 'src/services/pwa-install';
 import { useAppStore } from 'stores/app-store';
 
 const app = useAppStore();
@@ -269,6 +303,8 @@ const challenge = ref<FeedbackChallenge | null>(null);
 const sending = ref(false);
 const nativeAndroid = canInstallNativeAndroidUpdate();
 const installingVersion = ref<string | null>(null);
+const installPrompt = pwaInstallPrompt;
+const isInstalledApp = isPwaInstalled;
 const platforms = ['android', 'ios', 'desktop'] as const;
 type InstallPlatform = (typeof platforms)[number];
 
@@ -377,6 +413,7 @@ const messageRule = (value: string) =>
   value.trim().length >= 10 || t('feedback.validation.message');
 
 onMounted(() => {
+  registerPwaInstallListeners();
   void refreshChallenge();
   void loadMobileReleases();
 });
@@ -420,6 +457,26 @@ async function installAndroidRelease(release: MobileRelease) {
   } finally {
     installingVersion.value = null;
   }
+}
+
+async function installDesktopPwa() {
+  const result = await requestPwaInstall();
+  if (result === 'unavailable') {
+    $q.notify({
+      type: 'info',
+      icon: 'install_desktop',
+      message: t('mobileInstall.pwaInstallUnavailable'),
+    });
+  }
+}
+
+function showIosInstallHint() {
+  $q.notify({
+    type: 'info',
+    icon: 'ios_share',
+    message: t('mobileInstall.iosInstallHint'),
+    timeout: 6500,
+  });
 }
 
 function formatDate(date: string) {

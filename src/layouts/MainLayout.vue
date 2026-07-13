@@ -224,11 +224,13 @@ import {
 import { requestReminderPermission } from 'src/services/reminders/reminder-feedback';
 import { syncPushReminders } from 'src/services/push-notifications';
 import { appReadiness } from 'src/services/app-readiness';
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
-}
+import {
+  isPwaInstalled,
+  pwaInstallPrompt,
+  registerPwaInstallListeners,
+  requestPwaInstall,
+  unregisterPwaInstallListeners,
+} from 'src/services/pwa-install';
 
 const drawerOpen = ref(false);
 const $q = useQuasar();
@@ -240,12 +242,8 @@ const pwaUpdateAvailable = ref(false);
 const now = ref(new Date());
 const titleColonVisible = ref(true);
 const hiddenEvents = ref<Array<{ kind: Exclude<DayPlanEventKind, 'sleep'>; target: Date }>>([]);
-const installPrompt = ref<BeforeInstallPromptEvent | null>(null);
-const isInstalledApp = ref(
-  window.matchMedia('(display-mode: standalone)').matches ||
-    ('standalone' in navigator &&
-      (navigator as Navigator & { standalone?: boolean }).standalone === true),
-);
+const installPrompt = pwaInstallPrompt;
+const isInstalledApp = isPwaInstalled;
 const userAgent = navigator.userAgent;
 const isAndroid = /Android/i.test(userAgent);
 const isIos = /iPad|iPhone|iPod/i.test(userAgent);
@@ -465,6 +463,7 @@ const showAppUpdateDialog = (event: CustomEvent<AppUpdateDetail>) => {
 window.addEventListener(APP_UPDATE_AVAILABLE_EVENT, showAppUpdateDialog);
 
 onMounted(() => {
+  registerPwaInstallListeners();
   refreshNotificationPermission();
   window.addEventListener('focus', refreshNotificationPermission);
   void checkForStartupUpdate();
@@ -472,16 +471,6 @@ onMounted(() => {
   window.addEventListener('online', retryAppDownload);
   window.addEventListener('app-route-unavailable', showUnavailableNotification);
 });
-const captureInstallPrompt = (event: Event) => {
-  event.preventDefault();
-  installPrompt.value = event as BeforeInstallPromptEvent;
-};
-const markAppInstalled = () => {
-  installPrompt.value = null;
-  isInstalledApp.value = true;
-};
-window.addEventListener('beforeinstallprompt', captureInstallPrompt);
-window.addEventListener('appinstalled', markAppInstalled);
 const saveStatusIcon = computed(() =>
   app.saveStatus === 'error' ? 'error_outline' : 'verified_user',
 );
@@ -524,8 +513,7 @@ onBeforeUnmount(() => {
   window.clearInterval(titleBlinkTimer);
   document.removeEventListener('visibilitychange', syncAfterVisibilityChange);
   window.removeEventListener(APP_UPDATE_AVAILABLE_EVENT, showAppUpdateDialog);
-  window.removeEventListener('beforeinstallprompt', captureInstallPrompt);
-  window.removeEventListener('appinstalled', markAppInstalled);
+  unregisterPwaInstallListeners();
   window.removeEventListener('focus', refreshNotificationPermission);
   window.removeEventListener('online', retryAppDownload);
   window.removeEventListener('app-route-unavailable', showUnavailableNotification);
@@ -577,13 +565,7 @@ function toggleTheme() {
 }
 
 async function installAndroidApp() {
-  const prompt = installPrompt.value;
-  if (!prompt) return;
-
-  await prompt.prompt();
-  const choice = await prompt.userChoice;
-  installPrompt.value = null;
-  if (choice.outcome === 'accepted') isInstalledApp.value = true;
+  await requestPwaInstall();
 }
 
 async function checkForStartupUpdate() {

@@ -2,6 +2,7 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file
 
 import { defineConfig } from '#q-app/wrappers';
+import { rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import appPackage from './package.json' with { type: 'json' };
 
@@ -48,6 +49,18 @@ export default defineConfig((ctx) => {
         strict: true,
         vueShim: true,
         // extendTsConfig (tsConfig) {}
+      },
+      async afterBuild() {
+        if (ctx.modeName === 'capacitor') {
+          await rm(fileURLToPath(new URL('./dist/capacitor/downloads', import.meta.url)), {
+            force: true,
+            recursive: true,
+          });
+          await rm(fileURLToPath(new URL('./src-capacitor/www/downloads', import.meta.url)), {
+            force: true,
+            recursive: true,
+          });
+        }
       },
 
       vueRouterMode: 'hash', // available values: 'hash', 'history'

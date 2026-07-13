@@ -173,10 +173,14 @@ export default {
     iosStepConfirm: 'Нажмите «Добавить» и запускайте My Shift с домашнего экрана.',
     iosNotifications:
       'После установки откройте My Shift с домашнего экрана и разрешите уведомления в настройках приложения.',
+    iosInstallButton: 'Показать, где нажать',
+    iosInstallHint:
+      'На iPhone нажмите «Поделиться» в Safari и выберите «На экран Домой». Сайт не может открыть это окно автоматически.',
     desktopTab: 'Ноутбук',
     desktopNote:
       'На ноутбуке My Shift можно установить как PWA-приложение в Chrome, Edge или другом совместимом браузере.',
     desktopPwaTitle: 'Установить My Shift на ноутбук',
+    desktopInstallButton: 'Установить как PWA',
     desktopStepOpen: 'Откройте сайт My Shift в Chrome или Edge.',
     desktopStepInstall:
       'Нажмите значок установки в адресной строке или откройте меню браузера и выберите «Установить приложение».',
@@ -185,6 +189,9 @@ export default {
       'Запускайте My Shift как обычное приложение с рабочего стола, панели задач или из меню приложений.',
     desktopSync:
       'Это та же PWA-версия: данные остаются в браузере, а обновления подтягиваются автоматически при запуске.',
+    pwaInstalled: 'My Shift уже установлен как приложение.',
+    pwaInstallUnavailable:
+      'Кнопка станет активной, когда браузер подготовит установку. Если её нет, используйте меню браузера.',
     stable: 'Стабильная',
     advanced: 'Продвинутая',
     downloadApk: 'Скачать APK',
@@ -485,8 +492,20 @@ export default {
     arrivalModeAlarm: 'Будильник',
     notificationTest: 'Тест уведомлений',
     notificationTestHint: 'Ручной запуск звука и браузерного сообщения.',
+    androidAlarmTestHint: 'Проверьте системный будильник Android и выберите звук сигнала.',
     testAlarm: 'Тест будильника',
+    testAndroidAlarm: 'Тест Android-будильника',
     stopAlarm: 'Отключить будильник',
+    chooseAlarmSound: 'Выбрать звук будильника',
+    openAndroidSoundSettings: 'Настройки звука',
+    androidAlarmReady: 'Android-будильник готов: Clock доступен и звук выбран.',
+    androidAlarmNeedsSetup: 'Выберите звук и запустите тест перед тем, как полагаться на будильник.',
+    androidAlarmScheduled: 'Тестовый будильник создан в Android Clock на ближайшую минуту.',
+    androidAlarmFailed: 'Не удалось создать будильник Android Clock на этом устройстве.',
+    alarmSoundSelected: 'Звук будильника сохранён.',
+    alarmSoundNotSelected: 'Звук будильника не изменён.',
+    androidSoundSettingsOpened: 'Настройки звука Android открыты.',
+    androidSoundSettingsFailed: 'Не удалось открыть настройки звука Android.',
     testNotification: 'Тест уведомления',
     testAlarmMessage: 'Тест будильника: пора просыпаться',
     testNotificationMessage: 'Это тестовое уведомление',

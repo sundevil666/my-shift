@@ -1,7 +1,7 @@
 {
   "name": "my-shift",
-  "version": "0.1.7",
-  "androidVersionCode": 8,
+  "version": "0.1.8",
+  "androidVersionCode": 9,
   "description": "Local-first shift planning assistant",
   "productName": "My Shift",
   "author": "sundevil <sundevildi@gmail.com>",
@@ -18,7 +18,7 @@
     "setup:hooks": "git config core.hooksPath .githooks",
     "dev": "quasar dev",
     "build": "quasar build -m pwa",
-    "build:android": "quasar build -m capacitor -T android",
+    "build:android": "node scripts/build-android.mjs",
     "build:ios": "quasar build -m capacitor -T ios",
     "postinstall": "quasar prepare"
   },

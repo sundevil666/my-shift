@@ -2599,6 +2599,20 @@ body {
 .pwa-install-guide__title .q-icon {
   font-size: 1.5rem;
 }
+.pwa-install-guide__intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 10px;
+}
+.pwa-install-guide__intro p {
+  flex: 1;
+  margin: 0;
+}
+.pwa-install-guide__intro .q-btn {
+  flex: 0 0 auto;
+}
 .pwa-install-guide ol {
   display: grid;
   gap: 9px;
@@ -2617,6 +2631,15 @@ body {
 }
 .mobile-install-card__note {
   margin: 0 0 12px;
+}
+@media (max-width: 599px) {
+  .pwa-install-guide__intro {
+    display: grid;
+  }
+
+  .pwa-install-guide__intro .q-btn {
+    width: 100%;
+  }
 }
 .mobile-release-list {
   display: grid;

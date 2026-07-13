@@ -16,12 +16,19 @@ interface SystemAlarmPlugin {
     timestamp: number;
   }): Promise<{ created: boolean }>;
   clearRememberedAlarm(): Promise<void>;
+  getStatus(): Promise<{ canSetAlarm: boolean; hasCustomSound: boolean }>;
+  chooseAlarmSound(): Promise<{ selected: boolean }>;
+  openAlarmSettings(): Promise<void>;
 }
 
 const SystemAlarm = registerPlugin<SystemAlarmPlugin>('SystemAlarm');
 
 export function isNativeApp(): boolean {
   return Capacitor.isNativePlatform();
+}
+
+export function isNativeAndroidApp(): boolean {
+  return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android';
 }
 
 export async function requestNativeNotificationPermission(): Promise<
@@ -90,6 +97,57 @@ export async function syncNativeReminders(
     await LocalNotifications.schedule({ notifications });
   }
   return true;
+}
+
+export async function getAndroidSystemAlarmStatus(): Promise<{
+  canSetAlarm: boolean;
+  hasCustomSound: boolean;
+}> {
+  if (!isNativeAndroidApp()) return { canSetAlarm: false, hasCustomSound: false };
+  try {
+    return await SystemAlarm.getStatus();
+  } catch {
+    return { canSetAlarm: false, hasCustomSound: false };
+  }
+}
+
+export async function chooseAndroidAlarmSound(): Promise<boolean> {
+  if (!isNativeAndroidApp()) return false;
+  try {
+    const result = await SystemAlarm.chooseAlarmSound();
+    return result.selected;
+  } catch {
+    return false;
+  }
+}
+
+export async function openAndroidAlarmSettings(): Promise<boolean> {
+  if (!isNativeAndroidApp()) return false;
+  try {
+    await SystemAlarm.openAlarmSettings();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function scheduleAndroidTestAlarm(message: string): Promise<boolean> {
+  if (!isNativeAndroidApp()) return false;
+
+  const at = new Date();
+  at.setSeconds(0, 0);
+  at.setMinutes(at.getMinutes() + 1);
+
+  try {
+    await SystemAlarm.setAlarm({
+      id: `my-shift:test-system-alarm:${at.getTime()}`,
+      message,
+      timestamp: at.getTime(),
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function syncAndroidSystemAlarm(reminders: PushReminder[]): Promise<string | null> {

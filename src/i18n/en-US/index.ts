@@ -175,10 +175,14 @@ export default {
     iosStepConfirm: 'Tap Add and launch My Shift from the Home Screen.',
     iosNotifications:
       'After installation, open My Shift from the Home Screen and allow notifications in the app settings.',
+    iosInstallButton: 'Show where to tap',
+    iosInstallHint:
+      'On iPhone, tap Share in Safari and choose Add to Home Screen. The website cannot open that system dialog automatically.',
     desktopTab: 'Laptop',
     desktopNote:
       'On a laptop, My Shift can be installed as a PWA app in Chrome, Edge, or another compatible browser.',
     desktopPwaTitle: 'Install My Shift on your laptop',
+    desktopInstallButton: 'Install as PWA',
     desktopStepOpen: 'Open the My Shift website in Chrome or Edge.',
     desktopStepInstall:
       'Click the install icon in the address bar, or open the browser menu and choose Install app.',
@@ -187,6 +191,9 @@ export default {
       'Launch My Shift like a regular app from the desktop, taskbar, dock, or app launcher.',
     desktopSync:
       'This is the same PWA version: data stays in the browser and updates are pulled automatically on launch.',
+    pwaInstalled: 'My Shift is already installed as an app.',
+    pwaInstallUnavailable:
+      'The button becomes active when the browser prepares installation. If it does not appear, use the browser menu.',
     stable: 'Stable',
     advanced: 'Advanced',
     downloadApk: 'Download APK',
@@ -486,8 +493,20 @@ export default {
     arrivalModeAlarm: 'Alarm',
     notificationTest: 'Notification test',
     notificationTestHint: 'Manually test the sound and browser message.',
+    androidAlarmTestHint: 'Check the Android Clock alarm path and choose the alarm sound.',
     testAlarm: 'Alarm test',
+    testAndroidAlarm: 'Test Android alarm',
     stopAlarm: 'Stop alarm',
+    chooseAlarmSound: 'Choose alarm sound',
+    openAndroidSoundSettings: 'Sound settings',
+    androidAlarmReady: 'Android alarm is ready: Clock app and custom sound are available.',
+    androidAlarmNeedsSetup: 'Choose a sound and run a test alarm before relying on it.',
+    androidAlarmScheduled: 'Test alarm was created in Android Clock for the next minute.',
+    androidAlarmFailed: 'Could not create an Android Clock alarm on this device.',
+    alarmSoundSelected: 'Alarm sound saved.',
+    alarmSoundNotSelected: 'Alarm sound was not changed.',
+    androidSoundSettingsOpened: 'Android sound settings opened.',
+    androidSoundSettingsFailed: 'Could not open Android sound settings.',
     testNotification: 'Notification test',
     testAlarmMessage: 'Alarm test: time to wake up',
     testNotificationMessage: 'This is a test notification',
