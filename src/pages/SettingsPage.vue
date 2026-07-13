@@ -218,10 +218,7 @@
                   <q-item-label caption>{{ $t('settings.arrivalHint') }}</q-item-label>
                 </q-item-section>
                 <q-item-section side>
-                  <q-toggle
-                    v-model="app.activeProfile.reminders.arrivalEnabled"
-                    :disable="!app.activeProfile.reminders.enabled"
-                  />
+                  <q-toggle v-model="app.activeProfile.reminders.arrivalEnabled" />
                 </q-item-section>
               </q-item>
               <div class="settings-notification__split">
@@ -233,10 +230,7 @@
                   type="number"
                   min="0"
                   max="1440"
-                  :disable="
-                    !app.activeProfile.reminders.enabled ||
-                    !app.activeProfile.reminders.arrivalEnabled
-                  "
+                  :disable="!app.activeProfile.reminders.arrivalEnabled"
                   :label="$t('settings.arrivalAfter')"
                   suffix="min"
                 />
@@ -245,10 +239,7 @@
                   unelevated
                   toggle-color="primary"
                   :options="arrivalModeOptions"
-                  :disable="
-                    !app.activeProfile.reminders.enabled ||
-                    !app.activeProfile.reminders.arrivalEnabled
-                  "
+                  :disable="!app.activeProfile.reminders.arrivalEnabled"
                 />
               </div>
             </div>

@@ -17,7 +17,11 @@ import {
   type ReminderKind,
 } from 'src/services/reminders/reminder-feedback';
 import { hasStorageMarker, setStorageMarker } from 'src/services/storage/storage';
-import { reminderMessage, syncPushReminders } from 'src/services/push-notifications';
+import {
+  hasAnyEnabledReminder,
+  reminderMessage,
+  syncPushReminders,
+} from 'src/services/push-notifications';
 import { isNativeApp, syncNativeReminders } from 'src/services/native-notifications';
 import { useAppStore } from 'stores/app-store';
 
@@ -83,7 +87,7 @@ export default defineBoot(({ store }) => {
       void syncNativeReminders(app.activeProfile, app.data.settings.locale);
       return;
     }
-    if (!app.activeProfile.reminders.enabled) return;
+    if (!hasAnyEnabledReminder(app.activeProfile)) return;
 
     const now = new Date();
     const currentShift = currentWorkingShift(
@@ -183,7 +187,7 @@ export default defineBoot(({ store }) => {
           kind: 'notification',
         });
       }
-      if (app.activeProfile.reminders.enabled && app.activeProfile.reminders.arrivalEnabled) {
+      if (app.activeProfile.reminders.arrivalEnabled) {
         const arrivalReminder: ScheduledReminder = {
           at: addMinutes(
             shiftEndDateTime(breakShift.date, breakShift.shift),

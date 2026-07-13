@@ -120,27 +120,19 @@
                 min="0"
                 suffix="min"
                 :label="$t('reminders.afterShiftEnd')"
-                :disable="
-                  !app.activeProfile.reminders.enabled ||
-                  !app.activeProfile.reminders.arrivalEnabled
-                "
+                :disable="!app.activeProfile.reminders.arrivalEnabled"
               />
               <q-btn-toggle
                 v-model="app.activeProfile.reminders.arrivalMode"
                 unelevated
                 toggle-color="primary"
                 :options="arrivalModeOptions"
-                :disable="
-                  !app.activeProfile.reminders.enabled ||
-                  !app.activeProfile.reminders.arrivalEnabled
-                "
+                :disable="!app.activeProfile.reminders.arrivalEnabled"
               />
             </div>
           </q-item-section>
           <q-item-section side
-            ><q-toggle
-              v-model="app.activeProfile.reminders.arrivalEnabled"
-              :disable="!app.activeProfile.reminders.enabled"
+            ><q-toggle v-model="app.activeProfile.reminders.arrivalEnabled"
           /></q-item-section>
         </q-item>
         <q-item tag="label">

@@ -4,7 +4,11 @@ import {
   type LocalNotificationSchema,
 } from '@capacitor/local-notifications';
 import type { Locale, WorkProfile } from 'src/models/app';
-import { buildPushReminders, type PushReminder } from 'src/services/push-notifications';
+import {
+  buildPushReminders,
+  hasAnyEnabledReminder,
+  type PushReminder,
+} from 'src/services/push-notifications';
 
 const MAX_PENDING_NOTIFICATIONS = 60;
 const SYSTEM_ALARM_WINDOW_MS = 24 * 60 * 60 * 1_000;
@@ -99,7 +103,7 @@ export async function syncNativeReminders(
     });
   }
 
-  if (!profile.reminders.enabled) {
+  if (!hasAnyEnabledReminder(profile)) {
     await clearAndroidSystemAlarm();
     return true;
   }

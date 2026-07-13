@@ -42,7 +42,7 @@ const pushMessages: Record<Locale, { alarm: string; departure: string; arrival: 
 
 export async function syncPushReminders(profile: WorkProfile, locale: Locale): Promise<boolean> {
   if (
-    !profile.reminders.enabled ||
+    !hasAnyEnabledReminder(profile) ||
     typeof Notification === 'undefined' ||
     Notification.permission !== 'granted' ||
     !('serviceWorker' in navigator) ||
@@ -91,8 +91,6 @@ export async function removePushSubscription(): Promise<void> {
 }
 
 export function buildPushReminders(profile: WorkProfile, locale: Locale): PushReminder[] {
-  if (!profile.reminders.enabled) return [];
-
   const now = new Date();
   const messages = pushMessages[locale];
   const reminders: PushReminder[] = [];
@@ -118,7 +116,7 @@ export function buildPushReminders(profile: WorkProfile, locale: Locale): PushRe
           ? addMinutes(shiftStart, -profile.transport.carTravelMinutes)
           : shiftStart;
 
-    if (profile.transport.alarmEnabled) {
+    if (profile.reminders.enabled && profile.transport.alarmEnabled) {
       addReminder(
         reminders,
         addMinutes(referenceTime, -profile.transport.alarmBeforeReferenceMinutes),
@@ -127,7 +125,7 @@ export function buildPushReminders(profile: WorkProfile, locale: Locale): PushRe
         'alarm',
       );
     }
-    if (profile.transport.leaveReminderEnabled) {
+    if (profile.reminders.enabled && profile.transport.leaveReminderEnabled) {
       addReminder(
         reminders,
         addMinutes(referenceTime, -profile.transport.leaveBeforeReferenceMinutes),
@@ -135,7 +133,7 @@ export function buildPushReminders(profile: WorkProfile, locale: Locale): PushRe
         messages.departure,
       );
     }
-    if (profile.reminders.shiftStartEnabled) {
+    if (profile.reminders.enabled && profile.reminders.shiftStartEnabled) {
       addReminder(
         reminders,
         addMinutes(shiftStart, -profile.reminders.shiftStartBeforeMinutes),
@@ -143,7 +141,7 @@ export function buildPushReminders(profile: WorkProfile, locale: Locale): PushRe
         reminderMessage(locale, 'shiftStart', profile.reminders.shiftStartBeforeMinutes),
       );
     }
-    if (profile.reminders.firstBreakEnabled) {
+    if (profile.reminders.enabled && profile.reminders.firstBreakEnabled) {
       addReminder(
         reminders,
         addMinutes(
@@ -154,7 +152,7 @@ export function buildPushReminders(profile: WorkProfile, locale: Locale): PushRe
         reminderMessage(locale, 'firstBreak', profile.reminders.firstBreakBeforeMinutes),
       );
     }
-    if (profile.reminders.shiftEndEnabled) {
+    if (profile.reminders.enabled && profile.reminders.shiftEndEnabled) {
       addReminder(
         reminders,
         addMinutes(shiftEnd, -profile.reminders.shiftEndBeforeMinutes),
@@ -174,6 +172,18 @@ export function buildPushReminders(profile: WorkProfile, locale: Locale): PushRe
   }
 
   return reminders;
+}
+
+export function hasAnyEnabledReminder(profile: WorkProfile): boolean {
+  return (
+    profile.reminders.arrivalEnabled ||
+    (profile.reminders.enabled &&
+      (profile.transport.alarmEnabled ||
+        profile.transport.leaveReminderEnabled ||
+        profile.reminders.shiftStartEnabled ||
+        profile.reminders.firstBreakEnabled ||
+        profile.reminders.shiftEndEnabled))
+  );
 }
 
 export function reminderMessage(
