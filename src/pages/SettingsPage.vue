@@ -208,6 +208,50 @@
                 suffix="min"
               />
             </div>
+            <div class="settings-notification settings-notification--wide">
+              <q-item dense>
+                <q-item-section>
+                  <q-item-label class="settings-notification__title">
+                    <q-icon name="person_pin_circle" color="primary" />
+                    <span>{{ $t('settings.arrivalEnabled') }}</span>
+                  </q-item-label>
+                  <q-item-label caption>{{ $t('settings.arrivalHint') }}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-toggle
+                    v-model="app.activeProfile.reminders.arrivalEnabled"
+                    :disable="!app.activeProfile.reminders.enabled"
+                  />
+                </q-item-section>
+              </q-item>
+              <div class="settings-notification__split">
+                <q-input
+                  v-model.number="app.activeProfile.reminders.arrivalAfterShiftEndMinutes"
+                  class="settings-notification__input"
+                  outlined
+                  dense
+                  type="number"
+                  min="0"
+                  max="1440"
+                  :disable="
+                    !app.activeProfile.reminders.enabled ||
+                    !app.activeProfile.reminders.arrivalEnabled
+                  "
+                  :label="$t('settings.arrivalAfter')"
+                  suffix="min"
+                />
+                <q-btn-toggle
+                  v-model="app.activeProfile.reminders.arrivalMode"
+                  unelevated
+                  toggle-color="primary"
+                  :options="arrivalModeOptions"
+                  :disable="
+                    !app.activeProfile.reminders.enabled ||
+                    !app.activeProfile.reminders.arrivalEnabled
+                  "
+                />
+              </div>
+            </div>
           </div>
         </q-card-section>
       </q-card>
@@ -355,6 +399,10 @@ const notificationOptions = computed(() => [
     label: t('settings.shiftEndEnabled'),
     hint: t('settings.shiftEndHint'),
   },
+]);
+const arrivalModeOptions = computed(() => [
+  { label: t('settings.arrivalModeNotification'), value: 'notification' },
+  { label: t('settings.arrivalModeAlarm'), value: 'alarm' },
 ]);
 const routeOptions = computed(() =>
   dhlBusRoutes
@@ -617,6 +665,13 @@ async function importData(event: Event) {
   margin: 4px;
 }
 
+.settings-notification__split {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(150px, 1fr) max-content;
+  align-items: center;
+}
+
 .settings-tests {
   grid-template-columns: 1fr;
 }
@@ -638,6 +693,12 @@ async function importData(event: Event) {
 
   .settings-tests {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 599px) {
+  .settings-notification__split {
+    grid-template-columns: 1fr;
   }
 }
 

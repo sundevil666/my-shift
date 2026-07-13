@@ -7,6 +7,11 @@ export function migrateUserData(saved: unknown): UserData | null {
   if (candidate.schemaVersion === 2) {
     const data = structuredClone(candidate) as unknown as UserData;
     data.settings.cloudPushConsent ??= false;
+    data.workProfiles.forEach((profile) => {
+      profile.reminders.arrivalEnabled ??= false;
+      profile.reminders.arrivalAfterShiftEndMinutes ??= 35;
+      profile.reminders.arrivalMode ??= 'notification';
+    });
     return data;
   }
   if (candidate.schemaVersion !== 1) return null;

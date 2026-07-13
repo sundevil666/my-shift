@@ -34,27 +34,32 @@ const messages: Record<
   {
     alarm: string;
     alarmStop: string;
+    arrival: string;
     departure: string;
   }
 > = {
   'en-US': {
     alarm: 'Time to wake up',
     alarmStop: 'Stop alarm',
+    arrival: 'Shift ended. Time to meet them',
     departure: 'Time to leave soon',
   },
   'ru-RU': {
     alarm: 'Пора просыпаться',
     alarmStop: 'Отключить будильник',
+    arrival: 'Смена закончилась. Пора встречать',
     departure: 'Скоро пора выходить',
   },
   'uk-UA': {
     alarm: 'Час прокидатися',
     alarmStop: 'Вимкнути будильник',
+    arrival: 'Зміна закінчилась. Час зустрічати',
     departure: 'Скоро час виходити',
   },
   'sk-SK': {
     alarm: 'Čas vstávať',
     alarmStop: 'Vypnúť budík',
+    arrival: 'Zmena skončila. Čas ísť naproti',
     departure: 'Čoskoro treba vyraziť',
   },
 };
@@ -178,6 +183,21 @@ export default defineBoot(({ store }) => {
           kind: 'notification',
         });
       }
+      if (app.activeProfile.reminders.enabled && app.activeProfile.reminders.arrivalEnabled) {
+        const arrivalReminder: ScheduledReminder = {
+          at: addMinutes(
+            shiftEndDateTime(breakShift.date, breakShift.shift),
+            app.activeProfile.reminders.arrivalAfterShiftEndMinutes,
+          ),
+          body: localeMessages.arrival,
+          id: `my-shift:arrival:${breakShiftKey}`,
+          kind: app.activeProfile.reminders.arrivalMode,
+        };
+        if (app.activeProfile.reminders.arrivalMode === 'alarm') {
+          arrivalReminder.stopLabel = localeMessages.alarmStop;
+        }
+        reminders.push(arrivalReminder);
+      }
     }
 
     reminders.forEach((reminder) => {
@@ -222,6 +242,9 @@ export default defineBoot(({ store }) => {
       app.activeProfile.reminders.firstBreakBeforeMinutes,
       app.activeProfile.reminders.shiftEndEnabled,
       app.activeProfile.reminders.shiftEndBeforeMinutes,
+      app.activeProfile.reminders.arrivalEnabled,
+      app.activeProfile.reminders.arrivalAfterShiftEndMinutes,
+      app.activeProfile.reminders.arrivalMode,
       app.activeProfile.transport.mode,
       app.activeProfile.transport.busRouteId,
       app.activeProfile.transport.busStopId,

@@ -109,6 +109,42 @@
         </q-item>
         <q-item tag="label">
           <q-item-section>
+            <q-item-label>{{ $t('reminders.arrival') }}</q-item-label>
+            <q-item-label caption>{{ $t('reminders.arrivalHint') }}</q-item-label>
+            <div class="reminder-row-controls">
+              <q-input
+                v-model.number="app.activeProfile.reminders.arrivalAfterShiftEndMinutes"
+                dense
+                outlined
+                type="number"
+                min="0"
+                suffix="min"
+                :label="$t('reminders.afterShiftEnd')"
+                :disable="
+                  !app.activeProfile.reminders.enabled ||
+                  !app.activeProfile.reminders.arrivalEnabled
+                "
+              />
+              <q-btn-toggle
+                v-model="app.activeProfile.reminders.arrivalMode"
+                unelevated
+                toggle-color="primary"
+                :options="arrivalModeOptions"
+                :disable="
+                  !app.activeProfile.reminders.enabled ||
+                  !app.activeProfile.reminders.arrivalEnabled
+                "
+              />
+            </div>
+          </q-item-section>
+          <q-item-section side
+            ><q-toggle
+              v-model="app.activeProfile.reminders.arrivalEnabled"
+              :disable="!app.activeProfile.reminders.enabled"
+          /></q-item-section>
+        </q-item>
+        <q-item tag="label">
+          <q-item-section>
             <q-item-label>{{ $t('reminders.firstBreak') }}</q-item-label>
             <q-item-label caption>{{ $t('reminders.firstBreakHint') }}</q-item-label>
             <q-input
@@ -141,11 +177,19 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import PageHeader from 'components/PageHeader.vue';
 import { requestReminderPermission } from 'src/services/reminders/reminder-feedback';
 import { syncPushReminders } from 'src/services/push-notifications';
 import { useAppStore } from 'stores/app-store';
+import { useI18n } from 'vue-i18n';
 const app = useAppStore();
+const { t } = useI18n();
+
+const arrivalModeOptions = computed(() => [
+  { label: t('reminders.arrivalModeNotification'), value: 'notification' },
+  { label: t('reminders.arrivalModeAlarm'), value: 'alarm' },
+]);
 
 async function requestNotificationPermission(enabled: boolean) {
   if (!enabled) return;
@@ -159,3 +203,18 @@ async function requestNotificationPermission(enabled: boolean) {
   }
 }
 </script>
+
+<style scoped lang="scss">
+.reminder-row-controls {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(150px, 220px) max-content;
+  margin-top: 10px;
+}
+
+@media (max-width: 599px) {
+  .reminder-row-controls {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

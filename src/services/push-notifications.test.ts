@@ -37,6 +37,31 @@ describe('push reminders', () => {
     expect(new Date(firstDay[0]!.at)).toEqual(new Date(2026, 0, 5, 4, 30));
   });
 
+  it('builds an optional arrival alarm after the selected shift ends', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 0, 5, 0));
+    const profile = createDhlWorkProfile();
+    profile.pattern = {
+      id: 'test',
+      name: 'Test',
+      startDate: '2026-01-05',
+      sequence: ['shift-1'],
+    };
+    profile.reminders.arrivalEnabled = true;
+    profile.reminders.arrivalAfterShiftEndMinutes = 35;
+    profile.reminders.arrivalMode = 'alarm';
+
+    const arrival = buildPushReminders(profile, 'ru-RU').find(
+      ({ id }) => id === 'my-shift:arrival:2026-01-05:shift-1',
+    );
+
+    expect(arrival).toMatchObject({
+      body: 'Смена закончилась. Пора встречать',
+      kind: 'alarm',
+    });
+    expect(new Date(arrival!.at)).toEqual(new Date(2026, 0, 5, 14, 35));
+  });
+
   it('drops reminders that are already in the past', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 5, 8, 30));

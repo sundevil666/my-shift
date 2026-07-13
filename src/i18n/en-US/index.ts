@@ -71,7 +71,8 @@ export default {
     iosEnable: 'Allow notifications',
     iosDenied:
       'Notifications are blocked. Open Settings → Notifications → My Shift and enable them.',
-    iosSyncFailed: 'Permission was granted, but the notification schedule could not be updated yet.',
+    iosSyncFailed:
+      'Permission was granted, but the notification schedule could not be updated yet.',
   },
   storage: {
     saving: 'Saving…',
@@ -408,6 +409,11 @@ export default {
     beforeShiftHint: 'Choose how many minutes before the shift',
     beforeShiftEnd: 'Before shift ends',
     beforeShiftEndHint: 'Choose how many minutes before the shift ends',
+    arrival: 'Meet after shift',
+    arrivalHint: 'For family or friends who want to meet the worker after the selected shift',
+    afterShiftEnd: 'After shift ends',
+    arrivalModeNotification: 'Reminder',
+    arrivalModeAlarm: 'Alarm',
     firstBreak: 'First break',
     firstBreakHint: 'Choose how many minutes before the break',
     webNote: 'Allow notifications in your browser settings to receive reminders.',
@@ -461,6 +467,11 @@ export default {
     firstBreakHint: 'Push notification before the first break',
     shiftEndEnabled: 'Shift end',
     shiftEndHint: 'Push notification before the shift ends',
+    arrivalEnabled: 'Meet after shift',
+    arrivalHint: 'Reminder for someone meeting the worker after the selected shift',
+    arrivalAfter: 'After shift ends',
+    arrivalModeNotification: 'Reminder',
+    arrivalModeAlarm: 'Alarm',
     notificationTest: 'Notification test',
     notificationTestHint: 'Manually test the sound and browser message.',
     testAlarm: 'Alarm test',

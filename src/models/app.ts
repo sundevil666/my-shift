@@ -3,6 +3,7 @@ export type ThemeMode = 'light' | 'dark' | 'system';
 export type TransportMode = 'bus' | 'car';
 export type WorkplaceType = 'dhl' | 'custom';
 export type ShiftCode = string;
+export type ArrivalReminderMode = 'notification' | 'alarm';
 
 export interface BusStop {
   id: string;
@@ -54,6 +55,9 @@ export interface ReminderSettings {
   firstBreakBeforeMinutes: number;
   shiftEndEnabled: boolean;
   shiftEndBeforeMinutes: number;
+  arrivalEnabled: boolean;
+  arrivalAfterShiftEndMinutes: number;
+  arrivalMode: ArrivalReminderMode;
   beforeDepartureMinutes: number;
   beforeShiftMinutes: number;
 }

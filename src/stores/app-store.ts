@@ -63,6 +63,9 @@ export const useAppStore = defineStore('app', () => {
         profile.reminders.firstBreakBeforeMinutes ??= 5;
         profile.reminders.shiftEndEnabled ??= true;
         profile.reminders.shiftEndBeforeMinutes ??= 30;
+        profile.reminders.arrivalEnabled ??= false;
+        profile.reminders.arrivalAfterShiftEndMinutes ??= 35;
+        profile.reminders.arrivalMode ??= 'notification';
       });
     }
     applyTheme(data.value.settings.theme);

@@ -17,22 +17,26 @@ export interface PushReminder {
 }
 
 const DEVICE_ID_KEY = 'my-shift:push-device-id';
-const pushMessages: Record<Locale, { alarm: string; departure: string }> = {
+const pushMessages: Record<Locale, { alarm: string; departure: string; arrival: string }> = {
   'en-US': {
     alarm: 'Time to wake up',
     departure: 'Time to leave soon',
+    arrival: 'Shift ended. Time to meet them',
   },
   'ru-RU': {
     alarm: 'Пора просыпаться',
     departure: 'Скоро пора выходить',
+    arrival: 'Смена закончилась. Пора встречать',
   },
   'uk-UA': {
     alarm: 'Час прокидатися',
     departure: 'Скоро час виходити',
+    arrival: 'Зміна закінчилась. Час зустрічати',
   },
   'sk-SK': {
     alarm: 'Čas vstávať',
     departure: 'Čoskoro treba vyraziť',
+    arrival: 'Zmena skončila. Čas ísť naproti',
   },
 };
 
@@ -156,6 +160,15 @@ export function buildPushReminders(profile: WorkProfile, locale: Locale): PushRe
         addMinutes(shiftEnd, -profile.reminders.shiftEndBeforeMinutes),
         `shift-end:${key}`,
         reminderMessage(locale, 'shiftEnd', profile.reminders.shiftEndBeforeMinutes),
+      );
+    }
+    if (profile.reminders.arrivalEnabled) {
+      addReminder(
+        reminders,
+        addMinutes(shiftEnd, profile.reminders.arrivalAfterShiftEndMinutes),
+        `arrival:${key}`,
+        messages.arrival,
+        profile.reminders.arrivalMode,
       );
     }
   }
