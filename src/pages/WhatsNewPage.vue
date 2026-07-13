@@ -104,16 +104,14 @@
                 />
                 <q-btn
                   v-else
-                  flat
-                  round
+                  outline
+                  no-caps
                   color="primary"
                   icon="refresh"
-                  :aria-label="$t('mobileInstall.checkUpdates')"
+                  :label="$t('mobileInstall.checkUpdates')"
                   :loading="checkingAndroidUpdate"
                   @click="loadMobileReleases"
-                >
-                  <q-tooltip>{{ $t('mobileInstall.checkUpdates') }}</q-tooltip>
-                </q-btn>
+                />
               </div>
             </q-banner>
             <p class="mobile-install-card__note">{{ $t('mobileInstall.androidNote') }}</p>
