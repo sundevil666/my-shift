@@ -268,7 +268,11 @@ const iosNotificationMessage = computed(() =>
 );
 const productName = 'My Shift';
 const androidDownloadUrl = ref<string | null>(null);
-let startupUpdateChecked = false;
+const automaticAndroidUpdateCheckInterval = 5 * 60_000;
+let lastAutomaticAndroidUpdateCheck = 0;
+let promptedAndroidUpdateVersionCode = 0;
+let automaticAndroidUpdateCheck: Promise<void> | null = null;
+let automaticPwaUpdateChecked = false;
 const dateTimer = window.setInterval(() => {
   now.value = new Date();
   if (now.value.getSeconds() === 0) app.applyShiftAtmosphere(now.value);
@@ -429,6 +433,7 @@ const syncAfterVisibilityChange = () => {
       classes: 'shift-notification shift-notification--alarm',
     });
   });
+  void checkForAutomaticUpdate();
 };
 document.addEventListener('visibilitychange', syncAfterVisibilityChange);
 const showAppUpdateDialog = (event: CustomEvent<AppUpdateDetail>) => {
@@ -467,10 +472,10 @@ window.addEventListener(APP_UPDATE_AVAILABLE_EVENT, showAppUpdateDialog);
 onMounted(() => {
   registerPwaInstallListeners();
   refreshNotificationPermission();
-  window.addEventListener('focus', refreshNotificationPermission);
-  void checkForStartupUpdate();
+  window.addEventListener('focus', handleWindowFocus);
+  void checkForAutomaticUpdate({ force: true });
   void startAppDownload();
-  window.addEventListener('online', retryAppDownload);
+  window.addEventListener('online', handleOnline);
   window.addEventListener('app-route-unavailable', showUnavailableNotification);
 });
 const saveStatusIcon = computed(() =>
@@ -516,8 +521,8 @@ onBeforeUnmount(() => {
   document.removeEventListener('visibilitychange', syncAfterVisibilityChange);
   window.removeEventListener(APP_UPDATE_AVAILABLE_EVENT, showAppUpdateDialog);
   unregisterPwaInstallListeners();
-  window.removeEventListener('focus', refreshNotificationPermission);
-  window.removeEventListener('online', retryAppDownload);
+  window.removeEventListener('focus', handleWindowFocus);
+  window.removeEventListener('online', handleOnline);
   window.removeEventListener('app-route-unavailable', showUnavailableNotification);
   document.title = productName;
 });
@@ -562,6 +567,14 @@ async function startAppDownload() {
 function retryAppDownload() {
   void startAppDownload();
 }
+function handleWindowFocus() {
+  refreshNotificationPermission();
+  void checkForAutomaticUpdate();
+}
+function handleOnline() {
+  retryAppDownload();
+  void checkForAutomaticUpdate({ force: true });
+}
 function toggleTheme() {
   app.setTheme($q.dark.isActive ? 'light' : 'dark');
 }
@@ -570,19 +583,43 @@ async function installAndroidApp() {
   await requestPwaInstall();
 }
 
-async function checkForStartupUpdate() {
-  if (startupUpdateChecked) return;
-  startupUpdateChecked = true;
-
+async function checkForAutomaticUpdate(options: { force?: boolean } = {}) {
   if (canInstallNativeAndroidUpdate()) {
+    await checkForAutomaticAndroidUpdate(options);
+  } else {
+    await checkForAutomaticPwaUpdate(options);
+  }
+}
+
+async function checkForAutomaticPwaUpdate(options: { force?: boolean } = {}) {
+  if (!options.force && automaticPwaUpdateChecked) return;
+  automaticPwaUpdateChecked = true;
+  if ('serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.getRegistration();
+      await registration?.update();
+    } catch {
+      // Starting the PWA remains possible while offline.
+    }
+  }
+}
+
+async function checkForAutomaticAndroidUpdate(options: { force?: boolean } = {}) {
+  const elapsed = Date.now() - lastAutomaticAndroidUpdateCheck;
+  if (!options.force && elapsed < automaticAndroidUpdateCheckInterval) return;
+  if (automaticAndroidUpdateCheck) return automaticAndroidUpdateCheck;
+
+  automaticAndroidUpdateCheck = (async () => {
+    lastAutomaticAndroidUpdateCheck = Date.now();
     try {
       const manifest = await loadReleaseManifest();
       const releases = manifest?.android.stable ?? [];
       const latestRelease = latestAvailableRelease(releases);
       androidDownloadUrl.value = latestRelease ? trackedDownloadUrl(latestRelease) : null;
       const release = latestAvailableRelease(releases, CURRENT_ANDROID_VERSION_CODE);
-      if (!release) return;
+      if (!release || release.versionCode === promptedAndroidUpdateVersionCode) return;
 
+      promptedAndroidUpdateVersionCode = release.versionCode;
       $q.dialog({
         title: t('updates.startupTitle'),
         message: t('updates.startupMessage', { version: release.version }),
@@ -598,18 +635,12 @@ async function checkForStartupUpdate() {
       }).onOk(() => void installStartupAndroidUpdate(release));
     } catch {
       // Starting the app remains possible while offline.
+    } finally {
+      automaticAndroidUpdateCheck = null;
     }
-    return;
-  }
+  })();
 
-  if ('serviceWorker' in navigator) {
-    try {
-      const registration = await navigator.serviceWorker.getRegistration();
-      await registration?.update();
-    } catch {
-      // Starting the PWA remains possible while offline.
-    }
-  }
+  await automaticAndroidUpdateCheck;
 }
 
 async function installStartupAndroidUpdate(release: MobileRelease) {

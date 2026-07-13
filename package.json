@@ -1,7 +1,7 @@
 {
   "name": "my-shift",
-  "version": "0.1.25",
-  "androidVersionCode": 26,
+  "version": "0.1.26",
+  "androidVersionCode": 27,
   "description": "Local-first shift planning assistant",
   "productName": "My Shift",
   "author": "sundevil <sundevildi@gmail.com>",
