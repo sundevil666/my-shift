@@ -160,7 +160,7 @@ export function buildPushReminders(profile: WorkProfile, locale: Locale): PushRe
         reminderMessage(locale, 'shiftEnd', profile.reminders.shiftEndBeforeMinutes),
       );
     }
-    if (profile.reminders.arrivalEnabled) {
+    if (profile.reminders.enabled && profile.reminders.arrivalEnabled) {
       addReminder(
         reminders,
         addMinutes(shiftEnd, profile.reminders.arrivalAfterShiftEndMinutes),
@@ -176,13 +176,13 @@ export function buildPushReminders(profile: WorkProfile, locale: Locale): PushRe
 
 export function hasAnyEnabledReminder(profile: WorkProfile): boolean {
   return (
-    profile.reminders.arrivalEnabled ||
-    (profile.reminders.enabled &&
-      (profile.transport.alarmEnabled ||
-        profile.transport.leaveReminderEnabled ||
-        profile.reminders.shiftStartEnabled ||
-        profile.reminders.firstBreakEnabled ||
-        profile.reminders.shiftEndEnabled))
+    profile.reminders.enabled &&
+    (profile.transport.alarmEnabled ||
+      profile.transport.leaveReminderEnabled ||
+      profile.reminders.shiftStartEnabled ||
+      profile.reminders.firstBreakEnabled ||
+      profile.reminders.shiftEndEnabled ||
+      profile.reminders.arrivalEnabled)
   );
 }
 

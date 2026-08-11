@@ -11,7 +11,7 @@ import {
 } from 'src/services/push-notifications';
 
 const MAX_PENDING_NOTIFICATIONS = 60;
-const SYSTEM_ALARM_WINDOW_MS = 24 * 60 * 60 * 1_000;
+const ANDROID_TEST_ALARM_ID = 'my-shift:test-system-alarm';
 
 interface SystemAlarmPlugin {
   setAlarm(options: {
@@ -54,6 +54,10 @@ export interface AndroidSystemAlarmStatus {
   lastAlarmMessage?: string;
   lastAlarmTimestamp?: number;
   lastAlarmIso?: string;
+  lastTestAlarmId?: string;
+  lastTestAlarmMessage?: string;
+  lastTestAlarmTimestamp?: number;
+  lastTestAlarmIso?: string;
   lastSetAlarmError?: string;
   lastAlarmActivityError?: string;
   lastSetAlarmAttemptIso?: string;
@@ -61,6 +65,15 @@ export interface AndroidSystemAlarmStatus {
   manufacturer?: string;
   model?: string;
   sdkInt?: number;
+}
+
+export interface AndroidTestAlarmResult {
+  ok: boolean;
+  requestedAt: number;
+  requestedAtIso: string;
+  pluginResult?: { created: boolean };
+  error?: string;
+  status: AndroidSystemAlarmStatus;
 }
 
 export function isNativeApp(): boolean {
@@ -226,15 +239,65 @@ export async function openAndroidExactAlarmSettings(): Promise<boolean> {
   }
 }
 
+export async function runAndroidTestAlarmDiagnostics(
+  message: string,
+): Promise<AndroidTestAlarmResult> {
+  const at = new Date();
+  at.setSeconds(0, 0);
+  at.setMinutes(at.getMinutes() + 1);
+
+  if (!isNativeAndroidApp()) {
+    return {
+      ok: false,
+      requestedAt: at.getTime(),
+      requestedAtIso: at.toISOString(),
+      error: 'Native Android runtime is not available',
+      status: await getAndroidAlarmDiagnostics(),
+    };
+  }
+
+  try {
+    const pluginResult = await SystemAlarm.setAlarm({
+      id: ANDROID_TEST_ALARM_ID,
+      message,
+      timestamp: String(at.getTime()),
+      skipUi: false,
+      includeRingtone: false,
+    });
+    return {
+      ok: true,
+      requestedAt: at.getTime(),
+      requestedAtIso: at.toISOString(),
+      pluginResult,
+      status: await getAndroidAlarmDiagnostics(),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      requestedAt: at.getTime(),
+      requestedAtIso: at.toISOString(),
+      error: error instanceof Error ? error.message : String(error),
+      status: await getAndroidAlarmDiagnostics(),
+    };
+  }
+}
+
+export async function clearAndroidTestAlarm(): Promise<boolean> {
+  if (!isNativeAndroidApp()) return false;
+  try {
+    await SystemAlarm.clearRememberedAlarm({ id: ANDROID_TEST_ALARM_ID });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function syncAndroidSystemAlarm(reminders: PushReminder[]): Promise<string | null> {
   if (Capacitor.getPlatform() !== 'android') return null;
 
   const now = Date.now();
   const nextAlarm = reminders.find(
-    (reminder) =>
-      reminder.kind === 'alarm' &&
-      reminder.at > now &&
-      reminder.at - now <= SYSTEM_ALARM_WINDOW_MS,
+    (reminder) => reminder.kind === 'alarm' && reminder.at > now,
   );
   if (!nextAlarm) {
     await clearAndroidSystemAlarm();

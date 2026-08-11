@@ -5,14 +5,14 @@
         <AppLogo class="admin-analytics-logo" />
         <div>
           <div class="text-overline text-primary">My Shift</div>
-          <h1>Статистика приложения</h1>
-          <p>Закрытая панель владельца</p>
+          <h1>{{ t('admin.title') }}</h1>
+          <p>{{ t('admin.subtitle') }}</p>
         </div>
         <q-btn
           flat
           no-caps
           icon="home"
-          label="На главную"
+          :label="t('admin.home')"
           class="admin-home-button"
           href="/#/"
         />
@@ -27,14 +27,14 @@
       <q-card v-else-if="!authenticated" flat bordered class="admin-login-card">
         <q-form @submit.prevent="login">
           <q-card-section>
-            <h2>Вход</h2>
-            <p>Введите пароль администратора. Он проверяется только на сервере.</p>
+            <h2>{{ t('admin.login') }}</h2>
+            <p>{{ t('admin.loginHint') }}</p>
             <q-input
               v-model="password"
               outlined
               autofocus
               :type="showPassword ? 'text' : 'password'"
-              label="Пароль"
+              :label="t('admin.password')"
               autocomplete="current-password"
               :error="Boolean(loginError)"
               :error-message="loginError"
@@ -56,7 +56,7 @@
               no-caps
               color="primary"
               type="submit"
-              label="Открыть статистику"
+              :label="t('admin.open')"
               :loading="loggingIn"
               :disable="!password"
             />
@@ -66,9 +66,16 @@
 
       <template v-else>
         <div class="admin-analytics-actions">
-          <span>Данные обновляются по запросу</span>
-          <q-btn flat no-caps icon="refresh" label="Обновить" :loading="loading" @click="refresh" />
-          <q-btn flat no-caps icon="logout" label="Выйти" @click="logout" />
+          <span>{{ t('admin.onRequest') }}</span>
+          <q-btn
+            flat
+            no-caps
+            icon="refresh"
+            :label="t('admin.refresh')"
+            :loading="loading"
+            @click="refresh"
+          />
+          <q-btn flat no-caps icon="logout" :label="t('admin.logout')" @click="logout" />
         </div>
 
         <q-banner v-if="loadError" rounded class="bg-negative text-white q-mb-md">
@@ -88,7 +95,7 @@
         <div v-if="summary" class="admin-detail-grid">
           <q-card flat bordered>
             <q-card-section>
-              <h2>Платформы</h2>
+              <h2>{{ t('admin.platforms') }}</h2>
               <div v-for="item in summary.platforms" :key="item.platform" class="admin-data-row">
                 <span>{{ platformLabel(item.platform) }}</span>
                 <strong>{{ item.installations }}</strong>
@@ -97,7 +104,7 @@
           </q-card>
           <q-card flat bordered>
             <q-card-section>
-              <h2>Версии</h2>
+              <h2>{{ t('admin.versions') }}</h2>
               <div v-for="item in summary.versions" :key="item.app_version" class="admin-data-row">
                 <span>v{{ item.app_version }}</span>
                 <strong>{{ item.installations }}</strong>
@@ -109,20 +116,19 @@
         <div v-if="summary" class="admin-detail-grid">
           <q-card flat bordered>
             <q-card-section>
-              <h2>Возвращаемость</h2>
+              <h2>{{ t('admin.retention') }}</h2>
               <div v-for="item in retentionMetrics" :key="item.label" class="admin-data-row">
                 <span>{{ item.label }}</span>
                 <strong>{{ item.value }}</strong>
               </div>
               <p class="admin-card-note">
-                D7 и D30 считаются в окне ±1 день. Показатель появится, когда установки достигнут
-                нужного возраста.
+                {{ t('admin.retentionHint') }}
               </p>
             </q-card-section>
           </q-card>
           <q-card flat bordered>
             <q-card-section>
-              <h2>Успешные обновления Android</h2>
+              <h2>{{ t('admin.androidUpdates') }}</h2>
               <div
                 v-for="item in summary.versionChanges"
                 :key="`${item.from_version}:${item.to_version}`"
@@ -132,7 +138,7 @@
                 <strong>{{ item.updates }}</strong>
               </div>
               <p v-if="!summary.versionChanges.length" class="text-grey-7">
-                Подтверждённых обновлений пока нет.
+                {{ t('admin.noUpdates') }}
               </p>
             </q-card-section>
           </q-card>
@@ -140,7 +146,7 @@
 
         <q-card v-if="summary" flat bordered class="admin-activity-card">
           <q-card-section>
-            <h2>Что можно предположить</h2>
+            <h2>{{ t('admin.insights') }}</h2>
             <ul class="admin-insight-list">
               <li v-for="insight in insights" :key="insight">{{ insight }}</li>
             </ul>
@@ -149,12 +155,9 @@
 
         <q-card v-if="summary" flat bordered class="admin-activity-card">
           <q-card-section>
-            <h2>Новые установки за 30 дней</h2>
+            <h2>{{ t('admin.newInstalls') }}</h2>
             <div v-if="summary.newInstallations.length" class="admin-activity-list">
-              <div
-                v-for="item in [...summary.newInstallations].reverse()"
-                :key="item.install_date"
-              >
+              <div v-for="item in [...summary.newInstallations].reverse()" :key="item.install_date">
                 <time>{{ formatDate(item.install_date) }}</time>
                 <q-linear-progress
                   rounded
@@ -165,13 +168,13 @@
                 <strong>{{ item.installations }}</strong>
               </div>
             </div>
-            <p v-else class="text-grey-7">Данных пока нет.</p>
+            <p v-else class="text-grey-7">{{ t('admin.noData') }}</p>
           </q-card-section>
         </q-card>
 
         <q-card v-if="summary" flat bordered class="admin-activity-card">
           <q-card-section>
-            <h2>Активность за 30 дней</h2>
+            <h2>{{ t('admin.activity') }}</h2>
             <div v-if="summary.daily.length" class="admin-activity-list">
               <div v-for="item in [...summary.daily].reverse()" :key="item.activity_date">
                 <time>{{ formatDate(item.activity_date) }}</time>
@@ -184,7 +187,7 @@
                 <strong>{{ item.active }}</strong>
               </div>
             </div>
-            <p v-else class="text-grey-7">Данных пока нет.</p>
+            <p v-else class="text-grey-7">{{ t('admin.noData') }}</p>
           </q-card-section>
         </q-card>
       </template>
@@ -194,6 +197,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import AppLogo from 'components/AppLogo.vue';
 import {
   checkAdminSession,
@@ -204,6 +208,7 @@ import {
 } from 'src/services/admin-analytics';
 
 const checking = ref(true);
+const { t, locale } = useI18n();
 const authenticated = ref(false);
 const loggingIn = ref(false);
 const loading = ref(false);
@@ -217,12 +222,16 @@ const metrics = computed(() => {
   const totals = summary.value?.totals;
   return totals
     ? [
-        { icon: 'install_mobile', label: 'Установки', value: totals.installations },
-        { icon: 'download', label: 'Скачивания APK', value: totals.downloads },
-        { icon: 'system_update_alt', label: 'Успешные обновления', value: totals.successful_updates },
-        { icon: 'today', label: 'Активны сегодня', value: totals.active_1d },
-        { icon: 'date_range', label: 'Активны за 7 дней', value: totals.active_7d },
-        { icon: 'calendar_month', label: 'Активны за 30 дней', value: totals.active_30d },
+        { icon: 'install_mobile', label: t('admin.installations'), value: totals.installations },
+        { icon: 'download', label: t('admin.downloads'), value: totals.downloads },
+        {
+          icon: 'system_update_alt',
+          label: t('admin.successfulUpdates'),
+          value: totals.successful_updates,
+        },
+        { icon: 'today', label: t('admin.activeToday'), value: totals.active_1d },
+        { icon: 'date_range', label: t('admin.active7'), value: totals.active_7d },
+        { icon: 'calendar_month', label: t('admin.active30'), value: totals.active_30d },
       ]
     : [];
 });
@@ -230,9 +239,9 @@ const retentionMetrics = computed(() => {
   const retention = summary.value?.retention;
   if (!retention) return [];
   return [
-    retentionMetric('D1 — вернулись на следующий день', retention.retained_d1, retention.eligible_d1),
-    retentionMetric('D7 — вернулись через неделю', retention.retained_d7, retention.eligible_d7),
-    retentionMetric('D30 — вернулись через месяц', retention.retained_d30, retention.eligible_d30),
+    retentionMetric(t('admin.d1'), retention.retained_d1, retention.eligible_d1),
+    retentionMetric(t('admin.d7'), retention.retained_d7, retention.eligible_d7),
+    retentionMetric(t('admin.d30'), retention.retained_d30, retention.eligible_d30),
   ];
 });
 const insights = computed(() => {
@@ -240,26 +249,22 @@ const insights = computed(() => {
   const { totals, retention, versions } = summary.value;
   const result: string[] = [];
   if (totals.installations < 10) {
-    result.push('Данных пока мало: выводы будут надёжнее после первых 10–20 установок.');
+    result.push(t('admin.insightFew'));
   }
   if (totals.downloads > 0 && totals.installations === 0) {
-    result.push('APK скачивают, но приложение ещё не запускали или запуск не дошёл до сервера.');
+    result.push(t('admin.insightDownloads'));
   }
   if (retention.eligible_d1 > 0) {
     const rate = retention.retained_d1 / retention.eligible_d1;
-    result.push(
-      rate >= 0.4
-        ? 'Возвращаемость на следующий день выглядит хорошей.'
-        : 'Низкая D1-возвращаемость: стоит проверить первый запуск и понятность настройки.',
-    );
+    result.push(rate >= 0.4 ? t('admin.insightGoodD1') : t('admin.insightLowD1'));
   }
   if (versions.length > 1) {
-    result.push('Используется несколько версий: часть пользователей ещё не обновилась.');
+    result.push(t('admin.insightVersions'));
   }
   if (totals.inactive_30d > 0) {
-    result.push(`Неактивны более 30 дней: ${totals.inactive_30d}.`);
+    result.push(t('admin.insightInactive', { count: totals.inactive_30d }));
   }
-  if (!result.length) result.push('Пока нет достаточных данных для содержательного вывода.');
+  if (!result.length) result.push(t('admin.insightNone'));
   return result;
 });
 const maxDailyActive = computed(() =>
@@ -287,11 +292,12 @@ async function login() {
     password.value = '';
     await refresh();
   } catch (error) {
-    loginError.value = error instanceof Error && error.message === 'invalid-password'
-      ? 'Неверный пароль'
-      : error instanceof Error && error.message === 'too-many-attempts'
-        ? 'Слишком много попыток. Попробуйте через 15 минут.'
-        : 'Не удалось войти. Попробуйте ещё раз.';
+    loginError.value =
+      error instanceof Error && error.message === 'invalid-password'
+        ? t('admin.invalidPassword')
+        : error instanceof Error && error.message === 'too-many-attempts'
+          ? t('admin.tooManyAttempts')
+          : t('admin.loginFailed');
   } finally {
     loggingIn.value = false;
   }
@@ -307,7 +313,7 @@ async function refresh() {
       authenticated.value = false;
       summary.value = null;
     } else {
-      loadError.value = 'Не удалось загрузить статистику.';
+      loadError.value = t('admin.loadFailed');
     }
   } finally {
     loading.value = false;
@@ -321,11 +327,13 @@ async function logout() {
 }
 
 function platformLabel(platform: string) {
-  return { android: 'Android', ios: 'iPhone', pwa: 'PWA', web: 'Веб' }[platform] ?? platform;
+  return (
+    { android: 'Android', ios: 'iPhone', pwa: 'PWA', web: t('admin.web') }[platform] ?? platform
+  );
 }
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat('ru-RU', {
+  return new Intl.DateTimeFormat(locale.value, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -335,7 +343,9 @@ function formatDate(value: string) {
 function retentionMetric(label: string, retained: number, eligible: number) {
   return {
     label,
-    value: eligible ? `${Math.round((retained / eligible) * 100)}% (${retained}/${eligible})` : 'ещё рано',
+    value: eligible
+      ? `${Math.round((retained / eligible) * 100)}% (${retained}/${eligible})`
+      : t('admin.tooEarly'),
   };
 }
 </script>

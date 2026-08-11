@@ -1,37 +1,61 @@
 <template>
-  <q-page class="page-shell alarm-center-page">
+  <q-page
+    :class="
+      embedded ? 'alarm-center-page alarm-center-page--embedded' : 'page-shell alarm-center-page'
+    "
+  >
     <page-header
+      v-if="!embedded"
       eyebrow="Android"
-      title="Будильники"
-      subtitle="Управление Android-будильником My Shift, мелодией, вибрацией и обновлением APK."
+      :title="$t('alarmCenter.title')"
+      :subtitle="$t('alarmCenter.subtitle')"
     />
 
     <div class="settings-grid">
-      <q-card flat bordered class="settings-card">
+      <q-card flat :bordered="!embedded" class="settings-card">
         <q-card-section class="settings-card__header">
-          <div class="section-title">Установленные будильники My Shift</div>
-          <div class="supporting-text">
-            Здесь видны будильники, которые помнит приложение. Они управляются My Shift, поэтому в
-            Android Clock могут не отображаться.
-          </div>
+          <div class="section-title">{{ $t('alarmCenter.installedTitle') }}</div>
+          <div class="supporting-text">{{ $t('alarmCenter.installedHint') }}</div>
         </q-card-section>
         <q-card-section class="settings-card__body q-gutter-md">
-          <q-banner rounded class="settings-android-alarm-status" :class="alarmReady ? 'settings-android-alarm-status--ready' : ''">
+          <q-banner
+            rounded
+            class="settings-android-alarm-status"
+            :class="alarmReady ? 'settings-android-alarm-status--ready' : ''"
+          >
             <template #avatar>
               <q-icon :name="alarmReady ? 'verified' : 'warning'" />
             </template>
-            {{ alarmReady ? $t('settings.androidAlarmReady') : $t('settings.androidAlarmNeedsSetup') }}
+            {{
+              alarmReady ? $t('settings.androidAlarmReady') : $t('settings.androidAlarmNeedsSetup')
+            }}
           </q-banner>
-          <q-btn v-if="!alarmReady" class="app-action-button full-width" color="primary" icon="alarm_add" no-caps :label="$t('settings.openExactAlarmSettings')" @click="openExactAlarmSettings" />
+          <q-btn
+            v-if="!alarmReady"
+            class="app-action-button full-width"
+            color="primary"
+            icon="alarm_add"
+            no-caps
+            :label="$t('settings.openExactAlarmSettings')"
+            @click="openExactAlarmSettings"
+          />
 
           <div class="alarm-center-list">
-            <q-card v-for="item in alarmItems" :key="item.scope" flat bordered class="alarm-center-item">
+            <q-card
+              v-for="item in alarmItems"
+              :key="item.scope"
+              flat
+              bordered
+              class="alarm-center-item"
+            >
               <q-card-section>
                 <div class="alarm-center-item__top">
                   <q-icon :name="item.icon" size="26px" color="primary" />
                   <div>
                     <div class="alarm-center-item__title">{{ item.title }}</div>
-                    <div class="supporting-text">{{ item.id || 'Не установлен' }}</div>
+                    <div class="supporting-text">
+                      {{ item.id || $t('alarmCenter.notInstalled') }}
+                    </div>
                   </div>
                 </div>
                 <div class="alarm-center-item__time">{{ item.time || '--:--' }}</div>
@@ -42,57 +66,150 @@
         </q-card-section>
       </q-card>
 
-      <q-card flat bordered class="settings-card">
+      <q-card flat :bordered="!embedded" class="settings-card">
         <q-card-section class="settings-card__header">
-          <div class="section-title">Звук и поведение</div>
-          <div class="supporting-text">Выберите мелодию, проверьте её и настройте вибрацию.</div>
+          <div class="section-title">{{ $t('alarmCenter.testTitle') }}</div>
+          <div class="supporting-text">{{ $t('alarmCenter.testHint') }}</div>
         </q-card-section>
         <q-card-section class="settings-card__body settings-tests">
-          <q-btn class="app-action-button full-width" color="secondary" icon="music_note" no-caps :label="$t('settings.chooseAlarmSound')" @click="chooseAlarmSound" />
+          <q-btn
+            class="app-action-button full-width"
+            color="negative"
+            icon="alarm"
+            no-caps
+            :label="$t('alarmCenter.testAlarm')"
+            @click="testAlarm"
+          />
+          <q-btn
+            outline
+            class="app-action-button full-width"
+            color="negative"
+            icon="alarm_off"
+            no-caps
+            :label="$t('alarmCenter.clearTestAlarm')"
+            @click="clearTestAlarm"
+          />
+        </q-card-section>
+      </q-card>
+
+      <q-card flat :bordered="!embedded" class="settings-card">
+        <q-card-section class="settings-card__header">
+          <div class="section-title">{{ $t('alarmCenter.soundTitle') }}</div>
+          <div class="supporting-text">{{ $t('alarmCenter.soundHint') }}</div>
+        </q-card-section>
+        <q-card-section class="settings-card__body settings-tests">
+          <q-btn
+            class="app-action-button full-width"
+            color="secondary"
+            icon="music_note"
+            no-caps
+            :label="$t('settings.chooseAlarmSound')"
+            @click="chooseAlarmSound"
+          />
           <div class="alarm-center-preview">
-            <q-btn class="app-action-button" color="primary" icon="play_arrow" no-caps label="Прослушать" :disable="previewPlaying" @click="previewAlarmSound" />
-            <q-btn outline class="app-action-button" color="primary" icon="stop" no-caps label="Стоп" :disable="!previewPlaying" @click="stopAlarmPreview" />
+            <q-btn
+              class="app-action-button"
+              color="primary"
+              icon="play_arrow"
+              no-caps
+              :label="$t('alarmCenter.preview')"
+              :disable="previewPlaying"
+              @click="previewAlarmSound"
+            />
+            <q-btn
+              outline
+              class="app-action-button"
+              color="primary"
+              icon="stop"
+              no-caps
+              :label="$t('alarmCenter.stop')"
+              :disable="!previewPlaying"
+              @click="stopAlarmPreview"
+            />
           </div>
           <q-toggle
             :model-value="vibrationEnabled"
             color="primary"
             icon="vibration"
-            label="Вибрация"
+            :label="$t('alarmCenter.vibration')"
             @update:model-value="setVibration"
           />
           <q-toggle
             :model-value="volumeRampEnabled"
             color="primary"
             icon="trending_up"
-            label="Плавное увеличение громкости"
+            :label="$t('alarmCenter.volumeRamp')"
             @update:model-value="setVolumeRamp"
           />
-          <q-btn outline class="app-action-button full-width" color="primary" icon="settings" no-caps :label="$t('settings.openAndroidSoundSettings')" @click="openAlarmSettings" />
+          <q-btn
+            outline
+            class="app-action-button full-width"
+            color="primary"
+            icon="settings"
+            no-caps
+            :label="$t('settings.openAndroidSoundSettings')"
+            @click="openAlarmSettings"
+          />
         </q-card-section>
       </q-card>
 
-      <q-card flat bordered class="settings-card">
+      <q-card v-if="!embedded" flat bordered class="settings-card">
         <q-card-section class="settings-card__header">
-          <div class="section-title">Обновление приложения</div>
-          <div class="supporting-text">Текущая версия: v{{ currentVersion }}</div>
+          <div class="section-title">{{ $t('alarmCenter.updateTitle') }}</div>
+          <div class="supporting-text">
+            {{ $t('alarmCenter.currentVersion', { version: currentVersion }) }}
+          </div>
         </q-card-section>
         <q-card-section class="settings-card__body settings-tests">
           <q-banner rounded class="mobile-install-card__update">
             <template #avatar>
-              <q-icon :name="availableUpdate ? 'system_update' : 'verified'" :color="availableUpdate ? 'primary' : 'positive'" />
+              <q-icon
+                :name="availableUpdate ? 'system_update' : 'verified'"
+                :color="availableUpdate ? 'primary' : 'positive'"
+              />
             </template>
             <div class="mobile-install-card__update-body">
               <div>
-                <strong>{{ availableUpdate ? `Доступно обновление v${availableUpdate.version}` : 'APK актуален' }}</strong>
-                <p>{{ availableUpdate ? `Установлено: v${currentVersion}. Новый APK: v${availableUpdate.version}.` : `Установленная версия: v${currentVersion}.` }}</p>
+                <strong>{{
+                  availableUpdate
+                    ? $t('alarmCenter.updateAvailable', { version: availableUpdate.version })
+                    : $t('alarmCenter.upToDate')
+                }}</strong>
+                <p>
+                  {{
+                    availableUpdate
+                      ? $t('alarmCenter.updateAvailableText', {
+                          current: currentVersion,
+                          version: availableUpdate.version,
+                        })
+                      : $t('alarmCenter.installedVersion', { version: currentVersion })
+                  }}
+                </p>
               </div>
-              <q-btn v-if="availableUpdate" unelevated no-caps color="primary" icon="system_update" label="Обновить" :loading="installing" @click="installUpdate" />
-              <q-btn v-else outline no-caps color="primary" icon="refresh" label="Проверить" :loading="checkingUpdate" @click="loadUpdates" />
+              <q-btn
+                v-if="availableUpdate"
+                unelevated
+                no-caps
+                color="primary"
+                icon="system_update"
+                :label="$t('alarmCenter.update')"
+                :loading="installing"
+                @click="installUpdate"
+              />
+              <q-btn
+                v-else
+                outline
+                no-caps
+                color="primary"
+                icon="refresh"
+                :label="$t('alarmCenter.check')"
+                :loading="checkingUpdate"
+                @click="loadUpdates"
+              />
             </div>
           </q-banner>
         </q-card-section>
       </q-card>
-
     </div>
   </q-page>
 </template>
@@ -112,15 +229,20 @@ import {
 } from 'src/services/release-manifest';
 import {
   chooseAndroidAlarmSound,
+  clearAndroidTestAlarm,
   getAndroidAlarmDiagnostics,
+  isNativeAndroidApp,
   openAndroidAlarmSettings,
   openAndroidExactAlarmSettings,
   previewAndroidAlarmSound,
+  runAndroidTestAlarmDiagnostics,
   setAndroidAlarmOptions,
   stopAndroidAlarmPreview,
   type AndroidSystemAlarmStatus,
 } from 'src/services/native-notifications';
 import { useAppStore } from 'stores/app-store';
+
+const props = withDefaults(defineProps<{ embedded?: boolean }>(), { embedded: false });
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -131,23 +253,34 @@ const installing = ref(false);
 const previewPlaying = ref(false);
 const availableUpdate = ref<MobileRelease | null>(null);
 const currentVersion = CURRENT_APP_VERSION;
-const alarmReady = computed(() => Boolean(diagnostics.value.canScheduleExactAlarms ?? diagnostics.value.canSetAlarm));
+const alarmReady = computed(() =>
+  Boolean(diagnostics.value.canScheduleExactAlarms ?? diagnostics.value.canSetAlarm),
+);
 const vibrationEnabled = computed(() => diagnostics.value.vibrationEnabled ?? true);
 const volumeRampEnabled = computed(() => diagnostics.value.volumeRampEnabled ?? true);
 const alarmItems = computed(() => [
   {
     scope: 'regular',
     icon: 'work_history',
-    title: 'Рабочий будильник',
+    title: t('alarmCenter.workAlarm'),
     id: diagnostics.value.lastAlarmId,
     time: formatAlarmTime(diagnostics.value.lastAlarmTimestamp),
     message: diagnostics.value.lastAlarmMessage,
-    emptyText: 'Рабочий будильник сейчас не запланирован.',
+    emptyText: t('alarmCenter.workAlarmEmpty'),
+  },
+  {
+    scope: 'test',
+    icon: 'science',
+    title: t('alarmCenter.testAlarmItem'),
+    id: diagnostics.value.lastTestAlarmId,
+    time: formatAlarmTime(diagnostics.value.lastTestAlarmTimestamp),
+    message: diagnostics.value.lastTestAlarmMessage,
+    emptyText: t('alarmCenter.testAlarmEmpty'),
   },
 ]);
 
 void refreshDiagnostics();
-void loadUpdates();
+if (!props.embedded) void loadUpdates();
 window.addEventListener('focus', refreshDiagnosticsSoon);
 document.addEventListener('visibilitychange', refreshDiagnosticsWhenVisible);
 
@@ -169,16 +302,62 @@ function refreshDiagnosticsWhenVisible() {
   if (!document.hidden) void refreshDiagnostics();
 }
 
+async function testAlarm() {
+  await refreshDiagnostics();
+  if (!isNativeAndroidApp()) {
+    $q.notify({ type: 'warning', message: t('settings.androidNativeRequired') });
+    return;
+  }
+  if (!alarmReady.value) {
+    $q.notify({
+      type: 'warning',
+      icon: 'alarm_add',
+      message: t('settings.exactAlarmPermissionRequired'),
+      timeout: 7000,
+      actions: [
+        {
+          label: t('settings.openExactAlarmSettingsShort'),
+          color: 'white',
+          handler: () => void openExactAlarmSettings(),
+        },
+      ],
+    });
+    return;
+  }
+
+  const result = await runAndroidTestAlarmDiagnostics(t('settings.testAlarmMessage'));
+  diagnostics.value = result.status;
+  $q.notify({
+    type: result.ok ? 'positive' : 'negative',
+    message: t(result.ok ? 'settings.androidAlarmScheduled' : 'settings.androidAlarmFailed'),
+  });
+}
+
+async function clearTestAlarm() {
+  const cleared = await clearAndroidTestAlarm();
+  await refreshDiagnostics();
+  $q.notify({
+    type: cleared ? 'positive' : 'negative',
+    message: t(cleared ? 'settings.androidAlarmCleared' : 'settings.androidAlarmClearFailed'),
+  });
+}
+
 async function chooseAlarmSound() {
   const selected = await chooseAndroidAlarmSound();
   await refreshDiagnostics();
-  $q.notify({ type: selected ? 'positive' : 'warning', message: t(selected ? 'settings.alarmSoundSelected' : 'settings.alarmSoundNotSelected') });
+  $q.notify({
+    type: selected ? 'positive' : 'warning',
+    message: t(selected ? 'settings.alarmSoundSelected' : 'settings.alarmSoundNotSelected'),
+  });
 }
 
 async function previewAlarmSound() {
   const started = await previewAndroidAlarmSound();
   previewPlaying.value = started;
-  $q.notify({ type: started ? 'positive' : 'warning', message: started ? 'Мелодия запущена.' : 'Не удалось запустить мелодию.' });
+  $q.notify({
+    type: started ? 'positive' : 'warning',
+    message: t(started ? 'alarmCenter.previewStarted' : 'alarmCenter.previewFailed'),
+  });
 }
 
 async function stopAlarmPreview() {
@@ -189,30 +368,47 @@ async function stopAlarmPreview() {
 async function setVibration(value: boolean) {
   const saved = await setAndroidAlarmOptions({ vibrationEnabled: value });
   await refreshDiagnostics();
-  $q.notify({ type: saved ? 'positive' : 'warning', message: saved ? 'Настройка вибрации сохранена.' : 'Не удалось сохранить вибрацию.' });
+  $q.notify({
+    type: saved ? 'positive' : 'warning',
+    message: t(saved ? 'alarmCenter.vibrationSaved' : 'alarmCenter.vibrationFailed'),
+  });
 }
 
 async function setVolumeRamp(value: boolean) {
   const saved = await setAndroidAlarmOptions({ volumeRampEnabled: value });
   await refreshDiagnostics();
-  $q.notify({ type: saved ? 'positive' : 'warning', message: saved ? 'Настройка громкости сохранена.' : 'Не удалось сохранить громкость.' });
+  $q.notify({
+    type: saved ? 'positive' : 'warning',
+    message: t(saved ? 'alarmCenter.volumeRampSaved' : 'alarmCenter.volumeRampFailed'),
+  });
 }
 
 async function openAlarmSettings() {
   const opened = await openAndroidAlarmSettings();
-  $q.notify({ type: opened ? 'positive' : 'warning', message: t(opened ? 'settings.androidSoundSettingsOpened' : 'settings.androidSoundSettingsFailed') });
+  $q.notify({
+    type: opened ? 'positive' : 'warning',
+    message: t(
+      opened ? 'settings.androidSoundSettingsOpened' : 'settings.androidSoundSettingsFailed',
+    ),
+  });
 }
 
 async function openExactAlarmSettings() {
   const opened = await openAndroidExactAlarmSettings();
-  $q.notify({ type: opened ? 'positive' : 'warning', message: t(opened ? 'settings.exactAlarmSettingsOpened' : 'settings.exactAlarmSettingsFailed') });
+  $q.notify({
+    type: opened ? 'positive' : 'warning',
+    message: t(opened ? 'settings.exactAlarmSettingsOpened' : 'settings.exactAlarmSettingsFailed'),
+  });
 }
 
 async function loadUpdates() {
   checkingUpdate.value = true;
   try {
     const manifest = await loadReleaseManifest();
-    availableUpdate.value = latestAvailableRelease(manifest?.android.stable ?? [], CURRENT_ANDROID_VERSION_CODE);
+    availableUpdate.value = latestAvailableRelease(
+      manifest?.android.stable ?? [],
+      CURRENT_ANDROID_VERSION_CODE,
+    );
   } finally {
     checkingUpdate.value = false;
   }
@@ -230,7 +426,11 @@ async function installUpdate() {
   } catch (error) {
     $q.notify({
       type: 'warning',
-      message: t(error instanceof Error && error.message.includes('install-permission-required') ? 'mobileInstall.allowInstall' : 'mobileInstall.installError'),
+      message: t(
+        error instanceof Error && error.message.includes('install-permission-required')
+          ? 'mobileInstall.allowInstall'
+          : 'mobileInstall.installError',
+      ),
     });
   } finally {
     installing.value = false;
@@ -239,7 +439,7 @@ async function installUpdate() {
 
 function formatAlarmTime(timestamp?: number) {
   if (!timestamp) return '';
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(app.data.settings.locale, {
     day: '2-digit',
     month: '2-digit',
     hour: '2-digit',
@@ -279,5 +479,16 @@ function formatAlarmTime(timestamp?: number) {
   display: grid;
   gap: 10px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.alarm-center-page--embedded {
+  min-height: 0 !important;
+  padding: 0;
+}
+
+.alarm-center-page--embedded .settings-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 </style>

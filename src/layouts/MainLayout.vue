@@ -549,7 +549,6 @@ const navigation = [
   { label: 'nav.statistics', icon: 'query_stats', to: '/statistics' },
   { label: 'nav.patterns', icon: 'repeat', to: '/patterns' },
   { label: 'nav.reminders', icon: 'notifications_active', to: '/reminders' },
-  { label: 'nav.alarms', icon: 'alarm', to: '/alarms' },
   { label: 'nav.whatsNew', icon: 'new_releases', to: '/whats-new' },
   { label: 'nav.settings', icon: 'tune', to: '/settings' },
   { label: 'nav.privacy', icon: 'privacy_tip', to: '/privacy' },

@@ -123,6 +123,38 @@ describe('native Android reminders', () => {
     ).toBe(false);
   });
 
+  it('schedules the next work alarm even when it is more than 24 hours away', async () => {
+    const { syncNativeReminders } = await service();
+    const profile = workProfile();
+    profile.transport.alarmBeforeReferenceMinutes = -1_500;
+
+    await expect(syncNativeReminders(profile, 'en-US')).resolves.toBe(true);
+
+    expect(mocks.systemAlarm.setAlarm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'my-shift:alarm:2026-01-05:shift-1',
+        timestamp: String(new Date(2026, 0, 6, 7).getTime()),
+      }),
+    );
+  });
+
+  it('reschedules the owned work alarm when its configured time changes', async () => {
+    const { syncNativeReminders } = await service();
+    const profile = workProfile();
+
+    await syncNativeReminders(profile, 'en-US');
+    profile.transport.alarmBeforeReferenceMinutes = 30;
+    await syncNativeReminders(profile, 'en-US');
+
+    expect(mocks.systemAlarm.setAlarm).toHaveBeenCalledTimes(2);
+    expect(mocks.systemAlarm.setAlarm.mock.calls[0]?.[0].timestamp).toBe(
+      String(new Date(2026, 0, 5, 5).getTime()),
+    );
+    expect(mocks.systemAlarm.setAlarm.mock.calls[1]?.[0].timestamp).toBe(
+      String(new Date(2026, 0, 5, 5, 30).getTime()),
+    );
+  });
+
   it('falls back to a local notification alarm when SystemAlarm rejects the alarm', async () => {
     const { syncNativeReminders } = await service();
     mocks.systemAlarm.setAlarm.mockRejectedValueOnce(new Error('exact alarm disabled'));
@@ -152,11 +184,12 @@ describe('native Android reminders', () => {
     await expect(syncNativeReminders(profile, 'en-US')).resolves.toBe(true);
 
     expect(mocks.systemAlarm.clearRememberedAlarm).toHaveBeenCalledOnce();
+    expect(mocks.systemAlarm.clearRememberedAlarm).toHaveBeenCalledWith();
     expect(mocks.systemAlarm.setAlarm).not.toHaveBeenCalled();
     expect(mocks.localNotifications.schedule).not.toHaveBeenCalled();
   });
 
-  it('keeps arrival alarms even when regular reminders are globally disabled', async () => {
+  it('clears arrival alarms when the global switch is disabled', async () => {
     const { syncNativeReminders } = await service();
     const profile = workProfile();
     profile.reminders.enabled = false;
@@ -166,13 +199,8 @@ describe('native Android reminders', () => {
 
     await expect(syncNativeReminders(profile, 'ru-RU')).resolves.toBe(true);
 
-    expect(mocks.systemAlarm.setAlarm).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: 'my-shift:arrival:2026-01-05:shift-1',
-        message: expect.stringContaining('Пора встречать'),
-        timestamp: String(new Date(2026, 0, 5, 14, 35).getTime()),
-      }),
-    );
+    expect(mocks.systemAlarm.clearRememberedAlarm).toHaveBeenCalledOnce();
+    expect(mocks.systemAlarm.setAlarm).not.toHaveBeenCalled();
   });
 
   it('does not touch native APIs outside an installed native app', async () => {
@@ -187,6 +215,31 @@ describe('native Android reminders', () => {
 });
 
 describe('Android alarm controls', () => {
+  it('schedules a test alarm for the next whole minute in a separate scope', async () => {
+    const { runAndroidTestAlarmDiagnostics } = await service();
+
+    await expect(runAndroidTestAlarmDiagnostics('Test alarm')).resolves.toMatchObject({
+      ok: true,
+      requestedAt: new Date(2026, 0, 5, 0, 1).getTime(),
+    });
+    expect(mocks.systemAlarm.setAlarm).toHaveBeenCalledWith({
+      id: 'my-shift:test-system-alarm',
+      message: 'Test alarm',
+      timestamp: String(new Date(2026, 0, 5, 0, 1).getTime()),
+      skipUi: false,
+      includeRingtone: false,
+    });
+  });
+
+  it('clears only the separate test alarm scope', async () => {
+    const { clearAndroidTestAlarm } = await service();
+
+    await expect(clearAndroidTestAlarm()).resolves.toBe(true);
+    expect(mocks.systemAlarm.clearRememberedAlarm).toHaveBeenCalledWith({
+      id: 'my-shift:test-system-alarm',
+    });
+  });
+
   it('saves vibration and volume options through the SystemAlarm plugin', async () => {
     const { setAndroidAlarmOptions } = await service();
 
@@ -226,10 +279,7 @@ describe('Android alarm controls', () => {
 
 describe('Android manifest alarm permissions', () => {
   it('keeps permissions required by full-screen alarms, exact alarms and vibration', () => {
-    const manifest = readFileSync(
-      'src-capacitor/android/app/src/main/AndroidManifest.xml',
-      'utf8',
-    );
+    const manifest = readFileSync('src-capacitor/android/app/src/main/AndroidManifest.xml', 'utf8');
 
     expect(manifest).toContain('android.permission.SCHEDULE_EXACT_ALARM');
     expect(manifest).toContain('android.permission.USE_FULL_SCREEN_INTENT');
@@ -246,5 +296,19 @@ describe('Android manifest alarm permissions', () => {
     expect(activity).toContain('rememberActivityError("sound:"');
     expect(activity).toContain('rememberActivityError("vibration:"');
     expect(activity).toContain('rememberActivityError("stop-vibration:"');
+  });
+
+  it('keeps test and work alarms separate and replaces the previous owned alarm', () => {
+    const plugin = readFileSync(
+      'src-capacitor/android/app/src/main/java/com/myshift/app/SystemAlarmPlugin.java',
+      'utf8',
+    );
+
+    expect(plugin).toContain('return "test".equals(scope) ? 9302 : 9301;');
+    expect(plugin).toContain('alarmManager.cancel(operation);');
+    expect(plugin).toContain('alarmManager.setAlarmClock');
+    expect(plugin.indexOf('alarmManager.cancel(operation);')).toBeLessThan(
+      plugin.indexOf('alarmManager.setAlarmClock'),
+    );
   });
 });

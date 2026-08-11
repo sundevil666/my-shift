@@ -21,7 +21,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'statistics', component: () => appReadiness.loadRoute('/statistics') },
       { path: 'patterns', component: () => appReadiness.loadRoute('/patterns') },
       { path: 'reminders', component: () => appReadiness.loadRoute('/reminders') },
-      { path: 'alarms', component: () => appReadiness.loadRoute('/alarms') },
+      { path: 'alarms', redirect: '/reminders' },
       { path: 'whats-new', component: () => appReadiness.loadRoute('/whats-new') },
       { path: 'support', component: () => appReadiness.loadRoute('/support') },
       { path: 'settings', component: () => appReadiness.loadRoute('/settings') },

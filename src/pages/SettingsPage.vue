@@ -98,7 +98,7 @@
         </q-card-section>
       </q-card>
 
-      <q-card flat bordered class="settings-card settings-card--notifications">
+      <q-card v-if="false" flat bordered class="settings-card settings-card--notifications">
         <q-card-section class="settings-card__header settings-notifications__header">
           <div>
             <div class="section-title">{{ $t('settings.timing') }}</div>
@@ -247,12 +247,14 @@
         </q-card-section>
       </q-card>
 
-      <q-card flat bordered class="settings-card settings-card--tests">
+      <q-card v-if="false" flat bordered class="settings-card settings-card--tests">
         <q-card-section class="settings-card__header">
           <div class="section-title">{{ $t('settings.notificationTest') }}</div>
           <div class="supporting-text">
             {{
-              isAndroidNative ? $t('settings.androidAlarmCenterHint') : $t('settings.notificationTestHint')
+              isAndroidNative
+                ? $t('settings.androidAlarmCenterHint')
+                : $t('settings.notificationTestHint')
             }}
           </div>
         </q-card-section>
@@ -272,11 +274,7 @@
                 : $t('settings.androidAlarmNeedsSetup')
             }}
           </q-banner>
-          <q-banner
-            v-else-if="isAndroidDevice"
-            rounded
-            class="settings-android-alarm-status"
-          >
+          <q-banner v-else-if="isAndroidDevice" rounded class="settings-android-alarm-status">
             <template #avatar>
               <q-icon name="install_mobile" />
             </template>
@@ -440,10 +438,7 @@ import {
   requestReminderPermission,
   showReminderFeedback,
 } from 'src/services/reminders/reminder-feedback';
-import {
-  getAndroidSystemAlarmStatus,
-  isNativeAndroidApp,
-} from 'src/services/native-notifications';
+import { getAndroidSystemAlarmStatus, isNativeAndroidApp } from 'src/services/native-notifications';
 import { syncPushReminders } from 'src/services/push-notifications';
 import { removePushSubscription } from 'src/services/push-notifications';
 import { parseMigration, serializeMigration } from 'src/services/data-migration';
@@ -461,7 +456,11 @@ const exportPayload = ref('');
 const isAndroidNative = isNativeAndroidApp();
 const isAndroidDevice = /Android/i.test(navigator.userAgent);
 const appVersion = process.env.APP_VERSION;
-const runtimePlatform = isAndroidNative ? 'APK Android' : isAndroidDevice ? 'PWA/Web Android' : 'Web/PWA';
+const runtimePlatform = isAndroidNative
+  ? 'APK Android'
+  : isAndroidDevice
+    ? 'PWA/Web Android'
+    : 'Web/PWA';
 const androidAlarmCanSet = ref(false);
 const androidAlarmReady = computed(() => androidAlarmCanSet.value);
 const scheduleDate = computed(() =>

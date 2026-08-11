@@ -62,7 +62,7 @@ describe('push reminders', () => {
     expect(new Date(arrival!.at)).toEqual(new Date(2026, 0, 5, 14, 35));
   });
 
-  it('keeps arrival reminders when all other reminders are disabled globally', () => {
+  it('disables arrival reminders with the global switch', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 5, 0));
     const profile = createDhlWorkProfile();
@@ -81,9 +81,7 @@ describe('push reminders', () => {
       id.includes('2026-01-05'),
     );
 
-    expect(reminders.map(({ id }) => id)).toEqual(['my-shift:arrival:2026-01-05:shift-3']);
-    expect(reminders[0]).toMatchObject({ kind: 'alarm' });
-    expect(new Date(reminders[0]!.at)).toEqual(new Date(2026, 0, 6, 6, 36));
+    expect(reminders).toEqual([]);
   });
 
   it('drops reminders that are already in the past', () => {
