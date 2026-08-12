@@ -409,11 +409,14 @@ const countdownWithSeconds = (target: Date) => {
 };
 const readableTextColor = (color: string) => {
   const hex = color.replace('#', '');
-  const red = Number.parseInt(hex.slice(0, 2), 16);
-  const green = Number.parseInt(hex.slice(2, 4), 16);
-  const blue = Number.parseInt(hex.slice(4, 6), 16);
-  const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
-  return luminance > 150 ? '#17242a' : '#ffffff';
+  if (!/^[0-9a-f]{6}$/i.test(hex)) return '#17242a';
+  const luminance = [0, 2, 4]
+    .map((index) => Number.parseInt(hex.slice(index, index + 2), 16) / 255)
+    .map((channel) => (channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4))
+    .reduce((total, channel, index) => total + channel * [0.2126, 0.7152, 0.0722][index]!, 0);
+  const contrastWithWhite = 1.05 / (luminance + 0.05);
+  const contrastWithDark = (luminance + 0.05) / 0.064;
+  return contrastWithWhite >= contrastWithDark ? '#ffffff' : '#17242a';
 };
 type TimelineItem = {
   icon: string;

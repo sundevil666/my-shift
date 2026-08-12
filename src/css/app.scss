@@ -6,8 +6,10 @@
   --app-surface-soft: #eaf1f4;
   --app-text: #17242a;
   --app-text-muted: #52636b;
+  --app-muted: #52636b;
   --app-border: #cad6dc;
   --app-primary-soft: #dceef4;
+  --app-focus-ring: #176b87;
   --app-shadow: rgba(15, 42, 52, 0.08);
   --event-active-bg: #dceef4;
   --event-active-text: #123846;
@@ -21,12 +23,14 @@
   --app-bg: #0d171c;
   --app-bg-accent: #172a34;
   --app-bg-glow: rgba(50, 83, 96, 0.28);
-  --app-surface: #16252c;
-  --app-surface-soft: #20343d;
-  --app-text: #f2f7f8;
-  --app-text-muted: #b8c7cd;
-  --app-border: #3a505a;
-  --app-primary-soft: #193f4d;
+  --app-surface: #16272f;
+  --app-surface-soft: #213741;
+  --app-text: #f5fafb;
+  --app-text-muted: #c2d0d5;
+  --app-muted: #c2d0d5;
+  --app-border: #4a626d;
+  --app-primary-soft: #1d4655;
+  --app-focus-ring: #80d7f3;
   --app-shadow: rgba(0, 0, 0, 0.28);
   --event-active-bg: #244754;
   --event-active-text: #ffffff;
@@ -64,8 +68,8 @@ body[data-shift-atmosphere='shift-3'] {
 }
 
 body[data-shift-atmosphere='off'] {
-  --shift-accent: #718096;
-  --shift-accent-text: #ffffff;
+  --shift-accent: #aab6c2;
+  --shift-accent-text: #17242a;
   --app-bg: #effaf3;
   --app-bg-accent: #a9dfbe;
   --app-bg-glow: rgba(245, 255, 248, 0.9);
@@ -73,31 +77,39 @@ body[data-shift-atmosphere='off'] {
 }
 
 .body--dark[data-shift-atmosphere='shift-1'] {
+  --shift-accent: #ffd45a;
+  --shift-accent-text: #241900;
   --app-bg: #19150c;
-  --app-bg-accent: #493213;
-  --app-bg-glow: rgba(242, 194, 48, 0.2);
-  --app-primary-soft: #403019;
+  --app-bg-accent: #4d3716;
+  --app-bg-glow: rgba(255, 212, 90, 0.24);
+  --app-primary-soft: #4a391b;
 }
 
 .body--dark[data-shift-atmosphere='shift-2'] {
-  --app-bg: #0d181c;
-  --app-bg-accent: #123b5e;
-  --app-bg-glow: rgba(22, 119, 210, 0.2);
-  --app-primary-soft: #183d5c;
+  --shift-accent: #6bc8ff;
+  --shift-accent-text: #062131;
+  --app-bg: #0c1920;
+  --app-bg-accent: #1a415b;
+  --app-bg-glow: rgba(107, 200, 255, 0.24);
+  --app-primary-soft: #20536f;
 }
 
 .body--dark[data-shift-atmosphere='shift-3'] {
+  --shift-accent: #baa5ff;
+  --shift-accent-text: #211344;
   --app-bg: #0d0e1a;
-  --app-bg-accent: #292457;
-  --app-bg-glow: rgba(112, 70, 196, 0.22);
-  --app-primary-soft: #302a5b;
+  --app-bg-accent: #302862;
+  --app-bg-glow: rgba(186, 165, 255, 0.24);
+  --app-primary-soft: #3b3470;
 }
 
 .body--dark[data-shift-atmosphere='off'] {
+  --shift-accent: #a7d5b9;
+  --shift-accent-text: #10281b;
   --app-bg: #0d1812;
-  --app-bg-accent: #173d28;
-  --app-bg-glow: rgba(113, 128, 150, 0.2);
-  --app-primary-soft: #1b402b;
+  --app-bg-accent: #1b4930;
+  --app-bg-glow: rgba(167, 213, 185, 0.2);
+  --app-primary-soft: #23533a;
 }
 
 body[data-shift-atmosphere] {
@@ -1092,7 +1104,21 @@ body {
 .body--dark .nav-active,
 .body--dark .text-primary,
 .body--dark .q-btn--flat.text-primary {
-  color: #69c9e7 !important;
+  color: var(--app-focus-ring) !important;
+}
+
+.body--dark .q-focus-helper {
+  background: color-mix(in srgb, var(--app-focus-ring) 24%, transparent);
+}
+
+.body--dark .q-field--focused .q-field__control::after {
+  border-color: var(--app-focus-ring);
+}
+
+.body--dark .q-toggle__inner--truthy,
+.body--dark .q-radio__inner--truthy,
+.body--dark .q-checkbox__inner--truthy {
+  color: var(--app-focus-ring);
 }
 
 .drawer-footer {
@@ -1816,13 +1842,35 @@ body {
 }
 
 .calendar-page .page-heading {
+  position: relative;
   align-items: center;
   gap: 18px;
   margin-bottom: 12px;
 }
 
 .calendar-page .page-heading > div:first-child {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  padding-right: 62px;
+}
+
+.calendar-page .page-heading__top-action {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.calendar-months-select {
+  width: 64px;
+}
+
+.calendar-months-select .q-field__control-container {
+  padding-top: 0;
+}
+
+.calendar-months-select .q-field__native {
+  min-width: 0;
+  justify-content: center;
+  padding: 0;
 }
 
 .calendar-legend {
@@ -1830,6 +1878,7 @@ body {
   flex: 1;
   flex-wrap: wrap;
   justify-content: flex-end;
+  padding-right: 62px;
   gap: 6px;
 }
 
@@ -1903,7 +1952,7 @@ body {
 
 .calendar-year {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--calendar-month-columns, 4), minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -1956,9 +2005,13 @@ body {
 }
 
 .calendar-day.past {
-  background: color-mix(in srgb, var(--shift-color) 42%, var(--app-surface));
-  border-color: color-mix(in srgb, var(--shift-text) 10%, transparent);
-  opacity: 0.68;
+  background-color: var(--shift-color);
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 4px,
+    color-mix(in srgb, var(--shift-text) 12%, transparent) 4px 5px
+  );
+  border-color: color-mix(in srgb, var(--shift-text) 28%, transparent);
 }
 
 .calendar-day.past .calendar-day__number {
@@ -2049,12 +2102,6 @@ body {
   border-top: 1px solid var(--app-border);
 }
 
-@media (max-width: 1100px) {
-  .calendar-year {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 800px) {
   .calendar-page .page-heading {
     align-items: stretch;
@@ -2065,8 +2112,8 @@ body {
     justify-content: flex-start;
   }
 
-  .calendar-year {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .calendar-legend {
+    padding-right: 62px;
   }
 }
 
@@ -2577,7 +2624,7 @@ body {
   color: var(--app-muted);
 }
 .tomorrow-off__icon {
-  --shift-color: #7c8b95;
+  --shift-color: #65758a;
 }
 @media (max-width: 599px) {
   .tomorrow-page {

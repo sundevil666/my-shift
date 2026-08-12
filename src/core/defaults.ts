@@ -43,6 +43,7 @@ export const defaultUserData: UserData = {
     locale: 'ru-RU',
     theme: 'system',
     sleepHours: 8,
+    calendarMonthsPerRow: 4,
     workplaceType: 'dhl',
     workplaceName: 'DHL',
     cloudPushConsent: false,

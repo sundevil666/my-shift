@@ -127,6 +127,14 @@ export default {
       shareText: 'Tlačidlo v ponuke odošle správny odkaz pre používanú platformu.',
     },
     releases: {
+      v020: {
+        title: 'Flexibilný kalendár a lepšia čitateľnosť',
+        calendarLayout: 'Kalendár teraz môže zobraziť jeden až štyri mesiace v riadku.',
+        contrast:
+          'Zlepšil sa kontrast textu, ovládacích prvkov a farieb zmien vo svetlej aj tmavej téme.',
+        pastDays: 'Minulé dni sú označené jemným šrafovaním bez prekrytia farby zmeny.',
+        polish: 'Vylepšilo sa rozloženie stránky súkromia a rozostupy ovládania budíka.',
+      },
       v019: {
         title: 'Android budík je uprataný a pripravený',
         alarmCenter: 'Stránka Budíky je teraz hlavným miestom pre pracovný a testovací budík.',
@@ -395,6 +403,7 @@ export default {
     title: 'Rozvrh na 12 mesiacov',
     subtitle: 'Kompletný kalendár zmien od aktuálneho mesiaca.',
     legend: 'Farby zmien',
+    monthsPerRow: 'Mesiacov v riadku',
     editDay: 'Upraviť deň',
     scheduledShift: 'Podľa pracovného rozvrhu',
     selectShift: 'Vyberte zmenu',

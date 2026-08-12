@@ -97,7 +97,7 @@
           <div class="section-title">{{ $t('alarmCenter.soundTitle') }}</div>
           <div class="supporting-text">{{ $t('alarmCenter.soundHint') }}</div>
         </q-card-section>
-        <q-card-section class="settings-card__body settings-tests">
+        <q-card-section class="settings-card__body settings-tests alarm-center-sound-actions">
           <q-btn
             class="app-action-button full-width"
             color="secondary"
@@ -479,6 +479,11 @@ function formatAlarmTime(timestamp?: number) {
   display: grid;
   gap: 10px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.alarm-center-sound-actions {
+  display: grid;
+  gap: 12px;
 }
 
 .alarm-center-page--embedded {

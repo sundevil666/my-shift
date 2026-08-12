@@ -1,12 +1,12 @@
 <template>
-  <q-page padding class="page-shell">
+  <q-page padding class="page-shell privacy-page">
     <PageHeader
       :eyebrow="$t('privacy.eyebrow')"
       :title="$t('privacy.title')"
       :subtitle="$t('privacy.subtitle')"
     />
-    <q-card flat bordered>
-      <q-card-section>
+    <q-card flat bordered class="privacy-card">
+      <q-card-section class="privacy-card__content">
         <h2>{{ $t('privacy.localTitle') }}</h2>
         <p>{{ $t('privacy.localText') }}</p>
         <h2>{{ $t('privacy.pushTitle') }}</h2>
@@ -25,3 +25,38 @@
 <script setup lang="ts">
 import PageHeader from 'components/PageHeader.vue';
 </script>
+
+<style scoped>
+.privacy-card__content {
+  display: grid;
+  gap: 6px;
+}
+
+.privacy-card__content h2 {
+  margin: 12px 0 0;
+  font-size: 1.1rem;
+  line-height: 1.3;
+}
+
+.privacy-card__content h2:first-child {
+  margin-top: 0;
+}
+
+.privacy-card__content p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 599px) {
+  .privacy-card__content h2 {
+    margin-top: 10px;
+    font-size: 1.05rem;
+  }
+
+  .privacy-card__content p {
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+}
+</style>

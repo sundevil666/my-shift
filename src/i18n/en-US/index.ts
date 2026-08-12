@@ -131,6 +131,14 @@ export default {
       shareText: 'The menu button sends the correct link for the platform you are using.',
     },
     releases: {
+      v020: {
+        title: 'Flexible calendar and improved readability',
+        calendarLayout: 'The calendar can now show one to four months per row.',
+        contrast:
+          'Improved text, control and shift-color contrast in both light and dark themes.',
+        pastDays: 'Past days now use a subtle hatch pattern without hiding the shift color.',
+        polish: 'Improved the privacy page layout and alarm control spacing.',
+      },
       v019: {
         title: 'Android alarm is polished and ready',
         alarmCenter:
@@ -397,6 +405,7 @@ export default {
     title: '12-month schedule',
     subtitle: 'Your complete shift calendar starting this month.',
     legend: 'Shift colors',
+    monthsPerRow: 'Months per row',
     editDay: 'Edit day',
     scheduledShift: 'According to schedule',
     selectShift: 'Select shift',

@@ -110,6 +110,10 @@ export const useAppStore = defineStore('app', () => {
     applyTheme(theme);
   }
 
+  function setCalendarMonthsPerRow(value: 1 | 2 | 3 | 4) {
+    data.value.settings.calendarMonthsPerRow = value;
+  }
+
   function saveCalendarOverride(override: CalendarOverride) {
     const overrides = activeProfile.value.calendarOverrides;
     const index = overrides.findIndex((item) => item.id === override.id);
@@ -208,6 +212,7 @@ export const useAppStore = defineStore('app', () => {
     setTransportMode,
     setLocale,
     setTheme,
+    setCalendarMonthsPerRow,
     saveCalendarOverride,
     removeCalendarOverride,
     replaceCalendarOverrides,

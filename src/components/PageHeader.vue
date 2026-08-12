@@ -6,6 +6,9 @@
       <p v-if="subtitle" class="page-subtitle">{{ subtitle }}</p>
     </div>
     <slot />
+    <div v-if="$slots.topAction" class="page-heading__top-action">
+      <slot name="topAction" />
+    </div>
   </div>
 </template>
 

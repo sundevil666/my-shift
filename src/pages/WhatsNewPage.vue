@@ -384,7 +384,18 @@ const usefulTips = [
 ] as const;
 const releases = [
   {
-    version: '0.1.37',
+    version: '0.1.39',
+    date: '2026-08-12',
+    title: 'whatsNew.releases.v020.title',
+    features: [
+      'whatsNew.releases.v020.calendarLayout',
+      'whatsNew.releases.v020.contrast',
+      'whatsNew.releases.v020.pastDays',
+      'whatsNew.releases.v020.polish',
+    ],
+  },
+  {
+    version: '0.1.38',
     date: '2026-07-13',
     title: 'whatsNew.releases.v019.title',
     features: [

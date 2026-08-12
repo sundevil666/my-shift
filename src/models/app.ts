@@ -66,6 +66,7 @@ export interface AppSettings {
   locale: Locale;
   theme: ThemeMode;
   sleepHours: number;
+  calendarMonthsPerRow: 1 | 2 | 3 | 4;
   workplaceType: WorkplaceType;
   workplaceName: string;
   cloudPushConsent: boolean;

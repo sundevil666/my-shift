@@ -6,7 +6,7 @@ export const shiftColors: Record<ShiftAtmosphere, string> = {
   'shift-1': '#f2c230',
   'shift-2': '#1677d2',
   'shift-3': '#7046c4',
-  off: '#718096',
+  off: '#aab6c2',
 };
 
 export function colorForShift(code: ShiftCode): string {

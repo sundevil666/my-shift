@@ -7,6 +7,11 @@ export function migrateUserData(saved: unknown): UserData | null {
   if (candidate.schemaVersion === 2) {
     const data = structuredClone(candidate) as unknown as UserData;
     data.settings.cloudPushConsent ??= false;
+    const monthsPerRow = data.settings.calendarMonthsPerRow;
+    data.settings.calendarMonthsPerRow =
+      monthsPerRow === 1 || monthsPerRow === 2 || monthsPerRow === 3 || monthsPerRow === 4
+        ? monthsPerRow
+        : 4;
     data.workProfiles.forEach((profile) => {
       profile.reminders.arrivalEnabled ??= false;
       profile.reminders.arrivalAfterShiftEndMinutes ??= 35;

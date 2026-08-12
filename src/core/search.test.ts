@@ -14,6 +14,6 @@ describe('search and shift colors', () => {
 
   it('falls back to the off color for custom shift ids', () => {
     expect(colorForShift('shift-2')).toBe('#1677d2');
-    expect(colorForShift('custom-shift')).toBe('#718096');
+    expect(colorForShift('custom-shift')).toBe('#aab6c2');
   });
 });

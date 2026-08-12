@@ -5,6 +5,20 @@
       :title="$t('calendar.title')"
       :subtitle="$t('calendar.subtitle')"
     >
+      <template #topAction>
+        <q-select
+          class="calendar-months-select"
+          :model-value="app.data.settings.calendarMonthsPerRow"
+          :options="monthColumnsOptions"
+          outlined
+          dense
+          emit-value
+          map-options
+          options-dense
+          :aria-label="$t('calendar.monthsPerRow')"
+          @update:model-value="setMonthsPerRow"
+        />
+      </template>
       <div class="calendar-legend" :aria-label="$t('calendar.legend')">
         <div
           v-for="item in legendItems"
@@ -23,7 +37,7 @@
         </div>
       </div>
     </PageHeader>
-    <div class="calendar-year">
+    <div class="calendar-year" :style="{ '--calendar-month-columns': app.data.settings.calendarMonthsPerRow }">
       <q-card v-for="month in months" :key="month.key" flat bordered class="calendar-month">
         <div class="calendar-month__title text-capitalize">{{ month.label }}</div>
         <div class="calendar-grid">
@@ -141,6 +155,7 @@ const editorOpen = ref(false);
 const selectedDateKey = ref('');
 const editorType = ref<CalendarOverrideType>('day-off');
 const editorShiftId = ref<string | null>(null);
+const monthColumnsOptions = [1, 2, 3, 4].map((value) => ({ label: String(value), value }));
 
 const overrideIcons: Record<CalendarOverrideType, string> = {
   'day-off': 'weekend',
@@ -153,10 +168,13 @@ const overrideIcons: Record<CalendarOverrideType, string> = {
 const textColorFor = (color: string) => {
   const hex = color.replace('#', '');
   if (!/^[0-9a-f]{6}$/i.test(hex)) return '#17242a';
-  const channels = [0, 2, 4].map((index) => Number.parseInt(hex.slice(index, index + 2), 16));
-  const [red = 0, green = 0, blue = 0] = channels;
-  const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
-  return luminance > 155 ? '#17242a' : '#ffffff';
+  const luminance = [0, 2, 4]
+    .map((index) => Number.parseInt(hex.slice(index, index + 2), 16) / 255)
+    .map((channel) => (channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4))
+    .reduce((total, channel, index) => total + channel * [0.2126, 0.7152, 0.0722][index]!, 0);
+  const contrastWithWhite = 1.05 / (luminance + 0.05);
+  const contrastWithDark = (luminance + 0.05) / 0.064;
+  return contrastWithWhite >= contrastWithDark ? '#ffffff' : '#17242a';
 };
 
 const legendItems = computed(() => [
@@ -232,6 +250,10 @@ const overrideOptions = computed(() =>
     }),
   ),
 );
+
+function setMonthsPerRow(value: 1 | 2 | 3 | 4 | null) {
+  if (value !== null) app.setCalendarMonthsPerRow(value);
+}
 
 function openEditor(key: string) {
   selectedDateKey.value = key;
