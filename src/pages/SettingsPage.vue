@@ -316,6 +316,17 @@
         </q-card-section>
       </q-card>
 
+      <q-card flat bordered class="settings-card">
+        <q-card-section class="settings-card__header">
+          <div class="section-title">Аккаунт и Activity API</div>
+          <div class="supporting-text">Google-вход, синхронизация графика и подключения других приложений.</div>
+        </q-card-section>
+        <q-card-section class="settings-card__body">
+          <q-btn color="primary" icon="account_circle" class="app-action-button" label="Открыть аккаунт" to="/account" />
+          <q-btn flat icon="api" class="app-action-button q-ml-sm" label="Документация API" to="/api-docs" />
+        </q-card-section>
+      </q-card>
+
       <q-card flat bordered class="settings-card settings-card--reset">
         <q-card-section class="settings-card__header">
           <div class="section-title">{{ $t('settings.resetSection') }}</div>

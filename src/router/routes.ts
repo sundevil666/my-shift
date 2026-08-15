@@ -12,6 +12,20 @@ const routes: RouteRecordRaw[] = [
     component: () => import('pages/AdminAnalyticsPage.vue'),
   },
   {
+    path: '/api-docs',
+    meta: { public: true },
+    component: () => import('pages/ApiDocsPage.vue'),
+  },
+  {
+    path: '/connect',
+    meta: { public: true },
+    component: () => import('pages/IntegrationConnectPage.vue'),
+  },
+  {
+    path: '/account',
+    component: () => import('pages/IntegrationAccountPage.vue'),
+  },
+  {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [

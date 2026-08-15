@@ -39,6 +39,7 @@ export default defineConfig((ctx) => {
         APP_VERSION: process.env.RELEASE_VERSION ?? appPackage.version,
         ANDROID_VERSION_CODE:
           process.env.RELEASE_VERSION_CODE ?? String(appPackage.androidVersionCode),
+        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? '',
       },
       target: {
         browser: 'baseline-widely-available',
