@@ -109,6 +109,11 @@ export default {
     newVersion: 'нова',
     whatsNew: 'Що нового',
     installingIndicator: 'Доступне оновлення застосунку',
+    headerCheck: 'Перевірити оновлення',
+    headerUpdate: 'Оновити',
+    headerAvailable: 'Оновлення доступне й готове до встановлення.',
+    upToDate: 'У вас уже встановлена актуальна версія.',
+    checkFailed: 'Не вдалося перевірити оновлення. Перевірте інтернет і спробуйте ще раз.',
   },
   whatsNew: {
     title: 'Що нового в My Shift',

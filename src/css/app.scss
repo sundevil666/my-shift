@@ -524,6 +524,21 @@ body {
   font-weight: 800;
 }
 
+.header-update-button {
+  min-height: 42px;
+  margin-right: 10px;
+  padding: 0 14px;
+  border-radius: 13px;
+  color: var(--app-text);
+  font-weight: 800;
+}
+
+.header-update-button--available {
+  color: var(--shift-accent-text, #ffffff) !important;
+  background: var(--shift-accent, #{$primary}) !important;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--shift-accent, #{$primary}) 60%, black);
+}
+
 .app-icon-button {
   min-width: 42px;
   min-height: 42px;
@@ -799,6 +814,16 @@ body {
   }
 
   .header-install-button .q-btn__content > span {
+    display: none;
+  }
+
+  .header-update-button {
+    min-width: 42px;
+    margin-right: 2px;
+    padding: 0 9px;
+  }
+
+  .header-update-button .q-btn__content > span {
     display: none;
   }
 

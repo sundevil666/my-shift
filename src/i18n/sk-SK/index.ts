@@ -108,6 +108,11 @@ export default {
     newVersion: 'nová',
     whatsNew: 'Čo je nové',
     installingIndicator: 'Je dostupná aktualizácia aplikácie',
+    headerCheck: 'Skontrolovať aktualizácie',
+    headerUpdate: 'Aktualizovať',
+    headerAvailable: 'Aktualizácia je dostupná a pripravená na inštaláciu.',
+    upToDate: 'Už máte nainštalovanú najnovšiu verziu.',
+    checkFailed: 'Aktualizácie sa nepodarilo skontrolovať. Skontrolujte pripojenie a skúste znova.',
   },
   whatsNew: {
     title: 'Čo je nové v My Shift',

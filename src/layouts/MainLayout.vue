@@ -36,6 +36,21 @@
         >
           <q-tooltip v-if="!installPrompt">{{ $t('install.androidUnavailable') }}</q-tooltip>
         </q-btn>
+        <q-btn
+          :flat="!updateAvailable"
+          :unelevated="updateAvailable"
+          no-caps
+          icon="system_update_alt"
+          class="header-update-button"
+          :class="{ 'header-update-button--available': updateAvailable }"
+          :label="$t(updateAvailable ? 'updates.headerUpdate' : 'updates.headerCheck')"
+          :loading="checkingForUpdate || installingUpdate"
+          @click="handleHeaderUpdate"
+        >
+          <q-tooltip>
+            {{ $t(updateAvailable ? 'updates.headerAvailable' : 'updates.headerCheck') }}
+          </q-tooltip>
+        </q-btn>
         <LanguageToggle class="q-mr-sm" />
         <q-btn
           flat
@@ -240,6 +255,13 @@ const { locale, t } = useI18n();
 const app = useAppStore();
 const readiness = appReadiness;
 const pwaUpdateAvailable = ref(false);
+const pwaUpdateDetail = ref<AppUpdateDetail | null>(null);
+const availableAndroidUpdate = ref<MobileRelease | null>(null);
+const checkingForUpdate = ref(false);
+const installingUpdate = ref(false);
+const updateAvailable = computed(
+  () => Boolean(pwaUpdateDetail.value || availableAndroidUpdate.value),
+);
 const now = ref(new Date());
 const titleColonVisible = ref(true);
 const hiddenEvents = ref<Array<{ kind: Exclude<DayPlanEventKind, 'sleep'>; target: Date }>>([]);
@@ -450,6 +472,7 @@ const showAppUpdateDialog = (event: CustomEvent<AppUpdateDetail>) => {
   const detail = event.detail;
   const incompatible = !detail.compatible;
   pwaUpdateAvailable.value = true;
+  pwaUpdateDetail.value = detail;
 
   $q.dialog({
     title: t(incompatible ? 'updates.incompatibleTitle' : 'updates.title'),
@@ -637,6 +660,7 @@ async function checkForAutomaticAndroidUpdate(options: { force?: boolean } = {})
       const latestRelease = latestAvailableRelease(releases);
       androidDownloadUrl.value = latestRelease ? trackedDownloadUrl(latestRelease) : null;
       const release = latestAvailableRelease(releases, CURRENT_ANDROID_VERSION_CODE);
+      availableAndroidUpdate.value = release;
       if (!release || release.versionCode === promptedAndroidUpdateVersionCode) return;
 
       promptedAndroidUpdateVersionCode = release.versionCode;
@@ -665,6 +689,7 @@ async function checkForAutomaticAndroidUpdate(options: { force?: boolean } = {})
 
 async function installStartupAndroidUpdate(release: MobileRelease) {
   if (!release.url || !release.sha256) return;
+  installingUpdate.value = true;
   try {
     await installNativeAndroidUpdate(
       trackedDownloadUrl(release, true) ?? release.url,
@@ -680,6 +705,45 @@ async function installStartupAndroidUpdate(release: MobileRelease) {
           : 'mobileInstall.installError',
       ),
     });
+  } finally {
+    installingUpdate.value = false;
+  }
+}
+
+async function handleHeaderUpdate() {
+  if (availableAndroidUpdate.value) {
+    await installStartupAndroidUpdate(availableAndroidUpdate.value);
+    return;
+  }
+
+  if (pwaUpdateDetail.value) {
+    showAppUpdateDialog(
+      new CustomEvent<AppUpdateDetail>(APP_UPDATE_AVAILABLE_EVENT, {
+        detail: pwaUpdateDetail.value,
+      }),
+    );
+    return;
+  }
+
+  checkingForUpdate.value = true;
+  try {
+    if (canInstallNativeAndroidUpdate()) {
+      await checkForAutomaticAndroidUpdate({ force: true });
+    } else if ('serviceWorker' in navigator) {
+      const registration = await navigator.serviceWorker.getRegistration();
+      await registration?.update();
+      await new Promise((resolve) => window.setTimeout(resolve, 1_000));
+    }
+
+    $q.notify({
+      type: 'positive',
+      icon: updateAvailable.value ? 'system_update_alt' : 'verified',
+      message: t(updateAvailable.value ? 'updates.headerAvailable' : 'updates.upToDate'),
+    });
+  } catch {
+    $q.notify({ type: 'warning', message: t('updates.checkFailed') });
+  } finally {
+    checkingForUpdate.value = false;
   }
 }
 

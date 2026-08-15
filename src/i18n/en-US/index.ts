@@ -110,6 +110,11 @@ export default {
     newVersion: 'new',
     whatsNew: 'What’s new',
     installingIndicator: 'An app update is available',
+    headerCheck: 'Check for updates',
+    headerUpdate: 'Update',
+    headerAvailable: 'An update is available and ready to install.',
+    upToDate: 'You already have the latest version installed.',
+    checkFailed: 'Could not check for updates. Check your connection and try again.',
   },
   whatsNew: {
     title: 'What’s new in My Shift',
