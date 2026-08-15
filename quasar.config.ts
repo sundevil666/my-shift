@@ -52,6 +52,14 @@ export default defineConfig((ctx) => {
         // extendTsConfig (tsConfig) {}
       },
       async afterBuild() {
+        // Android packages are distributed from GitHub and must not be copied into
+        // the Vercel static output. Keeping every historical APK in dist/pwa makes
+        // the deployment hundreds of megabytes and Vercel fails while publishing it.
+        await rm(fileURLToPath(new URL('./dist/pwa/downloads', import.meta.url)), {
+          force: true,
+          recursive: true,
+        });
+
         if (ctx.modeName === 'capacitor') {
           await rm(fileURLToPath(new URL('./dist/capacitor/downloads', import.meta.url)), {
             force: true,

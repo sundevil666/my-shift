@@ -1,0 +1,14 @@
+.git
+.vercel
+.quasar
+node_modules
+dist
+
+# Native build outputs are unrelated to the web deployment.
+src-capacitor/www
+src-capacitor/android/.gradle
+src-capacitor/android/build
+src-capacitor/android/app/build
+
+# APKs are distributed from GitHub through URLs in mobile-releases.json.
+public/downloads
