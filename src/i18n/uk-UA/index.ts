@@ -350,6 +350,7 @@ export default {
     untilLeave: 'До виходу з дому',
     untilWake: 'До підйому',
     untilShift: 'До початку зміни',
+    untilShiftWithTime: 'До зміни {time}',
     untilShiftEnd: 'До кінця зміни',
     untilFirstBreak: 'До першої перерви',
     eventShort: {

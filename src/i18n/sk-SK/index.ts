@@ -346,6 +346,7 @@ export default {
     untilLeave: 'Do odchodu z domu',
     untilWake: 'Do vstávania',
     untilShift: 'Do začiatku zmeny',
+    untilShiftWithTime: 'Do zmeny {time}',
     untilShiftEnd: 'Do konca zmeny',
     untilFirstBreak: 'Do prvej prestávky',
     eventShort: {
