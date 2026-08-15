@@ -343,6 +343,7 @@ export default {
     untilLeave: 'Until leaving home',
     untilWake: 'Until wake-up',
     untilShift: 'Until shift starts',
+    untilShiftWithTime: 'Shift starts in {time}',
     untilShiftEnd: 'Until shift ends',
     untilFirstBreak: 'Until first break',
     eventShort: {

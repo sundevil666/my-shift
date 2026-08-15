@@ -21,8 +21,11 @@
           </div>
         </q-toolbar-title>
         <div class="header-shift-badge" aria-live="polite">
-          <q-icon :name="currentShiftIcon" class="design-icon" />
-          <span>{{ currentShiftLabel }}</span>
+          <q-icon :name="headerShiftIcon" class="design-icon" />
+          <span class="header-shift-badge__text">
+            <span>{{ headerShiftLabel }}</span>
+            <small v-if="nextShiftCountdown">{{ nextShiftCountdown }}</small>
+          </span>
         </div>
         <q-btn
           v-if="showAndroidInstall"
@@ -219,8 +222,10 @@ import {
 } from 'src/services/release-manifest';
 import {
   currentWorkingShift,
+  formatCountdown,
   nextWorkingShift,
   resolvedShiftCodeForDate,
+  shiftDateTime,
 } from 'src/core/schedule';
 import { requestReminderPermission } from 'src/services/reminders/reminder-feedback';
 import { syncPushReminders } from 'src/services/push-notifications';
@@ -325,15 +330,33 @@ const currentShiftCode = computed(() =>
 const currentShift = computed(() =>
   app.shifts.find((shift) => shift.id === currentShiftCode.value),
 );
-const currentShiftLabel = computed(() => {
-  const shift = currentShift.value;
-  return shift ? (shift.nameKey ? t(shift.nameKey) : shift.name) : t('shifts.off');
+const nextHeaderShift = computed(() =>
+  currentShift.value
+    ? null
+    : nextWorkingShift(
+        now.value,
+        app.pattern,
+        app.shifts,
+        app.activeProfile.calendarOverrides,
+      ),
+);
+const headerShift = computed(() => currentShift.value ?? nextHeaderShift.value?.shift ?? null);
+const headerShiftLabel = computed(() => {
+  const shift = headerShift.value;
+  const name = shift ? (shift.nameKey ? t(shift.nameKey) : shift.name) : t('shifts.off');
+  return nextHeaderShift.value ? `${t('dashboard.nextShift')}: ${name}` : name;
 });
-const currentShiftIcon = computed(() => {
-  if (currentShiftCode.value === 'shift-1') return 'wb_sunny';
-  if (currentShiftCode.value === 'shift-2') return 'light_mode';
-  if (currentShiftCode.value === 'shift-3') return 'dark_mode';
+const headerShiftIcon = computed(() => {
+  if (headerShift.value?.id === 'shift-1') return 'wb_sunny';
+  if (headerShift.value?.id === 'shift-2') return 'light_mode';
+  if (headerShift.value?.id === 'shift-3') return 'dark_mode';
   return 'weekend';
+});
+const nextShiftCountdown = computed(() => {
+  const next = nextHeaderShift.value;
+  if (!next) return '';
+  const countdown = formatCountdown(shiftDateTime(next.date, next.shift.startTime), now.value);
+  return t('dashboard.untilShiftWithTime', { time: countdown });
 });
 const titlePlan = computed(() => {
   const shift =

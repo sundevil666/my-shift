@@ -514,6 +514,19 @@ body {
   font-size: 1.35rem;
 }
 
+.header-shift-badge__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.header-shift-badge__text small {
+  margin-top: 2px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  opacity: 0.82;
+}
+
 .header-install-button {
   min-height: 42px;
   margin-right: 10px;

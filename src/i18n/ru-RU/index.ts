@@ -346,6 +346,7 @@ export default {
     untilLeave: 'До выхода из дома',
     untilWake: 'До подъёма',
     untilShift: 'До начала смены',
+    untilShiftWithTime: 'До смены {time}',
     untilShiftEnd: 'До конца смены',
     untilFirstBreak: 'До первого перерыва',
     eventShort: {
