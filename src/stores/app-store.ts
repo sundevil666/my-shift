@@ -6,6 +6,7 @@ import { resolvedShiftCodeForDate } from 'src/core/schedule';
 import { browserStorage } from 'src/services/storage/storage';
 import { loadNativeUpdateBackup } from 'src/services/native-updater';
 import { migrateUserData } from 'src/services/data-migration';
+import { integrationSession, syncActivity } from 'src/services/integration-account';
 import type {
   Locale,
   CalendarOverride,
@@ -25,6 +26,7 @@ export const useAppStore = defineStore('app', () => {
   let saveTimer: number | undefined;
   let pendingSave: UserData | undefined;
   let initializationPromise: Promise<void> | undefined;
+  let syncTimer: number | undefined;
   const activeProfile = computed<WorkProfile>(() => {
     const profile = data.value.workProfiles.find(
       (item) => item.id === data.value.activeWorkProfileId,
@@ -195,6 +197,10 @@ export const useAppStore = defineStore('app', () => {
       pendingSave = structuredClone(toRaw(value));
       if (saveTimer) window.clearTimeout(saveTimer);
       saveTimer = window.setTimeout(flushSave, 250);
+      if (integrationSession()) {
+        if (syncTimer) window.clearTimeout(syncTimer);
+        syncTimer = window.setTimeout(() => void syncActivity(structuredClone(toRaw(value))), 1_500);
+      }
     },
     { deep: true },
   );
