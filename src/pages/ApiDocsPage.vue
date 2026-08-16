@@ -1,7 +1,6 @@
 <template>
   <div class="docs-page">
     <header class="docs-hero">
-      <q-btn flat round icon="arrow_back" to="/" :aria-label="t('apiDocs.back')" />
       <div>
         <div class="text-overline">MY SHIFT DEVELOPERS</div>
         <h1>Activity API</h1>
@@ -9,12 +8,29 @@
       </div>
     </header>
     <main class="docs-grid">
-      <nav aria-label="API documentation">
-        <a href="#start">{{ t('apiDocs.navStart') }}</a
-        ><a href="#oauth">OAuth 2.0</a><a href="#activity">Activity</a
-        ><a href="#schema">{{ t('apiDocs.navResponse') }}</a
-        ><a href="#errors">{{ t('apiDocs.errorsTitle') }}</a>
-      </nav>
+      <div ref="navSlot" class="docs-nav-slot">
+        <nav
+          class="docs-nav"
+          :class="{ 'docs-nav--fixed': navFixed }"
+          aria-label="API documentation"
+        >
+          <button class="docs-nav__back" type="button" @click="router.push('/')">
+            <q-icon name="arrow_back" size="20px" />
+            <span>{{ t('apiDocs.back') }}</span>
+          </button>
+          <button type="button" @click="scrollToSection('start')">
+            {{ t('apiDocs.navStart') }}
+          </button>
+          <button type="button" @click="scrollToSection('oauth')">OAuth 2.0</button>
+          <button type="button" @click="scrollToSection('activity')">Activity</button>
+          <button type="button" @click="scrollToSection('schema')">
+            {{ t('apiDocs.navResponse') }}
+          </button>
+          <button type="button" @click="scrollToSection('errors')">
+            {{ t('apiDocs.errorsTitle') }}
+          </button>
+        </nav>
+      </div>
       <article>
         <section id="start">
           <h2>{{ t('apiDocs.startTitle') }}</h2>
@@ -87,9 +103,39 @@ Authorization: Bearer mys_access_...</pre
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 
 const { t } = useI18n();
+const router = useRouter();
+const navSlot = ref<HTMLElement>();
+const navFixed = ref(false);
+const updateNavPosition = () => {
+  const slot = navSlot.value;
+  if (!slot) return;
+  const top = window.matchMedia('(max-width: 720px)').matches ? 0 : 24;
+  navFixed.value = slot.getBoundingClientRect().top <= top;
+};
+onMounted(() => {
+  updateNavPosition();
+  window.addEventListener('scroll', updateNavPosition, { passive: true });
+  window.addEventListener('resize', updateNavPosition);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', updateNavPosition);
+  window.removeEventListener('resize', updateNavPosition);
+});
+const scrollToSection = (id: string) => {
+  const section = document.getElementById(id);
+  if (!section) return;
+  const mobileMenuHeight = document.querySelector<HTMLElement>('.docs-nav')?.offsetHeight ?? 0;
+  const offset = window.matchMedia('(max-width: 720px)').matches ? mobileMenuHeight + 12 : 24;
+  window.scrollTo({
+    top: section.getBoundingClientRect().top + window.scrollY - offset,
+    behavior: 'smooth',
+  });
+};
 const authorizeExample = `https://my-shift-iota.vercel.app/#/connect
   ?client_id=learning-app
   &redirect_uri=https%3A%2F%2Flearning.example.com%2Foauth%2Fcallback
@@ -131,7 +177,7 @@ const activityResponse = `{
   color: #16243a;
   background: #f7f9fc;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 .docs-hero {
   padding: 44px max(24px, calc((100vw - 1120px) / 2));
@@ -165,21 +211,51 @@ const activityResponse = `{
 .docs-grid > * {
   min-width: 0;
 }
-nav {
-  position: sticky;
-  top: 24px;
+.docs-nav-slot {
+  align-self: start;
+  min-height: 180px;
+}
+.docs-nav {
   align-self: start;
   display: grid;
   gap: 12px;
+  width: 180px;
 }
-nav a {
+.docs-nav--fixed {
+  position: fixed;
+  top: 24px;
+  z-index: 2;
+}
+.docs-nav button {
+  border: 0;
   padding: 4px 0;
+  background: transparent;
   color: #42617e;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.docs-nav button:hover,
+.docs-nav button:focus-visible {
+  color: #1769aa;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.docs-nav .docs-nav__back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #1769aa;
+  font-weight: 600;
+}
+.docs-nav .docs-nav__back:hover,
+.docs-nav .docs-nav__back:focus-visible {
   text-decoration: none;
 }
-nav a:hover,
-nav a:focus-visible {
-  color: #1769aa;
+.docs-nav .docs-nav__back:hover span,
+.docs-nav .docs-nav__back:focus-visible span {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
@@ -244,26 +320,45 @@ td:first-child {
     line-height: 1.55;
   }
   .docs-grid {
+    display: block;
     width: 100%;
-    grid-template-columns: 1fr;
-    gap: 32px;
     padding: 24px 20px 56px;
   }
-  nav {
-    position: static;
+  .docs-nav {
+    width: 100%;
     grid-auto-flow: column;
     grid-auto-columns: max-content;
     gap: 8px;
     overflow-x: auto;
     margin: 0 -20px;
-    padding: 0 20px 10px;
+    padding: 10px 20px;
+    background: rgb(247 249 252 / 96%);
+    box-shadow: 0 1px 0 rgb(22 36 58 / 8%);
+    backdrop-filter: blur(10px);
     scrollbar-width: thin;
   }
-  nav a {
+  .docs-nav-slot {
+    min-height: 58px;
+  }
+  .docs-nav--fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    margin: 0;
+  }
+  article {
+    margin-top: 32px;
+  }
+  .docs-nav button {
     padding: 7px 12px;
     border: 1px solid #dce3ec;
     border-radius: 999px;
     background: white;
+  }
+  .docs-nav .docs-nav__back {
+    margin-bottom: 0;
   }
   section {
     margin-bottom: 44px;
