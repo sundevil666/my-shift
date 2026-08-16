@@ -21,7 +21,6 @@
           </div>
         </q-toolbar-title>
         <div class="header-shift-badge" aria-live="polite">
-          <q-icon :name="headerShiftIcon" class="design-icon" />
           <span class="header-shift-field">
             <small>{{ headerShiftKindLabel }}</small>
             <strong>{{ headerShiftName }}</strong>
@@ -352,12 +351,6 @@ const headerShiftName = computed(() => {
 const headerShiftKindLabel = computed(() =>
   t(nextHeaderShift.value ? 'dashboard.nextShift' : 'dashboard.myShift'),
 );
-const headerShiftIcon = computed(() => {
-  if (headerShift.value?.id === 'shift-1') return 'wb_sunny';
-  if (headerShift.value?.id === 'shift-2') return 'light_mode';
-  if (headerShift.value?.id === 'shift-3') return 'dark_mode';
-  return 'weekend';
-});
 const nextShiftCountdown = computed(() => {
   const next = nextHeaderShift.value;
   if (!next) return '';
