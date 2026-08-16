@@ -573,6 +573,7 @@ export default {
   },
   settings: {
     title: 'Налаштування',
+    variables: 'Змінні',
     subtitle: 'Налаштуйте застосунок під реальне місце роботи.',
     workplace: 'Підприємство',
     customWorkplace: 'Створити своє',

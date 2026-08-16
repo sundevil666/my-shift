@@ -570,6 +570,7 @@ export default {
   },
   settings: {
     title: 'Settings',
+    variables: 'Variables',
     subtitle: 'Adapt the schedule to your real workplace.',
     workplace: 'Workplace',
     customWorkplace: 'Create your own',

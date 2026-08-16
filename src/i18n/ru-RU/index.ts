@@ -572,6 +572,7 @@ export default {
   },
   settings: {
     title: 'Настройки',
+    variables: 'Переменные',
     subtitle: 'Настройте приложение под реальное место работы.',
     workplace: 'Предприятие',
     customWorkplace: 'Создать своё',

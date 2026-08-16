@@ -568,6 +568,7 @@ export default {
   },
   settings: {
     title: 'Nastavenia',
+    variables: 'Premenné',
     subtitle: 'Prispôsobte aplikáciu svojmu pracovisku.',
     workplace: 'Pracovisko',
     customWorkplace: 'Vytvoriť vlastné',
