@@ -21,6 +21,7 @@
         <q-tab name="patterns" icon="repeat" :label="$t('nav.patterns')" />
         <q-tab name="reminders" icon="notifications_active" :label="$t('nav.reminders')" />
         <q-tab name="variables" icon="tune" :label="$t('settings.variables')" />
+        <q-tab name="account-api" icon="account_circle" :label="$t('settings.accountApi')" />
       </q-tabs>
 
       <q-separator />
@@ -344,17 +345,6 @@
         </q-card-section>
       </q-card>
 
-      <q-card flat bordered class="settings-card">
-        <q-card-section class="settings-card__header">
-          <div class="section-title">Аккаунт и Activity API</div>
-          <div class="supporting-text">Google-вход, синхронизация графика и подключения других приложений.</div>
-        </q-card-section>
-        <q-card-section class="settings-card__body">
-          <q-btn color="primary" icon="account_circle" class="app-action-button" label="Открыть аккаунт" to="/account" />
-          <q-btn flat icon="api" class="app-action-button q-ml-sm" label="Документация API" to="/api-docs" />
-        </q-card-section>
-      </q-card>
-
       <q-card flat bordered class="settings-card settings-card--reset">
         <q-card-section class="settings-card__header">
           <div class="section-title">{{ $t('settings.resetSection') }}</div>
@@ -418,6 +408,9 @@
       </q-card>
           </div>
         </q-tab-panel>
+        <q-tab-panel name="account-api">
+          <IntegrationAccountPage embedded />
+        </q-tab-panel>
       </q-tab-panels>
     </q-card>
 
@@ -477,6 +470,7 @@ import { copyToClipboard, useQuasar } from 'quasar';
 import PageHeader from 'components/PageHeader.vue';
 import PatternsPage from 'pages/PatternsPage.vue';
 import RemindersPage from 'pages/RemindersPage.vue';
+import IntegrationAccountPage from 'pages/IntegrationAccountPage.vue';
 import { DHL_SCHEDULE_VALID_FROM, dhlBusRoutes } from 'src/core/dhl-bus-routes';
 import { matchesSearch } from 'src/core/search';
 import {
@@ -494,8 +488,8 @@ const $q = useQuasar();
 const { t, locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
-type SettingsTab = 'patterns' | 'reminders' | 'variables';
-const tabs: SettingsTab[] = ['patterns', 'reminders', 'variables'];
+type SettingsTab = 'patterns' | 'reminders' | 'variables' | 'account-api';
+const tabs: SettingsTab[] = ['patterns', 'reminders', 'variables', 'account-api'];
 const activeTab = computed<SettingsTab>({
   get() {
     const requestedTab = route.query.tab === 'general' ? 'variables' : route.query.tab;

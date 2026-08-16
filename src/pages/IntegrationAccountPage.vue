@@ -1,5 +1,5 @@
 <template>
-  <div class="integration-page q-pa-md">
+  <div class="integration-page" :class="{ 'q-pa-md': !embedded }">
     <q-card flat bordered class="integration-card">
       <q-card-section>
         <div class="text-h5">Аккаунт и API</div>
@@ -41,6 +41,7 @@ import { useAppStore } from 'stores/app-store';
 import { authenticateWithGoogle, integrationSession, signOutIntegration, syncActivity, type IntegrationSession } from 'src/services/integration-account';
 
 const app = useAppStore();
+withDefaults(defineProps<{ embedded?: boolean }>(), { embedded: false });
 const googleButton = ref<HTMLElement>();
 const session = ref<IntegrationSession | null>(integrationSession());
 const syncing = ref(false);

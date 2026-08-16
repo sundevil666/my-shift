@@ -9,7 +9,6 @@ export default {
     reminders: 'Alarm & reminders',
     alarms: 'Alarms',
     whatsNew: 'What’s new',
-    activityApi: 'Activity API',
     settings: 'Settings',
     privacy: 'Privacy',
   },
@@ -571,6 +570,7 @@ export default {
   settings: {
     title: 'Settings',
     variables: 'Variables',
+    accountApi: 'Account & API',
     subtitle: 'Adapt the schedule to your real workplace.',
     workplace: 'Workplace',
     customWorkplace: 'Create your own',

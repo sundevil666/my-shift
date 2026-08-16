@@ -9,7 +9,6 @@ export default {
     reminders: 'Будильник и напоминания',
     alarms: 'Будильники',
     whatsNew: 'Что нового',
-    activityApi: 'Activity API',
     settings: 'Настройки',
     privacy: 'Приватность',
   },
@@ -573,6 +572,7 @@ export default {
   settings: {
     title: 'Настройки',
     variables: 'Переменные',
+    accountApi: 'Аккаунт и API',
     subtitle: 'Настройте приложение под реальное место работы.',
     workplace: 'Предприятие',
     customWorkplace: 'Создать своё',

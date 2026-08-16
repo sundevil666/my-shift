@@ -569,11 +569,10 @@ const navigation = [
   { label: 'nav.calendar', icon: 'calendar_month', to: '/calendar' },
   { label: 'nav.statistics', icon: 'query_stats', to: '/statistics' },
   { label: 'nav.whatsNew', icon: 'new_releases', to: '/whats-new' },
-  { label: 'nav.activityApi', icon: 'api', to: '/api-docs' },
   { label: 'nav.settings', icon: 'tune', to: '/settings' },
   { label: 'nav.privacy', icon: 'privacy_tip', to: '/privacy' },
 ];
-const isRouteAvailable = (path: string) => path === '/api-docs' || readiness.isAvailable(path);
+const isRouteAvailable = (path: string) => readiness.isAvailable(path);
 const showUnavailableNotification = () => {
   $q.notify({
     group: 'app-download',
