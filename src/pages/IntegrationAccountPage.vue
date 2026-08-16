@@ -1,23 +1,22 @@
 <template>
   <div class="integration-page" :class="{ 'q-pa-md': !embedded }">
+    <div class="integration-page__header">
+      <div class="integration-page__intro">
+        <div class="text-h5">Аккаунт и Activity API</div>
+        <p class="text-grey-7 q-mb-none">Свяжите график с Google-аккаунтом и управляйте доступом других приложений.</p>
+      </div>
+      <q-btn
+        flat
+        no-caps
+        color="primary"
+        icon="description"
+        label="Документация Activity API"
+        to="/api-docs"
+        class="integration-docs-link"
+      />
+    </div>
+
     <q-card flat bordered class="integration-card">
-      <q-card-section>
-        <div class="integration-heading">
-          <div>
-            <div class="text-h5">Аккаунт и Activity API</div>
-            <p class="text-grey-7 q-mb-none">Свяжите график с Google-аккаунтом и управляйте доступом других приложений.</p>
-          </div>
-          <q-btn
-            outline
-            no-caps
-            color="primary"
-            icon="description"
-            label="Документация Activity API"
-            to="/api-docs"
-          />
-        </div>
-      </q-card-section>
-      <q-separator />
       <q-card-section v-if="session">
         <div class="text-overline text-positive">GOOGLE-АККАУНТ ПОДКЛЮЧЁН</div>
         <div class="row items-center q-gutter-md">
@@ -137,14 +136,16 @@ function signOut() {
 </script>
 
 <style scoped>
-.integration-page { max-width: 760px; margin: 0 auto; }
+.integration-page { width: 100%; }
+.integration-page__header { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 20px; }
+.integration-page__intro { min-width: 0; }
+.integration-docs-link { flex: 0 0 auto; }
 .integration-card { border-radius: 18px; }
-.integration-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
 .google-connect-panel { display: flex; align-items: flex-start; gap: 16px; padding: 8px 0; }
 .google-connect-panel__content { flex: 1; min-width: 0; }
 .google-connect-button { min-height: 40px; }
 @media (max-width: 599px) {
-  .integration-heading { flex-direction: column; }
-  .integration-heading :deep(.q-btn) { width: 100%; }
+  .integration-page__header { align-items: flex-start; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .integration-docs-link { margin-left: -12px; }
 }
 </style>
