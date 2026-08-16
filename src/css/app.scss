@@ -783,6 +783,7 @@ body {
   }
 
   .app-header .q-toolbar {
+    flex-wrap: wrap;
     min-height: 54px;
     padding-left: 10px;
     padding-right: 8px;
@@ -803,7 +804,26 @@ body {
   }
 
   .header-shift-badge {
-    display: none;
+    order: 10;
+    flex: 1 0 calc(100% - 4px);
+    justify-content: center;
+    min-height: 38px;
+    margin: 4px 2px 9px;
+    padding: 5px 12px;
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .header-shift-badge .q-icon {
+    font-size: 1.2rem;
+  }
+
+  .header-shift-badge__text {
+    font-size: 0.82rem;
+  }
+
+  .header-shift-badge__text small {
+    font-size: 0.68rem;
   }
 
   .header-install-button {
