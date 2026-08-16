@@ -1,5 +1,5 @@
 <template>
-  <q-page class="docs-page">
+  <div class="docs-page">
     <header class="docs-hero">
       <q-btn flat round icon="arrow_back" to="/" aria-label="Назад" />
       <div><div class="text-overline">MY SHIFT DEVELOPERS</div><h1>Activity API</h1><p>Расписание, сон, дорога и свободные окна — с разрешения пользователя.</p></div>
@@ -42,7 +42,7 @@ Authorization: Bearer mys_access_...</pre>
         </section>
       </article>
     </main>
-  </q-page>
+  </div>
 </template>
 
 <script setup lang="ts">

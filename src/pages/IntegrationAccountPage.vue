@@ -1,5 +1,5 @@
 <template>
-  <q-page padding class="integration-page">
+  <div class="integration-page q-pa-md">
     <q-card flat bordered class="integration-card">
       <q-card-section>
         <div class="text-h5">Аккаунт и API</div>
@@ -32,7 +32,7 @@
         <div ref="googleButton" class="q-mt-md" />
       </q-card-section>
     </q-card>
-  </q-page>
+  </div>
 </template>
 
 <script setup lang="ts">

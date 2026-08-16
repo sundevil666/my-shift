@@ -1,5 +1,5 @@
 <template>
-  <q-page padding class="connect-page flex flex-center">
+  <div class="connect-page flex flex-center q-pa-md">
     <q-card flat bordered class="connect-card">
       <q-card-section>
         <div class="text-overline text-primary">MY SHIFT CONNECT</div>
@@ -21,7 +21,7 @@
         </div>
       </q-card-section>
     </q-card>
-  </q-page>
+  </div>
 </template>
 
 <script setup lang="ts">
