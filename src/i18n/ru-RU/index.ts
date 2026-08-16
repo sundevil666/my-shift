@@ -18,6 +18,68 @@ export default {
     openMenu: 'Открыть меню',
     cancel: 'Отмена',
   },
+  integration: {
+    account: {
+      title: 'Аккаунт и Activity API',
+      subtitle: 'Свяжите график с Google-аккаунтом и управляйте доступом других приложений.',
+      docs: 'Документация Activity API',
+      connected: 'GOOGLE-АККАУНТ ПОДКЛЮЧЁН',
+      synced: 'График синхронизирован.',
+      syncNow: 'Синхронизировать сейчас',
+      signOut: 'Выйти',
+      connectedApps: 'Подключённые приложения',
+      revoke: 'Отозвать',
+      linkGoogle: 'Связать с Google-аккаунтом',
+      googleHint:
+        'Google подтвердит вашу личность. Email нельзя будет использовать для получения чужого графика.',
+      googleUnavailable: 'Google Sign-In ещё не настроен владельцем сервера.',
+    },
+    connect: {
+      title: 'Разрешить доступ к активности',
+      requestPrefix: 'Приложение',
+      requestSuffix:
+        'запрашивает доступ только для чтения графика, сна, поездок и рекомендуемого времени занятий.',
+      googleFirst:
+        'Сначала подтвердите свой аккаунт Google. Email не передаётся внешнему приложению через Activity API.',
+      signedInAs: 'Вы вошли как {email}',
+      scopeWork: 'рабочие смены и перерывы;',
+      scopeSleep: 'сон и время пробуждения;',
+      scopeTravel: 'дорога, автобус и доступные окна.',
+      allow: 'Разрешить',
+      invalidClient: 'Неизвестное приложение или недопустимый адрес возврата.',
+      googleUnavailable: 'Google Sign-In не настроен.',
+      authorizeFailed: 'Не удалось выдать разрешение.',
+    },
+  },
+  apiDocs: {
+    back: 'Назад',
+    subtitle: 'Расписание, сон, дорога и свободные окна — с разрешения пользователя.',
+    navStart: 'Начало',
+    navResponse: 'Ответ',
+    startTitle: 'Начало работы',
+    startText:
+      'Передайте владельцу My Shift название приложения и HTTPS redirect URI. Вы получите client_id. Email пользователя не является ключом и не передаётся в Activity API.',
+    scopePrefix: 'Scope первой версии:',
+    scopeSuffix: 'Токен относится только к пользователю, который дал согласие.',
+    pkceCreate:
+      'Создайте случайный code_verifier длиной 43–128 символов и его SHA-256 code_challenge. Откройте URL в системном браузере:',
+    pkceCallback: 'Callback получит code и state. Сравните state, затем обменяйте одноразовый код:',
+    tokenLifetime:
+      'Access token действует 1 час. Refresh token одноразовый и ротируется при обновлении.',
+    activityTitle: 'Получение активности',
+    activityText:
+      'Диапазон включительный. Для экономной синхронизации отправляйте полученный ETag в If-None-Match; без изменений сервер вернёт 304.',
+    schemaTitle: 'Схема ответа',
+    fixedValues: 'Фиксированные значения',
+    sourceText:
+      'confidence — число от 0 до 1. Не используйте приблизительный сон как точный будильник.',
+    errorsTitle: 'Ошибки',
+    error400: 'Некорректный диапазон или OAuth-запрос',
+    error401: 'Токен отсутствует, истёк или отозван',
+    error404: 'График ещё не синхронизирован',
+    error304: 'Данные не изменились',
+    errorFormat: 'Формат ошибки:',
+  },
   privacy: {
     eyebrow: 'Защита данных',
     title: 'Приватность и перенос данных',

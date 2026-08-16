@@ -18,6 +18,68 @@ export default {
     openMenu: 'Open menu',
     cancel: 'Cancel',
   },
+  integration: {
+    account: {
+      title: 'Account and Activity API',
+      subtitle: 'Link your schedule to a Google account and manage access for other apps.',
+      docs: 'Activity API documentation',
+      connected: 'GOOGLE ACCOUNT CONNECTED',
+      synced: 'Schedule synchronized.',
+      syncNow: 'Synchronize now',
+      signOut: 'Sign out',
+      connectedApps: 'Connected apps',
+      revoke: 'Revoke',
+      linkGoogle: 'Link Google account',
+      googleHint:
+        'Google confirms your identity. Your email cannot be used to access someone else’s schedule.',
+      googleUnavailable: 'Google Sign-In has not been configured by the server owner yet.',
+    },
+    connect: {
+      title: 'Allow activity access',
+      requestPrefix: 'The app',
+      requestSuffix:
+        'is requesting read-only access to your schedule, sleep, travel, and recommended study times.',
+      googleFirst:
+        'Confirm your Google account first. Your email is not shared with the external app through the Activity API.',
+      signedInAs: 'Signed in as {email}',
+      scopeWork: 'work shifts and breaks;',
+      scopeSleep: 'sleep and wake-up times;',
+      scopeTravel: 'travel, buses, and available time windows.',
+      allow: 'Allow',
+      invalidClient: 'Unknown app or invalid return address.',
+      googleUnavailable: 'Google Sign-In is not configured.',
+      authorizeFailed: 'Could not grant permission.',
+    },
+  },
+  apiDocs: {
+    back: 'Back',
+    subtitle: 'Schedule, sleep, travel, and free time windows—with the user’s permission.',
+    navStart: 'Start',
+    navResponse: 'Response',
+    startTitle: 'Getting started',
+    startText:
+      'Send the My Shift owner your app name and HTTPS redirect URI. You will receive a client_id. The user’s email is not a key and is not exposed through the Activity API.',
+    scopePrefix: 'Initial release scope:',
+    scopeSuffix: 'The token belongs only to the user who granted consent.',
+    pkceCreate:
+      'Create a random code_verifier 43–128 characters long and its SHA-256 code_challenge. Open the URL in the system browser:',
+    pkceCallback:
+      'The callback receives code and state. Verify state, then exchange the one-time code:',
+    tokenLifetime:
+      'The access token is valid for 1 hour. The refresh token is single-use and rotates when refreshed.',
+    activityTitle: 'Retrieve activity',
+    activityText:
+      'The range is inclusive. For efficient synchronization, send the received ETag in If-None-Match; when nothing changed, the server returns 304.',
+    schemaTitle: 'Response schema',
+    fixedValues: 'Fixed values',
+    sourceText: 'confidence is a number from 0 to 1. Do not use estimated sleep as an exact alarm.',
+    errorsTitle: 'Errors',
+    error400: 'Invalid range or OAuth request',
+    error401: 'Token is missing, expired, or revoked',
+    error404: 'The schedule has not been synchronized yet',
+    error304: 'Data has not changed',
+    errorFormat: 'Error format:',
+  },
   privacy: {
     eyebrow: 'Data protection',
     title: 'Privacy and data transfer',
@@ -134,8 +196,7 @@ export default {
       v020: {
         title: 'Flexible calendar and improved readability',
         calendarLayout: 'The calendar can now show one to four months per row.',
-        contrast:
-          'Improved text, control and shift-color contrast in both light and dark themes.',
+        contrast: 'Improved text, control and shift-color contrast in both light and dark themes.',
         pastDays: 'Past days now use a subtle hatch pattern without hiding the shift color.',
         polish: 'Improved the privacy page layout and alarm control spacing.',
       },

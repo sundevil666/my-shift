@@ -18,6 +18,67 @@ export default {
     openMenu: 'Otvoriť menu',
     cancel: 'Zrušiť',
   },
+  integration: {
+    account: {
+      title: 'Účet a Activity API',
+      subtitle: 'Prepojte rozvrh s účtom Google a spravujte prístup iných aplikácií.',
+      docs: 'Dokumentácia Activity API',
+      connected: 'ÚČET GOOGLE JE PRIPOJENÝ',
+      synced: 'Rozvrh bol synchronizovaný.',
+      syncNow: 'Synchronizovať teraz',
+      signOut: 'Odhlásiť sa',
+      connectedApps: 'Pripojené aplikácie',
+      revoke: 'Odvolať',
+      linkGoogle: 'Prepojiť s účtom Google',
+      googleHint:
+        'Google potvrdí vašu totožnosť. Email nemožno použiť na prístup k cudziemu rozvrhu.',
+      googleUnavailable: 'Vlastník servera ešte nenastavil Google Sign-In.',
+    },
+    connect: {
+      title: 'Povoliť prístup k aktivite',
+      requestPrefix: 'Aplikácia',
+      requestSuffix:
+        'žiada prístup iba na čítanie rozvrhu, spánku, cestovania a odporúčaných časov štúdia.',
+      googleFirst:
+        'Najprv potvrďte svoj účet Google. Email sa externej aplikácii cez Activity API neposkytuje.',
+      signedInAs: 'Prihlásený účet: {email}',
+      scopeWork: 'pracovné zmeny a prestávky;',
+      scopeSleep: 'spánok a časy budenia;',
+      scopeTravel: 'cesta, autobus a dostupné časové okná.',
+      allow: 'Povoliť',
+      invalidClient: 'Neznáma aplikácia alebo neplatná návratová adresa.',
+      googleUnavailable: 'Google Sign-In nie je nastavený.',
+      authorizeFailed: 'Povolenie sa nepodarilo udeliť.',
+    },
+  },
+  apiDocs: {
+    back: 'Späť',
+    subtitle: 'Rozvrh, spánok, cestovanie a voľné časové okná — so súhlasom používateľa.',
+    navStart: 'Začiatok',
+    navResponse: 'Odpoveď',
+    startTitle: 'Začíname',
+    startText:
+      'Pošlite vlastníkovi My Shift názov aplikácie a HTTPS redirect URI. Dostanete client_id. Email používateľa nie je kľúčom a cez Activity API sa neposkytuje.',
+    scopePrefix: 'Scope prvej verzie:',
+    scopeSuffix: 'Token patrí iba používateľovi, ktorý udelil súhlas.',
+    pkceCreate:
+      'Vytvorte náhodný code_verifier dlhý 43–128 znakov a jeho SHA-256 code_challenge. Otvorte URL v systémovom prehliadači:',
+    pkceCallback: 'Callback dostane code a state. Overte state a potom vymeňte jednorazový kód:',
+    tokenLifetime:
+      'Access token platí 1 hodinu. Refresh token je jednorazový a pri obnovení sa zmení.',
+    activityTitle: 'Získanie aktivity',
+    activityText:
+      'Rozsah je inkluzívny. Pre úspornú synchronizáciu posielajte prijatý ETag v If-None-Match; ak sa nič nezmenilo, server vráti 304.',
+    schemaTitle: 'Schéma odpovede',
+    fixedValues: 'Pevné hodnoty',
+    sourceText: 'confidence je číslo od 0 do 1. Odhadovaný spánok nepoužívajte ako presný budík.',
+    errorsTitle: 'Chyby',
+    error400: 'Neplatný rozsah alebo OAuth požiadavka',
+    error401: 'Token chýba, vypršal alebo bol odvolaný',
+    error404: 'Rozvrh ešte nebol synchronizovaný',
+    error304: 'Údaje sa nezmenili',
+    errorFormat: 'Formát chyby:',
+  },
   privacy: {
     eyebrow: 'Ochrana údajov',
     title: 'Súkromie a prenos údajov',
