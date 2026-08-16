@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import activity from '../_analytics/activity';
-import download from '../_analytics/download';
-import session from '../_analytics/session';
-import summary from '../_analytics/summary';
+import activity from '../_analytics/activity.js';
+import download from '../_analytics/download.js';
+import session from '../_analytics/session.js';
+import summary from '../_analytics/summary.js';
 
 const handlers = { activity, download, session, summary } as const;
 

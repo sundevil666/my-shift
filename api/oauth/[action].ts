@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import authorize from '../_oauth/authorize';
-import client from '../_oauth/client';
-import token from '../_oauth/token';
+import authorize from '../_oauth/authorize.js';
+import client from '../_oauth/client.js';
+import token from '../_oauth/token.js';
 
 const handlers = { authorize, client, token } as const;
 
