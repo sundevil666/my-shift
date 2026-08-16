@@ -375,24 +375,30 @@ const titlePlan = computed(() => {
       })
     : null;
 });
+const headerActivity = computed<'sleep' | 'leave' | 'work'>(() => {
+  const plan = titlePlan.value;
+  if (!plan) return 'sleep';
+
+  const timestamp = now.value.getTime();
+  if (timestamp < plan.alarmTime.getTime()) return 'sleep';
+  if (timestamp < plan.leaveHome.getTime()) return 'leave';
+  if (timestamp < plan.shiftEnd.getTime()) return 'work';
+  return 'sleep';
+});
+const titleActivityIcon = computed(() => {
+  const icons = {
+    sleep: '🛏️',
+    leave: '🚪',
+    work: '🐈',
+  } as const;
+  return icons[headerActivity.value];
+});
 const titleEvent = computed(
   () =>
     titlePlan.value?.events.find(
       (event) => event.kind !== 'sleep' && event.target.getTime() > now.value.getTime(),
     ) ?? null,
 );
-const titleEventLabel = computed(() => {
-  if (!titleEvent.value || titleEvent.value.kind === 'sleep') return '';
-  const keys = {
-    wake: 'dashboard.eventShort.wake',
-    leave: 'dashboard.eventShort.leave',
-    transport: 'dashboard.eventShort.transport',
-    shift: 'dashboard.eventShort.shift',
-    break: 'dashboard.eventShort.break',
-    'shift-end': 'dashboard.eventShort.shiftEnd',
-  } as const;
-  return t(keys[titleEvent.value.kind]);
-});
 const headerEventLabel = computed(() => {
   if (!titleEvent.value || titleEvent.value.kind === 'sleep') return '';
   const keys = {
@@ -435,7 +441,7 @@ const browserTitle = computed(() => {
   );
   const separator = titleColonVisible.value ? ':' : ' ';
   const countdown = `${String(Math.floor(totalMinutes / 60)).padStart(2, '0')}${separator}${String(totalMinutes % 60).padStart(2, '0')}`;
-  return `${countdown} · ${titleEventLabel.value} | ${productName}`;
+  return `${countdown} · ${titleActivityIcon.value} | ${productName}`;
 });
 const syncAfterVisibilityChange = () => {
   now.value = new Date();

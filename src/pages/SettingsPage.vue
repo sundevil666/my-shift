@@ -21,6 +21,7 @@
         <q-tab name="patterns" icon="repeat" :label="$t('nav.patterns')" />
         <q-tab name="reminders" icon="notifications_active" :label="$t('nav.reminders')" />
         <q-tab name="variables" icon="tune" :label="$t('settings.variables')" />
+        <q-tab name="animations" icon="animation" label="Анимации" />
         <q-tab name="account-api" icon="account_circle" :label="$t('settings.accountApi')" />
       </q-tabs>
 
@@ -411,6 +412,9 @@
         <q-tab-panel name="account-api">
           <IntegrationAccountPage embedded />
         </q-tab-panel>
+        <q-tab-panel name="animations">
+          <AnimationLabPanel />
+        </q-tab-panel>
       </q-tab-panels>
     </q-card>
 
@@ -471,6 +475,7 @@ import PageHeader from 'components/PageHeader.vue';
 import PatternsPage from 'pages/PatternsPage.vue';
 import RemindersPage from 'pages/RemindersPage.vue';
 import IntegrationAccountPage from 'pages/IntegrationAccountPage.vue';
+import AnimationLabPanel from 'components/AnimationLabPanel.vue';
 import { DHL_SCHEDULE_VALID_FROM, dhlBusRoutes } from 'src/core/dhl-bus-routes';
 import { matchesSearch } from 'src/core/search';
 import {
@@ -488,8 +493,8 @@ const $q = useQuasar();
 const { t, locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
-type SettingsTab = 'patterns' | 'reminders' | 'variables' | 'account-api';
-const tabs: SettingsTab[] = ['patterns', 'reminders', 'variables', 'account-api'];
+type SettingsTab = 'patterns' | 'reminders' | 'variables' | 'animations' | 'account-api';
+const tabs: SettingsTab[] = ['patterns', 'reminders', 'variables', 'animations', 'account-api'];
 const activeTab = computed<SettingsTab>({
   get() {
     const requestedTab = route.query.tab === 'general' ? 'variables' : route.query.tab;
