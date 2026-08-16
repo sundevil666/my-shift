@@ -25,9 +25,9 @@
             <small>{{ headerShiftKindLabel }}</small>
             <strong>{{ headerShiftName }}</strong>
           </span>
-          <span v-if="nextShiftCountdown" class="header-shift-field">
-            <small>{{ $t('dashboard.untilShift') }}</small>
-            <strong>{{ nextShiftCountdown }}</strong>
+          <span v-if="headerEventCountdown" class="header-shift-field">
+            <small>{{ headerEventLabel }}</small>
+            <strong>{{ headerEventCountdown }}</strong>
           </span>
         </div>
         <q-btn
@@ -228,7 +228,6 @@ import {
   formatCountdown,
   nextWorkingShift,
   resolvedShiftCodeForDate,
-  shiftDateTime,
 } from 'src/core/schedule';
 import { requestReminderPermission } from 'src/services/reminders/reminder-feedback';
 import { syncPushReminders } from 'src/services/push-notifications';
@@ -351,11 +350,6 @@ const headerShiftName = computed(() => {
 const headerShiftKindLabel = computed(() =>
   t(nextHeaderShift.value ? 'dashboard.nextShift' : 'dashboard.myShift'),
 );
-const nextShiftCountdown = computed(() => {
-  const next = nextHeaderShift.value;
-  if (!next) return '';
-  return formatCountdown(shiftDateTime(next.date, next.shift.startTime), now.value);
-});
 const titlePlan = computed(() => {
   const shift =
     currentWorkingShift(
@@ -399,6 +393,21 @@ const titleEventLabel = computed(() => {
   } as const;
   return t(keys[titleEvent.value.kind]);
 });
+const headerEventLabel = computed(() => {
+  if (!titleEvent.value || titleEvent.value.kind === 'sleep') return '';
+  const keys = {
+    wake: 'dashboard.untilWake',
+    leave: 'dashboard.untilLeave',
+    transport: 'dashboard.untilTransport',
+    shift: 'dashboard.untilShift',
+    break: 'dashboard.untilFirstBreak',
+    'shift-end': 'dashboard.untilShiftEnd',
+  } as const;
+  return t(keys[titleEvent.value.kind]);
+});
+const headerEventCountdown = computed(() =>
+  titleEvent.value ? formatCountdown(titleEvent.value.target, now.value) : '',
+);
 const eventLabel = (kind: Exclude<DayPlanEventKind, 'sleep'>) => {
   const keys = {
     wake: 'dashboard.eventShort.wake',
