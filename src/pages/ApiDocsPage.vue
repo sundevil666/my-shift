@@ -9,7 +9,7 @@
       </div>
     </header>
     <main class="docs-grid">
-      <nav>
+      <nav aria-label="API documentation">
         <a href="#start">{{ t('apiDocs.navStart') }}</a
         ><a href="#oauth">OAuth 2.0</a><a href="#activity">Activity</a
         ><a href="#schema">{{ t('apiDocs.navResponse') }}</a
@@ -131,19 +131,26 @@ const activityResponse = `{
   color: #16243a;
   background: #f7f9fc;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 .docs-hero {
   padding: 44px max(24px, calc((100vw - 1120px) / 2));
   display: flex;
+  align-items: flex-start;
   gap: 20px;
   color: white;
   background: linear-gradient(120deg, #123b66, #1769aa);
 }
+.docs-hero > div {
+  min-width: 0;
+}
 .docs-hero h1 {
   margin: 0;
   font-size: clamp(2rem, 5vw, 3.6rem);
+  line-height: 1.08;
 }
 .docs-hero p {
+  margin: 16px 0 0;
   font-size: 1.1rem;
   opacity: 0.86;
 }
@@ -155,6 +162,9 @@ const activityResponse = `{
   grid-template-columns: 180px 1fr;
   gap: 48px;
 }
+.docs-grid > * {
+  min-width: 0;
+}
 nav {
   position: sticky;
   top: 24px;
@@ -163,8 +173,19 @@ nav {
   gap: 12px;
 }
 nav a {
+  padding: 4px 0;
   color: #42617e;
   text-decoration: none;
+}
+nav a:hover,
+nav a:focus-visible {
+  color: #1769aa;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+article {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 section {
   margin-bottom: 56px;
@@ -177,12 +198,18 @@ h3 {
   margin-top: 28px;
 }
 pre {
+  box-sizing: border-box;
+  max-width: 100%;
+  margin: 16px 0;
   overflow-x: auto;
   padding: 20px;
   border-radius: 12px;
   background: #122033;
   color: #dbeafe;
+  font-size: 0.875rem;
   line-height: 1.55;
+  white-space: pre;
+  overscroll-behavior-inline: contain;
 }
 code {
   font-family: ui-monospace, monospace;
@@ -194,15 +221,62 @@ table {
 td {
   padding: 12px;
   border-bottom: 1px solid #dce3ec;
+  vertical-align: top;
+}
+td:first-child {
+  width: 64px;
+  color: #1769aa;
+  font-weight: 700;
 }
 @media (max-width: 720px) {
+  .docs-hero {
+    padding: 32px 20px;
+    gap: 12px;
+  }
+  .docs-hero .q-btn {
+    margin-left: -10px;
+  }
+  .docs-hero h1 {
+    font-size: clamp(2rem, 11vw, 2.75rem);
+  }
+  .docs-hero p {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
   .docs-grid {
+    width: 100%;
     grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 24px 20px 56px;
   }
   nav {
     position: static;
-    grid-template-columns: repeat(3, auto);
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    gap: 8px;
     overflow-x: auto;
+    margin: 0 -20px;
+    padding: 0 20px 10px;
+    scrollbar-width: thin;
+  }
+  nav a {
+    padding: 7px 12px;
+    border: 1px solid #dce3ec;
+    border-radius: 999px;
+    background: white;
+  }
+  section {
+    margin-bottom: 44px;
+  }
+  h2 {
+    font-size: 1.55rem;
+    line-height: 1.25;
+  }
+  pre {
+    margin-inline: 0;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 0.8125rem;
   }
 }
 </style>
