@@ -43,12 +43,16 @@ export function activateAppUpdate(detail: AppUpdateDetail, resetData: boolean): 
   }
 
   let reloading = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
+  const reload = () => {
     if (reloading) return;
     reloading = true;
     window.location.reload();
+  };
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    reload();
   });
   waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+  window.setTimeout(reload, 4_000);
   return true;
 }
 
