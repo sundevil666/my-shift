@@ -287,7 +287,7 @@ const automaticAndroidUpdateCheckInterval = 5 * 60_000;
 let lastAutomaticAndroidUpdateCheck = 0;
 let promptedAndroidUpdateVersionCode = 0;
 let automaticAndroidUpdateCheck: Promise<void> | null = null;
-let automaticPwaUpdateChecked = false;
+let automaticPwaUpdateCheck: Promise<void> | null = null;
 let nativeAppStateListener: Promise<PluginListenerHandle> | null = null;
 const dateTimer = window.setInterval(() => {
   now.value = new Date();
@@ -635,21 +635,26 @@ async function checkForAutomaticUpdate(options: { force?: boolean } = {}) {
   if (canInstallNativeAndroidUpdate()) {
     await checkForAutomaticAndroidUpdate(options);
   } else {
-    await checkForAutomaticPwaUpdate(options);
+    await checkForAutomaticPwaUpdate();
   }
 }
 
-async function checkForAutomaticPwaUpdate(options: { force?: boolean } = {}) {
-  if (!options.force && automaticPwaUpdateChecked) return;
-  automaticPwaUpdateChecked = true;
-  if ('serviceWorker' in navigator) {
+async function checkForAutomaticPwaUpdate() {
+  if (!('serviceWorker' in navigator)) return;
+  if (automaticPwaUpdateCheck) return automaticPwaUpdateCheck;
+
+  automaticPwaUpdateCheck = (async () => {
     try {
       const registration = await navigator.serviceWorker.getRegistration();
       await registration?.update();
     } catch {
       // Starting the PWA remains possible while offline.
+    } finally {
+      automaticPwaUpdateCheck = null;
     }
-  }
+  })();
+
+  return automaticPwaUpdateCheck;
 }
 
 async function checkForAutomaticAndroidUpdate(options: { force?: boolean } = {}) {
