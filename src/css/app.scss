@@ -514,17 +514,28 @@ body {
   font-size: 1.35rem;
 }
 
-.header-shift-badge__text {
+.header-shift-field {
   display: flex;
+  min-width: 112px;
   flex-direction: column;
+  padding: 4px 9px;
+  color: var(--shift-accent-text, #ffffff);
+  background: color-mix(in srgb, var(--shift-accent-text, white) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--shift-accent-text, white) 28%, transparent);
+  border-radius: 9px;
   line-height: 1.15;
 }
 
-.header-shift-badge__text small {
-  margin-top: 2px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  opacity: 0.82;
+.header-shift-field small {
+  margin-bottom: 2px;
+  font-size: 0.64rem;
+  font-weight: 650;
+  opacity: 0.76;
+}
+
+.header-shift-field strong {
+  font-size: 0.82rem;
+  font-weight: 850;
 }
 
 .header-install-button {
@@ -818,12 +829,18 @@ body {
     font-size: 1.2rem;
   }
 
-  .header-shift-badge__text {
-    font-size: 0.82rem;
+  .header-shift-field {
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 3px 8px;
   }
 
-  .header-shift-badge__text small {
-    font-size: 0.68rem;
+  .header-shift-field small {
+    font-size: 0.62rem;
+  }
+
+  .header-shift-field strong {
+    font-size: 0.78rem;
   }
 
   .header-install-button {

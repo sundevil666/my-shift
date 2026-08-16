@@ -22,9 +22,13 @@
         </q-toolbar-title>
         <div class="header-shift-badge" aria-live="polite">
           <q-icon :name="headerShiftIcon" class="design-icon" />
-          <span class="header-shift-badge__text">
-            <span>{{ headerShiftLabel }}</span>
-            <small v-if="nextShiftCountdown">{{ nextShiftCountdown }}</small>
+          <span class="header-shift-field">
+            <small>{{ headerShiftKindLabel }}</small>
+            <strong>{{ headerShiftName }}</strong>
+          </span>
+          <span v-if="nextShiftCountdown" class="header-shift-field">
+            <small>{{ $t('dashboard.untilShift') }}</small>
+            <strong>{{ nextShiftCountdown }}</strong>
           </span>
         </div>
         <q-btn
@@ -341,11 +345,13 @@ const nextHeaderShift = computed(() =>
       ),
 );
 const headerShift = computed(() => currentShift.value ?? nextHeaderShift.value?.shift ?? null);
-const headerShiftLabel = computed(() => {
+const headerShiftName = computed(() => {
   const shift = headerShift.value;
-  const name = shift ? (shift.nameKey ? t(shift.nameKey) : shift.name) : t('shifts.off');
-  return nextHeaderShift.value ? `${t('dashboard.nextShift')}: ${name}` : name;
+  return shift ? (shift.nameKey ? t(shift.nameKey) : shift.name) : t('shifts.off');
 });
+const headerShiftKindLabel = computed(() =>
+  t(nextHeaderShift.value ? 'dashboard.nextShift' : 'dashboard.myShift'),
+);
 const headerShiftIcon = computed(() => {
   if (headerShift.value?.id === 'shift-1') return 'wb_sunny';
   if (headerShift.value?.id === 'shift-2') return 'light_mode';
@@ -355,8 +361,7 @@ const headerShiftIcon = computed(() => {
 const nextShiftCountdown = computed(() => {
   const next = nextHeaderShift.value;
   if (!next) return '';
-  const countdown = formatCountdown(shiftDateTime(next.date, next.shift.startTime), now.value);
-  return t('dashboard.untilShiftWithTime', { time: countdown });
+  return formatCountdown(shiftDateTime(next.date, next.shift.startTime), now.value);
 });
 const titlePlan = computed(() => {
   const shift =
