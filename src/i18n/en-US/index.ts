@@ -9,6 +9,7 @@ export default {
     reminders: 'Alarm & reminders',
     alarms: 'Alarms',
     whatsNew: 'What’s new',
+    activityApi: 'Activity API',
     settings: 'Settings',
     privacy: 'Privacy',
   },

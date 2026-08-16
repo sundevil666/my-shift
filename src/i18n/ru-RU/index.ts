@@ -9,6 +9,7 @@ export default {
     reminders: 'Будильник и напоминания',
     alarms: 'Будильники',
     whatsNew: 'Что нового',
+    activityApi: 'Activity API',
     settings: 'Настройки',
     privacy: 'Приватность',
   },

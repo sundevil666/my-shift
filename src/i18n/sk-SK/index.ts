@@ -9,6 +9,7 @@ export default {
     reminders: 'Budík a pripomienky',
     alarms: 'Budíky',
     whatsNew: 'Čo je nové',
+    activityApi: 'Activity API',
     settings: 'Nastavenia',
     privacy: 'Súkromie',
   },
