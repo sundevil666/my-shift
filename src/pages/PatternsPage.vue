@@ -1,6 +1,7 @@
 <template>
-  <q-page padding class="page-shell">
+  <component :is="embedded ? 'div' : 'q-page'" :class="embedded ? 'settings-tab-page' : 'page-shell'" :padding="!embedded">
     <PageHeader
+      v-if="!embedded"
       :eyebrow="$t('nav.patterns')"
       :title="$t('patterns.title')"
       :subtitle="$t('patterns.subtitle')"
@@ -49,7 +50,7 @@
         </div>
       </q-card-section>
     </q-card>
-  </q-page>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -58,6 +59,8 @@ import { useI18n } from 'vue-i18n';
 import PageHeader from 'components/PageHeader.vue';
 import { useAppStore } from 'stores/app-store';
 import type { ShiftCode } from 'src/models/app';
+
+withDefaults(defineProps<{ embedded?: boolean }>(), { embedded: false });
 
 const app = useAppStore();
 const { t } = useI18n();

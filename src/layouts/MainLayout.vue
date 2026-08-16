@@ -568,8 +568,6 @@ const navigation = [
   { label: 'nav.tomorrow', icon: 'next_plan', to: '/tomorrow' },
   { label: 'nav.calendar', icon: 'calendar_month', to: '/calendar' },
   { label: 'nav.statistics', icon: 'query_stats', to: '/statistics' },
-  { label: 'nav.patterns', icon: 'repeat', to: '/patterns' },
-  { label: 'nav.reminders', icon: 'notifications_active', to: '/reminders' },
   { label: 'nav.whatsNew', icon: 'new_releases', to: '/whats-new' },
   { label: 'nav.activityApi', icon: 'api', to: '/api-docs' },
   { label: 'nav.settings', icon: 'tune', to: '/settings' },

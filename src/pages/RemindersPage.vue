@@ -1,6 +1,7 @@
 <template>
-  <q-page padding class="page-shell">
+  <component :is="embedded ? 'div' : 'q-page'" :class="embedded ? 'settings-tab-page' : 'page-shell'" :padding="!embedded">
     <PageHeader
+      v-if="!embedded"
       :eyebrow="$t('nav.reminders')"
       :title="$t('reminders.title')"
       :subtitle="$t('reminders.subtitle')"
@@ -194,12 +195,14 @@
         </div>
       </q-slide-transition>
     </q-card>
-  </q-page>
+  </component>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import AlarmCenterPage from 'pages/AlarmCenterPage.vue';
+
+withDefaults(defineProps<{ embedded?: boolean }>(), { embedded: false });
 import PageHeader from 'components/PageHeader.vue';
 import { requestReminderPermission } from 'src/services/reminders/reminder-feedback';
 import { syncPushReminders } from 'src/services/push-notifications';
